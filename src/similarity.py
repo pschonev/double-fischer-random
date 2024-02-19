@@ -111,58 +111,62 @@ def normalized_levenshtein(s1: str, s2: str) -> float:
     return previous_row[len_s2] / max(len_s1, len_s2)
 
 
-def normalized_hamming(s1: np.ndarray, s2: np.ndarray) -> float:
-    return np.sum(s1 != s2) / 8
+def normalized_hamming(s1: str, s2: str) -> float:
+    seq1, seq2 = np.array(list(s1)), np.array(list(s2))
+    return np.sum(seq1 != seq2) / 8
+
+
+def jaro_hamming(s1: str, s2: str) -> float:
+    return (jaro(s1, s2) + (1 - normalized_hamming(s1, s2))) / 2
 
 
 def weighted_score(score1: float, score2: float) -> float:
     return (score1**2 + score2**2) / (score1 + score2)
 
 
-# Example usage
-sequence1 = "rrqknbkq"
-sequence2 = "nbnbrrkq"
+if __name__ == "__main__":
+    # Example usage
+    sequence1 = "rrqknbkq"
+    sequence2 = "nbnbrrkq"
 
-sequence_pairs = [
-    ("rqknbbnr", "nbrkbrqn", "random"),
-    ("rbnqknbr", "bbrkqnrn", "random"),
-    ("rnbbnkqr", "rnbbknqr", "1-swapped"),
-    ("rbnkqnbr", "rbnknqbr", "1-swapped"),  # same score if swapping on edge
-    ("rbnkqnbr", "rkqbnnbr", "2-swapped"),
-    ("nqbrkbrn", "brnqkbrn", "2-swapped"),
-    ("rkrqbbnn", "bbnnrkrq", "4-swapped"),
-    ("nbnqrkbr", "rkbrnbnq", "4-swapped"),
-    ("brnqkbnr", "rnbkqnrb", "reversed"),
-    ("qrnkbbnr", "rnbbknrq", "reversed"),
-    ("rnbqkrnb", "brnbqkrn", "shifted by one"),
-    ("rqkrbnnb", "brqkrbnn", "shifted by one"),
-    ("rnbkqbnr", "rnbkqbnr", "identical"),
-]
+    sequence_pairs = [
+        ("rqknbbnr", "nbrkbrqn", "random"),
+        ("rbnqknbr", "bbrkqnrn", "random"),
+        ("rnbbnkqr", "rnbbknqr", "1-swapped"),
+        ("rbnkqnbr", "rbnknqbr", "1-swapped"),  # same score if swapping on edge
+        ("rbnkqnbr", "rkqbnnbr", "2-swapped"),
+        ("nqbrkbrn", "brnqkbrn", "2-swapped"),
+        ("rkrqbbnn", "bbnnrkrq", "4-swapped"),
+        ("nbnqrkbr", "rkbrnbnq", "4-swapped"),
+        ("brnqkbnr", "rnbkqnrb", "reversed"),
+        ("qrnkbbnr", "rnbbknrq", "reversed"),
+        ("rnbqkrnb", "brnbqkrn", "shifted by one"),
+        ("rqkrbnnb", "brqkrbnn", "shifted by one"),
+        ("rnbkqbnr", "rnbkqbnr", "identical"),
+    ]
 
-for sequence1, sequence2, description in sequence_pairs:
-    if not is_valid_chess960(sequence1) or not is_valid_chess960(sequence2):
-        raise ValueError("Invalid sequence")
+    for sequence1, sequence2, description in sequence_pairs:
+        if not is_valid_chess960(sequence1) or not is_valid_chess960(sequence2):
+            raise ValueError("Invalid sequence")
 
-    jaccard_score = local_similarity(sequence1, sequence2, jaccard)
-    sorensen_dice_score = local_similarity(sequence1, sequence2, sorensen_dice)
-    hamming_score = normalized_hamming(
-        np.array(list(sequence1)), np.array(list(sequence2))
-    )
-    jaro_score = jaro(sequence1, sequence2)
-    levenshtein_score = normalized_levenshtein(sequence1, sequence2)
+        jaccard_score = local_similarity(sequence1, sequence2, jaccard)
+        sorensen_dice_score = local_similarity(sequence1, sequence2, sorensen_dice)
+        hamming_score = normalized_hamming(sequence1, sequence2)
+        jaro_score = jaro(sequence1, sequence2)
+        levenshtein_score = normalized_levenshtein(sequence1, sequence2)
 
-    print(
-        f"""
-    {sequence1} - {sequence2} ({description})
-    -----------------
-    Jaccard: {jaccard_score:.2f}
-    Sorensen-Dice: {sorensen_dice_score:.2f}
-    Hamming: {1-hamming_score:.2f}
-    Jaro: {jaro_score:.2f}
-    Levenshtein: {1-levenshtein_score:.2f}
-    -----------------
-    Jaro + Sorensen-Dice: {(jaro_score + sorensen_dice_score) / 2:.2f} (biased: {weighted_score(jaro_score, sorensen_dice_score):.2f})
-    Hamming + Soresen-Dice: {(1-hamming_score + sorensen_dice_score) / 2:.2f} (biased: {weighted_score(1-hamming_score, sorensen_dice_score):.2f})
-    (Jaro + Sorensen-Dice) + Hamming: {((jaro_score + sorensen_dice_score) / 2 + (1-hamming_score)) / 2:.2f} (biased: {weighted_score(weighted_score(jaro_score, sorensen_dice_score), 1-hamming_score):.2f})
-    """
-    )
+        print(
+            f"""
+        {sequence1} - {sequence2} ({description})
+        -----------------
+        Jaccard: {jaccard_score:.2f}
+        Sorensen-Dice: {sorensen_dice_score:.2f}
+        Hamming: {1-hamming_score:.2f}
+        Jaro: {jaro_score:.2f}
+        Levenshtein: {1-levenshtein_score:.2f}
+        -----------------
+        Jaro + Sorensen-Dice: {(jaro_score + sorensen_dice_score) / 2:.2f} (biased: {weighted_score(jaro_score, sorensen_dice_score):.2f})
+        Hamming + Soresen-Dice: {(1-hamming_score + sorensen_dice_score) / 2:.2f} (biased: {weighted_score(1-hamming_score, sorensen_dice_score):.2f})
+        (Jaro + Sorensen-Dice) + Hamming: {((jaro_score + sorensen_dice_score) / 2 + (1-hamming_score)) / 2:.2f} (biased: {weighted_score(weighted_score(jaro_score, sorensen_dice_score), 1-hamming_score):.2f})
+        """
+        )
