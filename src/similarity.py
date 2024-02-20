@@ -1,7 +1,7 @@
 from functools import cache
-from tabnanny import check
 from typing import Callable, Tuple
-from utils import logger, is_valid_chess960
+from utils import logger
+from positions import is_valid_chess960_position
 import numpy as np
 
 
@@ -116,8 +116,11 @@ def normalized_hamming(s1: str, s2: str) -> float:
     return np.sum(seq1 != seq2) / 8
 
 
-def jaro_hamming(s1: str, s2: str) -> float:
-    return (jaro(s1, s2) + (1 - normalized_hamming(s1, s2))) / 2
+def sorensen_dice_hamming(s1: str, s2: str) -> float:
+    """Combines Sorensen-Dice and Hamming distance."""
+    return (
+        1 - local_similarity(s1, s2, sorensen_dice) + (normalized_hamming(s1, s2))
+    ) / 2
 
 
 def weighted_score(score1: float, score2: float) -> float:
@@ -132,6 +135,8 @@ if __name__ == "__main__":
     sequence_pairs = [
         ("rqknbbnr", "nbrkbrqn", "random"),
         ("rbnqknbr", "bbrkqnrn", "random"),
+        ("rnbkrqnb", "brkbnnrq", "random"),
+        ("rnbknrqb", "rqbknrnb", "1-swapped"),
         ("rnbbnkqr", "rnbbknqr", "1-swapped"),
         ("rbnkqnbr", "rbnknqbr", "1-swapped"),  # same score if swapping on edge
         ("rbnkqnbr", "rkqbnnbr", "2-swapped"),
@@ -146,7 +151,9 @@ if __name__ == "__main__":
     ]
 
     for sequence1, sequence2, description in sequence_pairs:
-        if not is_valid_chess960(sequence1) or not is_valid_chess960(sequence2):
+        if not is_valid_chess960_position(sequence1) or not is_valid_chess960_position(
+            sequence2
+        ):
             raise ValueError("Invalid sequence")
 
         jaccard_score = local_similarity(sequence1, sequence2, jaccard)
