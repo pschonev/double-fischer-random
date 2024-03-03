@@ -9,6 +9,8 @@ readme = "README.md"
 python = "^3.11"
 stockfish = "^3.28.0"
 numpy = "^1.26.4"
+pandas = "^2.2.0"
+pyarrow = "^15.0.0"
 
 [tool.poetry.group.dev]
 optional = true
@@ -16,6 +18,7 @@ optional = true
 [tool.poetry.group.dev.dependencies]
 ipython = "^8.21.0"
 ipykernel = "^6.29.2"
+matplotlib = "^3.8.3"
 
 [build-system]
 requires = ["poetry-core"]
