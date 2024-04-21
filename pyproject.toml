@@ -52,6 +52,7 @@ ignore = [
     "D415",
     "E402",   # false positives for local imports
     "E501",   # line too long
+    "E712", # wrong for pandas
     "TD002",
     "TD003",
     "TRY003", # prevents writing messages in exceptions
