@@ -1,18 +1,33 @@
+from collections.abc import Generator
 from itertools import combinations
-from typing import Generator
+
 from utils import logger
+
+NUMBER_OF_PIECES = 8
 
 
 def generate_positions() -> Generator[list[str], None, None]:
+    """Generate all valid Chess960 starting positions.
+
+    The function generates all valid Chess960 starting positions by placing the
+    bishops on opposite colors, the knights and the queen in the remaining positions,
+    and the king between the rooks.
+
+    Yields:
+        A generator of all valid Chess960 starting positions
+    """
     # place bishops on opposite colors
     for bishop_a in range(0, 8, 2):
         for bishop_b in range(1, 8, 2):
-            bishop_positions = {i for i in range(8)} - {bishop_a, bishop_b}
+            positions_without_bishop = set(range(8)) - {bishop_a, bishop_b}
             # place knights
-            for knight_a, knight_b in combinations(bishop_positions, 2):
-                bishop_knight_positions = bishop_positions - {knight_a, knight_b}
+            for knight_a, knight_b in combinations(positions_without_bishop, 2):
+                positions_without_bishops_or_knights = positions_without_bishop - {
+                    knight_a,
+                    knight_b,
+                }
                 # place queen
-                for queen in bishop_knight_positions:
+                for queen in positions_without_bishops_or_knights:
                     starting_position = ["r"] * 8
 
                     # Assign the positions of the Bishops, Knights, and Queen
@@ -22,7 +37,7 @@ def generate_positions() -> Generator[list[str], None, None]:
                     starting_position[knight_b] = "n"
                     starting_position[queen] = "q"
 
-                    # Find the remaining position and place the King there
+                    # Assign the position of the King between the Rooks
                     starting_position[
                         starting_position.index("r", starting_position.index("r") + 1)
                     ] = "k"
@@ -30,8 +45,24 @@ def generate_positions() -> Generator[list[str], None, None]:
 
 
 def is_valid_chess960_position(sequence: str) -> bool:
+    """Check if the sequence is a valid Chess960 position.
+
+    A valid Chess960 position has the following properties:
+    - 2 bishops on opposite colors
+    - the king is between the rooks
+    - 2 knights and 1 queen
+
+    The function logs each wrong property and returns False if at least one of the
+    properties is not respected.
+
+    Args:
+        sequence: The sequence of pieces in the starting position
+
+    Returns:
+        True if the sequence is a valid Chess960 position, False otherwise
+    """
     valid = True
-    if len(sequence) != 8:
+    if len(sequence) != NUMBER_OF_PIECES:
         logger.error(f"Invalid sequence length {len(sequence)}")
         valid = False
     if sorted(sequence) != ["b", "b", "k", "n", "n", "q", "r", "r"]:
