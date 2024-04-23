@@ -5,6 +5,7 @@ from typing import Any, Self
 
 from distance_matrix import DistanceMatrix
 from stockfish import Stockfish
+from utils import logger
 
 
 @dataclass
@@ -28,8 +29,13 @@ class TopMoveEval:
     centipawn: int
     mate: bool
 
-    def __post_init__(self) -> None:
-        self.mate = self.mate is not None
+    @classmethod
+    def from_dict(cls, data: dict[str, str | int | None]) -> Self:
+        return cls(
+            move=data["Move"],  # type: ignore[reportArgumentType]
+            centipawn=data["Centipawn"],  # type: ignore[reportArgumentType]
+            mate=data["Mate"] is not None,
+        )
 
 
 @dataclass
@@ -136,7 +142,7 @@ class StockfishAnalyzer:
             halfmove=halfmove,
             wdl=WDL(*wdl),
             top_moves=[
-                TopMoveEval(**move)
+                TopMoveEval.from_dict(move)
                 for move in self.stockfish.get_top_moves(self.cfg.num_top_moves)
             ],
             analysis_cfg=self.cfg,
@@ -144,26 +150,25 @@ class StockfishAnalyzer:
 
     def analyze_moves_from_position(
         self,
-        fen: str,
         halfmove: int,
     ) -> Generator[MoveEval, None, None]:
+        fen = self.stockfish.get_fen_position()
         move_eval = self._get_move_analysis(fen, halfmove)
         yield move_eval
 
         if halfmove < (self.cfg.analysis_depth * 2 - 1):
             for top_move in move_eval.top_moves:
                 self.stockfish.set_fen_position(fen)
-                new_fen = self.stockfish.make_moves_from_current_position(
-                    [top_move.move]
-                )
-                if new_fen is None:
-                    msg = "Invalid move"
-                    raise ValueError(msg)
-                yield from self.analyze_moves_from_position(new_fen, halfmove + 1)
+                self.stockfish.make_moves_from_current_position([top_move.move])
+                yield from self.analyze_moves_from_position(halfmove + 1)
 
-    def get_new_position_fen(self) -> str:
+    def set_new_position_fen(self) -> None:
         starting_positions = self.distance_matrix.get_weighted_random_sample()
-        return convert_starting_positions_to_fen(*starting_positions)
+        logger.info(
+            f"New position: white - {starting_positions[0]} black - {starting_positions[1]}"
+        )
+        fen = convert_starting_positions_to_fen(*starting_positions)
+        self.stockfish.set_fen_position(fen)
 
 
 if __name__ == "__main__":
@@ -175,10 +180,16 @@ if __name__ == "__main__":
     )
     analyzer = StockfishAnalyzer(
         Stockfish(
+            path="/opt/homebrew/bin/stockfish",
             depth=cfg.stockfish_depth,
             parameters={"UCI_Chess960": "true", "Hash": 2048, "Threads": 7},
         ),
-        DistanceMatrix.from_parquet(Path("data/distance_matrix.parquet")),
+        DistanceMatrix.from_parquet(Path("distances.parquet")),
         cfg=cfg,
         sample_strategies=[],
     )
+
+    # test the analyzer by analyzing one position
+    analyzer.set_new_position_fen()
+    for move_eval in analyzer.analyze_moves_from_position(0):
+        logger.info(move_eval)
