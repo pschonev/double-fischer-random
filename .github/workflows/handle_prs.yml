@@ -1,8 +1,10 @@
 name: Scheduled Merge and Cleanup  
 
 on:  
-  schedule:  
-    - cron: '0 */12 * * *'  # Every 12 hours  
+# manual
+  workflow_dispatch:
+  #schedule:  
+  #  - cron: '0 */12 * * *'  # Every 12 hours  
 
 jobs:  
   manage-prs:  
@@ -18,10 +20,10 @@ jobs:
 
       - name: Install dependencies  
         run: |  
-          pip install pandas pyarrow requests  
+          pip install pyarrow requests  
 
       - name: Run management script  
         env:  
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
         run: |  
-          python manage_prs.py  
+          python srcripts/handle_prs.py  
