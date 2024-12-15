@@ -1,81 +1,23 @@
-[tool.poetry]
+[project]
 name = "double-fischer-random"
 version = "0.1.0"
 description = "Analysis of Asymmetric Double Fischer Random positions"
-authors = ["adesso-philipp-schoneville <philipp.schoneville@adesso.de>"]
 readme = "README.md"
 
-[tool.poetry.dependencies]
-python = "^3.11"
-numpy = "^1.26.4"
-pandas = "^2.2.0"
-pyarrow = "^15.0.0"
-chess = "^1.10.0"
-
-[tool.poetry.group.dev]
-optional = true
-
-[tool.poetry.group.dev.dependencies]
-ipython = "^8.21.0"
-ipykernel = "^6.29.2"
-matplotlib = "^3.8.3"
-ruff = "^0.4.1"
-
-[tool.ruff]
-line-length = 88 # 88 is the default for black and ruff
-target-version = "py311"
-extend-exclude = ["test"]
-
-[tool.ruff.lint]
-select = [
-    "ALL", # include all the rules, including new ones
-]
-ignore = [
-    #### modules
-    "DJ",  # django
-    "TID", # flake8-tidy-imports
-
-    #### specific rules
-    "D100",   # ignore missing docs
-    "D101",
-    "D102",
-    "D103",
-    "D104",
-    "D105",
-    "D106",
-    "D107",
-    "D200",
-    "D205",
-    "D212",
-    "D400",
-    "D401",
-    "D415",
-    "E402",   # false positives for local imports
-    "E501",   # line too long
-    "E712", # wrong for pandas
-    "G0004", # allow logging with f-string
-    "TD002",
-    "TD003",
-    "TRY003", # prevents writing messages in exceptions
-    "ANN401", # preventing Any type annotation can get annoying in edge cases
-    "ANN102", #unnecessary hint for cls that will be removed
-    "B026",
-    "PTH123",
-    "RET505", #it's more readable to keep the else branch
-    "ANN101",
-    "ISC001",
-    "COM812",
+dependencies = [
+    "numpy>=1.26.4",
+    "pandas>=2.2.0",
+    "pyarrow>=15.0.0",
+    "chess>=1.10.0"
 ]
 
-[tool.ruff.lint.pylint]
-max-args = 10
-
-[tool.ruff.lint.pydocstyle]
-convention = "google"
+[tool.uv]
+dev-dependencies = [
+    "ruff>=0.6.4",
+    "ipython>=8.21.0",
+    "ipykernel>=6.29.2",
+    "matplotlib>=3.8.3"
+]
 
 [tool.pyright]
 typeCheckingMode = "basic"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
