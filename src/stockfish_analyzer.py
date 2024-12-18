@@ -3,8 +3,9 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Self
 
+import chess
+import chess.engine
 from distance_matrix import DistanceMatrix
-from stockfish import Stockfish
 from utils import logger
 
 
@@ -13,7 +14,9 @@ class AnalysisConfig:
     stockfish_depth: int
     analysis_depth: int
     num_top_moves: int
-    balanced_threshold: int
+    balanced_threshold: (
+        int  # TODO: this should be in a separate config for calculating scores
+    )
 
 
 @dataclass
@@ -41,10 +44,10 @@ class TopMoveEval:
 @dataclass
 class MoveEval:
     fen: str
-    halfmove: int
-    wdl: WDL
+    halfmove: int  # TODO: half moves may not have to be recorded expliclity if I am not using column based db
+    wdl: WDL  # TODO: if wdl is not free, this should only be calculated for the first move (with higher depth)
     top_moves: list[TopMoveEval]
-    analysis_cfg: AnalysisConfig
+    analysis_cfg: AnalysisConfig  # TODO: only needs to record stockfish depth
 
     def to_row(self) -> dict[str, Any]:
         top_moves = {f"top_move_{i}": m.move for i, m in enumerate(self.top_moves)}
@@ -70,7 +73,7 @@ class FirstMoveEval(MoveEval):
 
 
 @dataclass
-class PositionResult:
+class PositionResult:  # TODO: score calculation should be detached from analysis and can happen later
     fen: str
     wdl: WDL
     centipawn: int
@@ -123,52 +126,65 @@ def convert_starting_positions_to_fen(white: str, black: str) -> str:
 
 @dataclass
 class StockfishAnalyzer:
-    stockfish: Stockfish
+    board: chess.Board
+    engine: chess.engine.SimpleEngine
     distance_matrix: DistanceMatrix
 
     cfg: AnalysisConfig
     sample_strategies: list[Callable[[], tuple[str, str]]]
 
     def _get_move_analysis(self, fen: str, halfmove: int) -> MoveEval:
-        self.stockfish.set_fen_position(fen)
+        self.board.set_epd(fen)
+        analysis = self.engine.analyse(
+            self.board,
+            chess.engine.Limit(depth=cfg.stockfish_depth),
+            multipv=cfg.num_top_moves,
+            info=chess.engine.INFO_ALL | chess.engine.INFO_PV,
+        )
 
-        wdl = self.stockfish.get_wdl_stats()
-        if not wdl:
-            msg = "No WDL stats found"
-            raise ValueError(msg)
+        moves = []
+        for move in analysis:
+            score = move.get("score", None)
+            if score is None:
+                msg = "No WDL stats found"
+                raise ValueError(msg)
 
-        return MoveEval(
-            fen=fen,
-            halfmove=halfmove,
-            wdl=WDL(*wdl),
-            top_moves=[
-                TopMoveEval.from_dict(move)
-                for move in self.stockfish.get_top_moves(self.cfg.num_top_moves)
-            ],
-            analysis_cfg=self.cfg,
+            wdl = score.wdl()
+
+        moves.append(
+            MoveEval(
+                fen=fen,
+                halfmove=halfmove,
+                wdl=WDL(*wdl),
+                top_moves=[
+                    TopMoveEval.from_dict(move)
+                    for move in self.board.get_top_moves(self.cfg.num_top_moves)
+                ],
+                analysis_cfg=self.cfg,
+            )
         )
 
     def analyze_moves_from_position(
         self,
         halfmove: int,
     ) -> Generator[MoveEval, None, None]:
-        fen = self.stockfish.get_fen_position()
+        fen = self.board.board_fen()
         move_eval = self._get_move_analysis(fen, halfmove)
         yield move_eval
 
         if halfmove < (self.cfg.analysis_depth * 2 - 1):
             for top_move in move_eval.top_moves:
-                self.stockfish.set_fen_position(fen)
-                self.stockfish.make_moves_from_current_position([top_move.move])
+                self.board.set_epd(fen)
+                self.board.push_san(top_move.move)
                 yield from self.analyze_moves_from_position(halfmove + 1)
 
     def set_new_position_fen(self) -> None:
-        starting_positions = self.distance_matrix.get_weighted_random_sample()
+        starting_positions = self.distance_matrix.get_weighted_random_sample()  # TODO: sampling should be totally separate and this should just accept a starting position
         logger.info(
             f"New position: white - {starting_positions[0]} black - {starting_positions[1]}"
         )
         fen = convert_starting_positions_to_fen(*starting_positions)
-        self.stockfish.set_fen_position(fen)
+        self.board.set_epd(fen)
 
 
 if __name__ == "__main__":
@@ -179,11 +195,7 @@ if __name__ == "__main__":
         balanced_threshold=100,
     )
     analyzer = StockfishAnalyzer(
-        Stockfish(
-            path="/opt/homebrew/bin/stockfish",
-            depth=cfg.stockfish_depth,
-            parameters={"UCI_Chess960": "true", "Hash": 2048, "Threads": 7},
-        ),
+        chess.Board(chess960=True),
         DistanceMatrix.from_parquet(Path("distances.parquet")),
         cfg=cfg,
         sample_strategies=[],
