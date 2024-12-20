@@ -1,12 +1,12 @@
 from collections.abc import Callable
-from functools import cache
+import functools
 
 import numpy as np
 from positions import is_valid_chess960_position
 from utils import logger
 
 
-@cache
+@functools.cache
 def generate_pairs(
     seq: str, *, consider_duplicate_pairs: bool = True
 ) -> set[tuple[str, str, bool]]:
@@ -248,10 +248,6 @@ def weighted_score(score1: float, score2: float) -> float:
 
 
 if __name__ == "__main__":
-    # Example usage
-    sequence1 = "rrqknbkq"
-    sequence2 = "nbnbrrkq"
-
     sequence_pairs = [
         ("rqknbbnr", "nbrkbrqn", "random"),
         ("rbnqknbr", "bbrkqnrn", "random"),
