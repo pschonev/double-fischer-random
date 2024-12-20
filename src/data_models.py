@@ -70,6 +70,7 @@ def harmonic_mean(a: float, b: float) -> float:
 class PositionNode(msgspec.Struct):
     """Node in the position analysis tree which represents a halfmove (ply) and its evaluation"""
 
+    move: str
     centipawn: int
     children: list[Self]
 
@@ -77,8 +78,7 @@ class PositionNode(msgspec.Struct):
 class AnalysisData(msgspec.Struct):
     """Contains the minimum data for an analysis"""
 
-    white: str
-    black: str
+    dfrc_id: int
 
     analyzer: str
     validator: str
@@ -112,6 +112,11 @@ class AnalysisResult(AnalysisData):
     Attributes:
         playability_score: The harmonic mean of the sharpness_score and the win_loss_ratio
     """
+    white_id: int
+    black_id: int
+    
+    white: str
+    black: str
 
     cfg: AnalysisConfig
 
@@ -124,6 +129,8 @@ class AnalysisResult(AnalysisData):
 
     blunder_potential: BlunderPotential
 
+    PV: list[str]
+    
     symmetric: bool
     mirrored: bool
 
