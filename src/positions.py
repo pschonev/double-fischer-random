@@ -1,47 +1,121 @@
 from collections.abc import Generator
 from itertools import combinations
+from typing_extensions import Final
 
 from utils import logger
 
-NUMBER_OF_PIECES = 8
+NUMBER_OF_PIECES: Final = 8
 
 
-def generate_positions() -> Generator[list[str], None, None]:
-    """Generate all valid Chess960 starting positions.
+# Pre-computed knight position pairs for each value of n (0-9)  
+KNIGHT_POSITIONS: Final[tuple[tuple[int, int], ...]] = (  
+    (0, 1), (0, 2), (0, 3), (0, 4),  # n = 0-3  
+    (1, 2), (1, 3), (1, 4),          # n = 4-6  
+    (2, 3), (2, 4),                   # n = 7-8  
+    (3, 4),                           # n = 9  
+)  
 
-    The function generates all valid Chess960 starting positions by placing the
-    bishops on opposite colors, the knights and the queen in the remaining positions,
-    and the king between the rooks.
+def get_chess960_position(scharnagl: int) -> str:  
+    """Convert a Chess960 position number to its string representation.  
 
-    Yields:
-        A generator of all valid Chess960 starting positions
+    The Scharnagl numbering system (0-959) uniquely identifies each possible  
+    Chess960 starting position. This function converts that number into the  
+    corresponding piece placement string.  
+
+    Args:  
+        scharnagl: Position number (0-959). Standard chess is position 518.  
+
+    Returns:  
+        An 8-character string representing the piece placement (e.g., 'rnbqkbnr'   
+        for standard chess)  
+
+    Raises:  
+        ValueError: If position number is not between 0 and 959  
+
+    Examples:  
+        >>> get_chess960_position(518)  # Standard chess  
+        'rnbqkbnr'  
+        >>> get_chess960_position(0)    # First Chess960 position  
+        'bbqnnrkr'  
+    """  
+    if not 0 <= scharnagl <= 959:  
+        raise ValueError(f"chess960 position index not 0 <= {scharnagl} <= 959")  
+
+    position = [''] * 8  
+    used = set()  
+
+    # Decode position number into piece placements  
+    n, bw = divmod(scharnagl, 4)  
+    n, bb = divmod(n, 4)  
+    n, q = divmod(n, 6)  
+
+    # Place bishops on opposite colored squares  
+    bw_file = bw * 2 + 1  # White-squared bishop  
+    bb_file = bb * 2      # Black-squared bishop  
+    position[bw_file] = position[bb_file] = 'b'  
+    used.update((bw_file, bb_file))  
+
+    # Place queen, adjusting for occupied bishop squares  
+    q_file = q + sum(1 for bishop in (bw_file, bb_file) if bishop <= q)  
+    position[q_file] = 'q'  
+    used.add(q_file)  
+
+    # Get available squares for remaining pieces  
+    available = [i for i in range(8) if i not in used]  
+
+    # Place knights using lookup table  
+    n1, n2 = KNIGHT_POSITIONS[n]  
+    position[available[n1]] = position[available[n2]] = 'n'  
+
+    # Place rooks and king in remaining squares (RKR pattern)  
+    remaining = [i for i in range(8) if not position[i]]  
+    position[remaining[0]] = position[remaining[2]] = 'r'  
+    position[remaining[1]] = 'k'  
+
+    return ''.join(position)
+
+
+def get_scharnagl_number(position: str) -> int:
+    """Convert a Chess960 position string to its Scharnagl number (0-959).
+
+    Args:
+        position: An 8-character string representing piece placement (e.g., 'rnbqkbnr')
+
+    Returns:
+        Integer between 0 and 959 representing the Chess960 position
+
+    Raises:
+        ValueError: If the position is not a valid Chess960 position
     """
-    # place bishops on opposite colors
-    for bishop_a in range(0, 8, 2):
-        for bishop_b in range(1, 8, 2):
-            positions_without_bishop = set(range(8)) - {bishop_a, bishop_b}
-            # place knights
-            for knight_a, knight_b in combinations(positions_without_bishop, 2):
-                positions_without_bishops_or_knights = positions_without_bishop - {
-                    knight_a,
-                    knight_b,
-                }
-                # place queen
-                for queen in positions_without_bishops_or_knights:
-                    starting_position = ["r"] * 8
+    # Validate the position first
+    if not is_valid_chess960_position(position):
+        raise ValueError(f"Invalid Chess960 position: {position}")
 
-                    # Assign the positions of the Bishops, Knights, and Queen
-                    starting_position[bishop_a] = "b"
-                    starting_position[bishop_b] = "b"
-                    starting_position[knight_a] = "n"
-                    starting_position[knight_b] = "n"
-                    starting_position[queen] = "q"
+    # Get bishop positions
+    b1, b2 = sorted(i for i, p in enumerate(position) if p == 'b')
+    # Convert to bishop pairs (0-3)
+    bb = b1 // 2  # Black square bishop position number
+    bw = (b2 - 1) // 2  # White square bishop position number
 
-                    # Assign the position of the King between the Rooks
-                    starting_position[
-                        starting_position.index("r", starting_position.index("r") + 1)
-                    ] = "k"
-                    yield starting_position
+    # Get queen position and convert to number (0-5)
+    q_pos = position.index('q')
+    # Adjust queen number based on bishops before it
+    q = q_pos
+    q -= sum(1 for b in (b1, b2) if b < q_pos)
+
+    # Get knight positions
+    knight_positions = [i for i, p in enumerate(position) if p == 'n']
+    # Convert to relative positions among empty squares
+    available_spots = [i for i in range(8) if i not in (b1, b2, q_pos)]
+    n1, n2 = sorted(available_spots.index(k) for k in knight_positions)
+
+    # Find n value from knight positions using KNIGHT_POSITIONS lookup
+    n = next(i for i, (x, y) in enumerate(KNIGHT_POSITIONS) if (x, y) == (n1, n2))
+
+    # Calculate final Scharnagl number
+    scharnagl = ((n * 6 + q) * 4 + bb) * 4 + bw
+
+    return scharnagl
 
 
 def chess960_uid(white: int, black: int, N: int = 960) -> int:
