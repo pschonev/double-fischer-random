@@ -3,9 +3,9 @@ from pathlib import Path
 from typing import Literal, Self
 
 import pandas as pd
-from positions import generate_positions
-from similarity import sorensen_dice_hamming
-from utils import logger
+from src.positions import generate_positions
+from src.similarity import sorensen_dice_hamming
+from src.utils import logger
 
 ChessColor = Literal["white", "black"]
 
