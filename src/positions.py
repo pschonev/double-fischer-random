@@ -1,3 +1,4 @@
+from collections import deque
 import random
 from collections.abc import Generator
 from typing import Callable, Final
@@ -13,6 +14,26 @@ def calculate_asymmetry_score(white: int, black: int) -> float:
     pos_white = get_chess960_position(white)
     pos_black = get_chess960_position(black)
     return sorensen_dice_hamming(pos_white, pos_black)
+
+
+class RecentIndices:
+    def __init__(self, maxlen):
+        self._deque = deque(maxlen=maxlen)
+        self._set = set()
+        self.maxlen = maxlen
+
+    def appendleft(self, item):
+        if len(self._deque) >= self.maxlen:
+            removed_item = self._deque.pop()
+            self._set.discard(removed_item)
+        self._deque.appendleft(item)
+        self._set.add(item)
+
+    def __contains__(self, item):
+        return item in self._set
+
+    def __len__(self):
+        return len(self._deque)
 
 
 def sample_positions(
@@ -46,57 +67,37 @@ def sample_positions(
         >>> for position in generator:
         ...     print(position)
     """
-    # Initialize analysis counts
     white_analysis_count: list[int] = [0] * N
     black_analysis_count: list[int] = [0] * N
+    pq = pqdict()
 
-    # Initialize the priority queue
-    logger.info("Initializing the pqdict")
-    pq = pqdict()  # Correct class name
-
-    # Track the last known analysis counts for lazy updates
-    last_white_analysis: list[int] = [0] * N
-    last_black_analysis: list[int] = [0] * N
+    recent_white_indices = RecentIndices(maxlen=N // 2)
+    recent_black_indices = RecentIndices(maxlen=N // 2)
 
     for w in tqdm(range(N), desc="Initializing positions"):
         for b in range(N):
-            # Get the priority probability from the custom function
             probability = priority_func(w, b)
-            # Use the probability to set the initial priority
-            if random.random() < probability:
-                initial_priority = (
-                    0  # Lower priority (higher chance of being analyzed first)
-                )
-            else:
-                initial_priority = (
-                    10  # Higher priority (lower chance of being analyzed first)
-                )
+            initial_priority = 0 if random.random() < probability else 1
             pq[(w, b)] = initial_priority
 
-    # Main loop: Yield positions in order of least analysis
     with tqdm(total=N * N, desc="Processing positions") as pbar:
         while pq:
             (w, b), _ = pq.popitem()
 
-            # Perform lazy updates for (w, b) if necessary
-            if (
-                white_analysis_count[w] != last_white_analysis[w]
-                or black_analysis_count[b] != last_black_analysis[b]
-            ):
-                # Recompute the priority for (w, b)
-                pq[(w, b)] = white_analysis_count[w] + black_analysis_count[b]
-                last_white_analysis[w] = white_analysis_count[w]
-                last_black_analysis[b] = black_analysis_count[b]
+            if (w in recent_white_indices or b in recent_black_indices) and len(
+                pq
+            ) >= N * 8:
+                pq[(w, b)] = white_analysis_count[w] + black_analysis_count[b] + 1
                 continue
 
-            # Yield the position
             yield (w, b)
 
-            # Update analysis counts
+            recent_white_indices.appendleft(w)
+            recent_black_indices.appendleft(b)
+
             white_analysis_count[w] += 1
             black_analysis_count[b] += 1
 
-            # Update the progress bar
             pbar.update(1)
 
 
@@ -282,11 +283,20 @@ def from_chess960_uid(uid: int, N: int = 960) -> tuple[int, int]:
 
 
 if __name__ == "__main__":
-    for i in tqdm(range(960), desc="Testing position creation"):
+    N = 960
+    for i in tqdm(range(N), desc="Testing position creation"):
         is_valid_chess960_position(get_chess960_position(i))
+
+    dfrc_positions = set()
     with open("chess960_positions.txt", "w") as f:
-        for position in sample_positions(
-            N=960,
-            priority_func=calculate_asymmetry_score,
+        for k, (w, b) in enumerate(
+            sample_positions(
+                N=N,
+                priority_func=calculate_asymmetry_score,
+            )
         ):
-            f.write(f"{position}\n")
+            f.write(f"{k},{w},{b}\n")
+            dfrc_positions.add((w, b))
+        print(
+            f"Expected positions: {N*N}\nGenerated positions: {k+1}\nGenerated unique positions: {len(dfrc_positions)}"
+        )
