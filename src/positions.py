@@ -1,78 +1,65 @@
-from collections.abc import Generator
-from itertools import combinations
-from typing_extensions import Final
+from typing import Final
 
-from utils import logger
+from tqdm import tqdm
 
-NUMBER_OF_PIECES: Final = 8
+from src.utils import is_valid_chess960_position
 
-
-# Pre-computed knight position pairs for each value of n (0-9)  
+# Pre-computed knight position pairs for each value of n (0-9)
+# fmt: off
 KNIGHT_POSITIONS: Final[tuple[tuple[int, int], ...]] = (  
     (0, 1), (0, 2), (0, 3), (0, 4),  # n = 0-3  
     (1, 2), (1, 3), (1, 4),          # n = 4-6  
     (2, 3), (2, 4),                   # n = 7-8  
     (3, 4),                           # n = 9  
 )  
+# fmt: on
 
-def get_chess960_position(scharnagl: int) -> str:  
-    """Convert a Chess960 position number to its string representation.  
 
-    The Scharnagl numbering system (0-959) uniquely identifies each possible  
-    Chess960 starting position. This function converts that number into the  
-    corresponding piece placement string.  
+def get_chess960_position(scharnagl: int) -> str:
+    """Convert a Chess960 position number to its string representation."""
+    if not 0 <= scharnagl <= 959:
+        raise ValueError(f"chess960 position index not 0 <= {scharnagl} <= 959")
 
-    Args:  
-        scharnagl: Position number (0-959). Standard chess is position 518.  
+    position = [""] * 8
+    used = set()
 
-    Returns:  
-        An 8-character string representing the piece placement (e.g., 'rnbqkbnr'   
-        for standard chess)  
+    # Decode position number into piece placements
+    n, bw = divmod(scharnagl, 4)
+    n, bb = divmod(n, 4)
+    n, q = divmod(n, 6)
 
-    Raises:  
-        ValueError: If position number is not between 0 and 959  
+    # Place bishops on opposite colored squares
+    bw_file = bw * 2 + 1  # White-squared bishop
+    bb_file = bb * 2  # Black-squared bishop
+    position[bw_file] = position[bb_file] = "b"
+    used.update((bw_file, bb_file))
 
-    Examples:  
-        >>> get_chess960_position(518)  # Standard chess  
-        'rnbqkbnr'  
-        >>> get_chess960_position(0)    # First Chess960 position  
-        'bbqnnrkr'  
-    """  
-    if not 0 <= scharnagl <= 959:  
-        raise ValueError(f"chess960 position index not 0 <= {scharnagl} <= 959")  
+    # Place queen, adjusting for occupied bishop squares
+    available_for_queen = [i for i in range(8) if i not in used]
+    q_file = available_for_queen[q]
+    position[q_file] = "q"
+    used.add(q_file)
 
-    position = [''] * 8  
-    used = set()  
+    # Get available squares for remaining pieces
+    available = [i for i in range(8) if i not in used]
 
-    # Decode position number into piece placements  
-    n, bw = divmod(scharnagl, 4)  
-    n, bb = divmod(n, 4)  
-    n, q = divmod(n, 6)  
+    # Place knights using lookup table
+    if n >= len(KNIGHT_POSITIONS):
+        raise ValueError(f"Invalid knight position index: {n}")
+    n1, n2 = KNIGHT_POSITIONS[n]
+    if n1 >= len(available) or n2 >= len(available):
+        raise ValueError(f"Invalid knight position indices: {n1}, {n2}")
+    position[available[n1]] = position[available[n2]] = "n"
+    used.update({available[n1], available[n2]})
 
-    # Place bishops on opposite colored squares  
-    bw_file = bw * 2 + 1  # White-squared bishop  
-    bb_file = bb * 2      # Black-squared bishop  
-    position[bw_file] = position[bb_file] = 'b'  
-    used.update((bw_file, bb_file))  
+    # Place rooks and king in remaining squares (RKR pattern)
+    remaining = [i for i in range(8) if not position[i]]
+    if len(remaining) != 3:
+        raise ValueError(f"Invalid remaining squares: {remaining}")
+    position[remaining[0]] = position[remaining[2]] = "r"
+    position[remaining[1]] = "k"
 
-    # Place queen, adjusting for occupied bishop squares  
-    q_file = q + sum(1 for bishop in (bw_file, bb_file) if bishop <= q)  
-    position[q_file] = 'q'  
-    used.add(q_file)  
-
-    # Get available squares for remaining pieces  
-    available = [i for i in range(8) if i not in used]  
-
-    # Place knights using lookup table  
-    n1, n2 = KNIGHT_POSITIONS[n]  
-    position[available[n1]] = position[available[n2]] = 'n'  
-
-    # Place rooks and king in remaining squares (RKR pattern)  
-    remaining = [i for i in range(8) if not position[i]]  
-    position[remaining[0]] = position[remaining[2]] = 'r'  
-    position[remaining[1]] = 'k'  
-
-    return ''.join(position)
+    return "".join(position)
 
 
 def get_scharnagl_number(position: str) -> int:
@@ -92,19 +79,19 @@ def get_scharnagl_number(position: str) -> int:
         raise ValueError(f"Invalid Chess960 position: {position}")
 
     # Get bishop positions
-    b1, b2 = sorted(i for i, p in enumerate(position) if p == 'b')
+    b1, b2 = sorted(i for i, p in enumerate(position) if p == "b")
     # Convert to bishop pairs (0-3)
     bb = b1 // 2  # Black square bishop position number
     bw = (b2 - 1) // 2  # White square bishop position number
 
     # Get queen position and convert to number (0-5)
-    q_pos = position.index('q')
+    q_pos = position.index("q")
     # Adjust queen number based on bishops before it
     q = q_pos
     q -= sum(1 for b in (b1, b2) if b < q_pos)
 
     # Get knight positions
-    knight_positions = [i for i, p in enumerate(position) if p == 'n']
+    knight_positions = [i for i, p in enumerate(position) if p == "n"]
     # Convert to relative positions among empty squares
     available_spots = [i for i in range(8) if i not in (b1, b2, q_pos)]
     n1, n2 = sorted(available_spots.index(k) for k in knight_positions)
@@ -198,39 +185,7 @@ def from_chess960_uid(uid: int, N: int = 960) -> tuple[int, int]:
     return (white, black)
 
 
-
-def is_valid_chess960_position(sequence: str) -> bool:
-    """Check if the sequence is a valid Chess960 position.
-
-    A valid Chess960 position has the following properties:
-    - 2 bishops on opposite colors
-    - the king is between the rooks
-    - 2 knights and 1 queen
-
-    The function logs each wrong property and returns False if at least one of the
-    properties is not respected.
-
-    Args:
-        sequence: The sequence of pieces in the starting position
-
-    Returns:
-        True if the sequence is a valid Chess960 position, False otherwise
-    """
-    valid = True
-    if len(sequence) != NUMBER_OF_PIECES:
-        logger.error(f"Invalid sequence length {len(sequence)}")
-        valid = False
-    if sorted(sequence) != ["b", "b", "k", "n", "n", "q", "r", "r"]:
-        logger.error(f"Invalid piece counts or pieces in sequence {sequence}")
-        valid = False
-    # check if there is on b on odd index and one b on even index
-    if sequence.index("b") % 2 == sequence.rindex("b") % 2:
-        logger.error(f"Invalid sequence, bishops on same color in {sequence}")
-        valid = False
-    # check if k between both r values
-    if sequence.index("k") < sequence.index("r") or sequence.index(
-        "k"
-    ) > sequence.rindex("r"):
-        logger.error(f"Invalid sequence, king not between rooks in {sequence}")
-        valid = False
-    return valid
+if __name__ == "__main__":
+    N = 960
+    for i in tqdm(range(N), desc="Testing position creation"):
+        is_valid_chess960_position(get_chess960_position(i))

@@ -2,8 +2,7 @@ from collections.abc import Callable
 import functools
 
 import numpy as np
-from positions import is_valid_chess960_position
-from utils import logger
+from src.utils import is_valid_chess960_position, logger
 
 
 @functools.cache
