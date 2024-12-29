@@ -7,16 +7,27 @@ from pqdict import pqdict
 from tqdm import tqdm
 
 from src.similarity import sorensen_dice_hamming
-from src.utils import is_valid_chess960_position, logger
+from src.utils import is_valid_chess960_position
 
 
-def calculate_asymmetry_score(white: int, black: int) -> float:
+def calculate_symmetry_score(white: int, black: int) -> float:
+    """Calculate the symmetry score between two Chess960 positions.
+    Args:
+        white: The index of the white position in the range [0, 959].
+        black: The index of the black position in the range [0, 959].
+
+    Returns:
+        A float between 0 and 1 representing the similarity between the positions.
+        1 means the positions are identical, 0 means they are completely different.
+    """
     pos_white = get_chess960_position(white)
     pos_black = get_chess960_position(black)
-    return sorensen_dice_hamming(pos_white, pos_black)
+    return 1 - sorensen_dice_hamming(pos_white, pos_black)
 
 
 class RecentIndices:
+    """A deque-like data structure that keeps track of the most recent indices."""
+
     def __init__(self, maxlen):
         self._deque = deque(maxlen=maxlen)
         self._set = set()
@@ -67,36 +78,37 @@ def sample_positions(
         >>> for position in generator:
         ...     print(position)
     """
-    white_analysis_count: list[int] = [0] * N
-    black_analysis_count: list[int] = [0] * N
     pq = pqdict()
+    random.seed(42)
 
     recent_white_indices = RecentIndices(maxlen=N // 2)
     recent_black_indices = RecentIndices(maxlen=N // 2)
 
     for w in tqdm(range(N), desc="Initializing positions"):
         for b in range(N):
-            probability = priority_func(w, b)
-            initial_priority = 0 if random.random() < probability else 1
+            # calculate an initial priority that is
+            # between 0 (high priority) and 4 (low priority)
+            priority_score = priority_func(w, b)  # between 0 and 1
+            probabilistic_priority = priority_score + random.random() / 2
+            initial_priority = probabilistic_priority * 10 // 2
             pq[(w, b)] = initial_priority
 
+    update_threshold = N * 32
     with tqdm(total=N * N, desc="Processing positions") as pbar:
         while pq:
-            (w, b), _ = pq.popitem()
+            (w, b), priority = pq.popitem()
 
-            if (w in recent_white_indices or b in recent_black_indices) and len(
-                pq
-            ) >= N * 8:
-                pq[(w, b)] = white_analysis_count[w] + black_analysis_count[b] + 1
+            if (
+                (w_recent := w in recent_white_indices)
+                or (b_recent := b in recent_black_indices)
+            ) and len(pq) >= update_threshold:
+                pq[(w, b)] = priority + int(w_recent) + int(b_recent)
                 continue
 
             yield (w, b)
 
             recent_white_indices.appendleft(w)
             recent_black_indices.appendleft(b)
-
-            white_analysis_count[w] += 1
-            black_analysis_count[b] += 1
 
             pbar.update(1)
 
@@ -287,16 +299,18 @@ if __name__ == "__main__":
     for i in tqdm(range(N), desc="Testing position creation"):
         is_valid_chess960_position(get_chess960_position(i))
 
-    dfrc_positions = set()
+    chess960_combinations = set()
     with open("chess960_positions.txt", "w") as f:
+        f.write("id,white,black\n")
         for k, (w, b) in enumerate(
             sample_positions(
                 N=N,
-                priority_func=calculate_asymmetry_score,
+                priority_func=calculate_symmetry_score,
             )
         ):
+            dfrc_position = chess960_uid(w, b, N)
             f.write(f"{k},{w},{b}\n")
-            dfrc_positions.add((w, b))
+            chess960_combinations.add((w, b))
         print(
-            f"Expected positions: {N*N}\nGenerated positions: {k+1}\nGenerated unique positions: {len(dfrc_positions)}"
+            f"Expected positions: {N*N}\nGenerated positions: {k+1}\nGenerated unique positions: {len(chess960_combinations)}"
         )
