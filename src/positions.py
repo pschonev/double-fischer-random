@@ -63,41 +63,42 @@ def get_chess960_position(scharnagl: int) -> str:
 
 
 def get_scharnagl_number(position: str) -> int:
-    """Convert a Chess960 position string to its Scharnagl number (0-959).
-
-    Args:
-        position: An 8-character string representing piece placement (e.g., 'rnbqkbnr')
-
-    Returns:
-        Integer between 0 and 959 representing the Chess960 position
-
-    Raises:
-        ValueError: If the position is not a valid Chess960 position
-    """
-    # Validate the position first
-    if not is_valid_chess960_position(position):
-        raise ValueError(f"Invalid Chess960 position: {position}")
-
+    """Convert a Chess960 position string to its Scharnagl number (0-959)."""
     # Get bishop positions
-    b1, b2 = sorted(i for i, p in enumerate(position) if p == "b")
-    # Convert to bishop pairs (0-3)
-    bb = b1 // 2  # Black square bishop position number
-    bw = (b2 - 1) // 2  # White square bishop position number
+    b_positions = sorted(i for i, p in enumerate(position) if p == "b")
+    if len(b_positions) != 2:
+        raise ValueError("Invalid number of bishops")
 
-    # Get queen position and convert to number (0-5)
+    # Calculate bishop numbers
+    # Check if first bishop is on black square (even) or white square (odd)
+    if b_positions[0] % 2 == 0:  # First bishop is on black square
+        bb = b_positions[0] // 2
+        bw = (b_positions[1] - 1) // 2
+    else:  # First bishop is on white square
+        bw = b_positions[0] // 2
+        bb = b_positions[1] // 2
+
+    # Get queen position
     q_pos = position.index("q")
-    # Adjust queen number based on bishops before it
-    q = q_pos
-    q -= sum(1 for b in (b1, b2) if b < q_pos)
+
+    # Calculate queen number (0-5)
+    # Count available positions before queen, excluding bishop positions
+    q = sum(1 for i in range(q_pos) if i not in b_positions)
 
     # Get knight positions
-    knight_positions = [i for i, p in enumerate(position) if p == "n"]
-    # Convert to relative positions among empty squares
-    available_spots = [i for i in range(8) if i not in (b1, b2, q_pos)]
-    n1, n2 = sorted(available_spots.index(k) for k in knight_positions)
+    n_positions = sorted(i for i, p in enumerate(position) if p == "n")
+    if len(n_positions) != 2:
+        raise ValueError("Invalid number of knights")
 
-    # Find n value from knight positions using KNIGHT_POSITIONS lookup
-    n = next(i for i, (x, y) in enumerate(KNIGHT_POSITIONS) if (x, y) == (n1, n2))
+    # Calculate relative knight positions
+    available = [i for i in range(8) if i not in (b_positions + [q_pos])]
+    n1, n2 = sorted(available.index(pos) for pos in n_positions)
+
+    # Find knight pattern number
+    try:
+        n = KNIGHT_POSITIONS.index((n1, n2))
+    except ValueError:
+        raise ValueError(f"Invalid knight positions: {n1}, {n2}")
 
     # Calculate final Scharnagl number
     scharnagl = ((n * 6 + q) * 4 + bb) * 4 + bw
