@@ -1,6 +1,9 @@
 import pytest
-from src.positions import get_chess960_position, get_scharnagl_number
-from src.utils import is_valid_chess960_position
+from src.positions import (
+    get_chess960_position,
+    get_scharnagl_number,
+    is_valid_chess960_position,
+)
 
 
 def test_generate_all_positions():
