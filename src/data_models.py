@@ -125,8 +125,6 @@ class AnalysisResult(AnalysisData):
     balance_score: float
     sharpness: Sharpness
 
-    wdl: chess.engine.Wdl
-
     symmetric: bool
     mirrored: bool
 
@@ -154,7 +152,6 @@ class AnalysisResult(AnalysisData):
             white=white,
             black=black,
             dfrc_id=chess960_uid(data.white_id, data.black_id),
-            pv=data.analysis_tree.pv,
             analyzer=data.analyzer,
             validator=data.validator,
             cfg_id=data.cfg_id,
@@ -162,7 +159,6 @@ class AnalysisResult(AnalysisData):
             analysis_tree=data.analysis_tree,
             balance_score=balance_score,
             sharpness=sharpness,
-            wdl=wdl,
             symmetric=cls._is_symmetric(white, black),
             mirrored=cls._is_mirrored(white, black),
             playability_score=harmonic_mean(
