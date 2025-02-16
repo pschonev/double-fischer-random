@@ -8,6 +8,7 @@ import functools
 from typing import Dict
 
 from src.positions import get_chess960_position, chess960_uid, is_symmetric, is_mirrored
+from src.utils import harmonic_mean
 
 # Configuration file path
 ANALYSIS_CONFIGS_PATH = "analysis_configs.toml"
