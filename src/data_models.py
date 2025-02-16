@@ -7,7 +7,7 @@ from enum import IntEnum
 import functools
 from typing import Dict
 
-from src.positions import get_chess960_position, chess960_uid
+from src.positions import get_chess960_position, chess960_uid, is_symmetric, is_mirrored
 
 # Configuration file path
 ANALYSIS_CONFIGS_PATH = "analysis_configs.toml"
@@ -159,23 +159,13 @@ class AnalysisResult(AnalysisData):
             analysis_tree=data.analysis_tree,
             balance_score=balance_score,
             sharpness=sharpness,
-            symmetric=cls._is_symmetric(white, black),
-            mirrored=cls._is_mirrored(white, black),
+            symmetric=is_symmetric(white, black),
+            mirrored=is_mirrored(white, black),
             playability_score=harmonic_mean(
                 balance_score,
                 sharpness.total,
             ),
         )
-
-    @staticmethod
-    def _is_symmetric(white: str, black: str) -> bool:
-        """Check if a position is symmetric"""
-        return white == black
-
-    @staticmethod
-    def _is_mirrored(white: str, black: str) -> bool:
-        """Check if a position is mirrored"""
-        return white == black[::-1]
 
     @staticmethod
     def _calculate_balance_score(wdl: chess.engine.Wdl) -> float:
