@@ -66,11 +66,6 @@ def load_config(config_id: str | ConfigId) -> AnalysisConfig:
     return load_configs().configs[config_id]
 
 
-def harmonic_mean(a: float, b: float) -> float:
-    """Calculate the harmonic mean of two numbers"""
-    return 2 * (a * b) / (a + b)
-
-
 class PositionNode(msgspec.Struct):
     """Node in the position analysis tree which represents a halfmove (ply) and its evaluation"""
 
