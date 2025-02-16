@@ -73,7 +73,7 @@ class PositionNode(msgspec.Struct):
     """Node in the position analysis tree which represents a halfmove (ply) and its evaluation"""
 
     move: str
-    centipawn: int
+    cpl: int
     children: list[Self]
 
 
