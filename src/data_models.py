@@ -22,6 +22,8 @@ class AnalysisConfig(msgspec.Struct):
         balanced_threshold: The threshold for a balanced position (where to cut off the analysis)
     """
 
+    stockfish_version: str
+
     stockfish_depth: int
     stockfish_depth_firstmove: int
 
@@ -112,9 +114,10 @@ class AnalysisResult(AnalysisData):
     Attributes:
         playability_score: The harmonic mean of the sharpness_score and the win_loss_ratio
     """
+
     white_id: int
     black_id: int
-    
+
     white: str
     black: str
 
@@ -130,7 +133,7 @@ class AnalysisResult(AnalysisData):
     blunder_potential: BlunderPotential
 
     PV: list[str]
-    
+
     symmetric: bool
     mirrored: bool
 
