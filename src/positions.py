@@ -186,6 +186,16 @@ def from_chess960_uid(uid: int, N: int = 960) -> tuple[int, int]:
     return (white, black)
 
 
+def is_symmetric(white: str, black: str) -> bool:
+    """Check if a position is symmetric"""
+    return white == black
+
+
+def is_mirrored(white: str, black: str) -> bool:
+    """Check if a position is mirrored"""
+    return white == black[::-1]
+
+
 if __name__ == "__main__":
     N = 960
     for i in tqdm(range(N), desc="Testing position creation"):
