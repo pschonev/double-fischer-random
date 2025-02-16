@@ -144,7 +144,7 @@ class AnalysisResult(AnalysisData):
         # load the config from the configs
         cfg = load_config(data.cfg_id)
 
-        wdl = chess.engine.Cp(data.analysis_tree.centipawn).wdl()
+        wdl = chess.engine.Cp(data.analysis_tree.cpl).wdl()
         balance_score = cls._calculate_balance_score(wdl)
         sharpness = cls._calculate_sharpness_score(
             data.analysis_tree,
@@ -229,9 +229,7 @@ class AnalysisResult(AnalysisData):
 
             # Count balanced moves at this position
             balanced_moves = sum(
-                1
-                for child in node.children
-                if abs(child.centipawn) <= balanced_threshold
+                1 for child in node.children if abs(child.cpl) <= balanced_threshold
             )
 
             # Update accumulator for the appropriate player
@@ -241,7 +239,7 @@ class AnalysisResult(AnalysisData):
 
             # Recurse for each child
             for child in node.children:
-                if abs(child.centipawn) <= balanced_threshold:
+                if abs(child.cpl) <= balanced_threshold:
                     _calculate_sharpness(
                         child,
                         not white,  # Switch sides
@@ -307,7 +305,7 @@ class AnalysisResult(AnalysisData):
 
             # Get best evaluation as baseline
             best_eval = (
-                max(child.centipawn for child in node.children) / 100.0
+                max(child.cpl for child in node.children) / 100.0
             )  # Convert to pawns
 
             acc = white_acc if white else black_acc
@@ -315,7 +313,7 @@ class AnalysisResult(AnalysisData):
 
             # Check each move for blunders
             for child in node.children:
-                move_eval = child.centipawn / 100.0  # Convert to pawns
+                move_eval = child.cpl / 100.0  # Convert to pawns
                 eval_drop = best_eval - move_eval
 
                 if eval_drop >= blunder_threshold:
@@ -324,7 +322,7 @@ class AnalysisResult(AnalysisData):
 
             # Recurse for each child that isn't a clear blunder
             for child in node.children:
-                move_eval = child.centipawn / 100.0
+                move_eval = child.cpl / 100.0
                 if best_eval - move_eval < blunder_threshold:
                     calculate_position_blunder_potential(
                         child,
