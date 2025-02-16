@@ -7,6 +7,8 @@ from enum import IntEnum
 import functools
 from typing import Dict
 
+from src.positions import get_chess960_position, chess960_uid
+
 # Configuration file path
 ANALYSIS_CONFIGS_PATH = "analysis_configs.toml"
 
@@ -75,12 +77,14 @@ class PositionNode(msgspec.Struct):
     move: str
     cpl: int
     children: list[Self]
+    pv: list[str]
 
 
 class AnalysisData(msgspec.Struct):
     """Contains the minimum data for an analysis"""
 
-    dfrc_id: int
+    white_id: int
+    black_id: int
 
     analyzer: str
     validator: str
@@ -99,21 +103,14 @@ class Sharpness(msgspec.Struct):
     total: float
 
 
-class BlunderPotential(msgspec.Struct):
-    """Contains the blunder potential of a position
-    The total is a combination of the white and black blunder potential"""
-
-    white: float
-    black: float
-    total: float
-
-
 class AnalysisResult(AnalysisData):
     """Contains the result of an analysis with the scores.
 
     Attributes:
         playability_score: The harmonic mean of the sharpness_score and the win_loss_ratio
     """
+
+    dfrc_id: int
 
     white_id: int
     black_id: int
@@ -130,10 +127,6 @@ class AnalysisResult(AnalysisData):
 
     wdl: chess.engine.Wdl
 
-    blunder_potential: BlunderPotential
-
-    PV: list[str]
-
     symmetric: bool
     mirrored: bool
 
@@ -145,6 +138,10 @@ class AnalysisResult(AnalysisData):
         cfg = load_config(data.cfg_id)
 
         wdl = chess.engine.Cp(data.analysis_tree.cpl).wdl()
+
+        white = get_chess960_position(data.white_id)
+        black = get_chess960_position(data.black_id)
+
         balance_score = cls._calculate_balance_score(wdl)
         sharpness = cls._calculate_sharpness_score(
             data.analysis_tree,
@@ -152,8 +149,12 @@ class AnalysisResult(AnalysisData):
         )
 
         return cls(
-            white=data.white,
-            black=data.black,
+            white_id=data.white_id,
+            black_id=data.black_id,
+            white=white,
+            black=black,
+            dfrc_id=chess960_uid(data.white_id, data.black_id),
+            pv=data.analysis_tree.pv,
             analyzer=data.analyzer,
             validator=data.validator,
             cfg_id=data.cfg_id,
@@ -162,9 +163,8 @@ class AnalysisResult(AnalysisData):
             balance_score=balance_score,
             sharpness=sharpness,
             wdl=wdl,
-            blunder_potential=cls._calculate_blunder_potential(data.analysis_tree),
-            symmetric=cls._is_symmetric(data.white, data.black),
-            mirrored=cls._is_mirrored(data.white, data.black),
+            symmetric=cls._is_symmetric(white, black),
+            mirrored=cls._is_mirrored(white, black),
             playability_score=harmonic_mean(
                 balance_score,
                 sharpness.total,
@@ -266,110 +266,3 @@ class AnalysisResult(AnalysisData):
             combined_sharpness = harmonic_mean(white_sharpness, black_sharpness)
 
         return Sharpness(white_sharpness, black_sharpness, combined_sharpness)
-
-    @staticmethod
-    def _calculate_blunder_potential(
-        analysis_tree: PositionNode,
-        blunder_threshold: float = 2.0,  # Consider moves losing 2+ pawns as blunders
-    ) -> BlunderPotential:
-        """Calculate the blunder potential of a position
-
-        Blunder potential considers:
-        1. How many moves are blunders (eval drops by threshold)
-        2. How severe the blunders are (magnitude of eval drops)
-        3. The ratio of blunders to total legal moves
-
-        Args:
-            analysis_tree: The analysis tree containing position evaluations
-            blunder_threshold: Minimum eval drop (in pawns) to consider a move a blunder
-
-        Returns:
-            BlunderPotential containing white, black and combined blunder potentials
-        """
-
-        class BlunderAccumulator(msgspec.Struct):
-            total_blunder_severity: float = 0.0  # Sum of all eval drops
-            blunder_count: int = 0  # Number of moves that are blunders
-            total_moves: int = 0  # Total number of moves analyzed
-
-        white_acc = BlunderAccumulator()
-        black_acc = BlunderAccumulator()
-
-        def calculate_position_blunder_potential(
-            node: PositionNode,
-            white: bool,
-            ply: int = 0,
-        ) -> None:
-            if not node.children:
-                return
-
-            # Get best evaluation as baseline
-            best_eval = (
-                max(child.cpl for child in node.children) / 100.0
-            )  # Convert to pawns
-
-            acc = white_acc if white else black_acc
-            acc.total_moves += len(node.children)
-
-            # Check each move for blunders
-            for child in node.children:
-                move_eval = child.cpl / 100.0  # Convert to pawns
-                eval_drop = best_eval - move_eval
-
-                if eval_drop >= blunder_threshold:
-                    acc.blunder_count += 1
-                    acc.total_blunder_severity += eval_drop
-
-            # Recurse for each child that isn't a clear blunder
-            for child in node.children:
-                move_eval = child.cpl / 100.0
-                if best_eval - move_eval < blunder_threshold:
-                    calculate_position_blunder_potential(
-                        child,
-                        not white,  # Switch sides
-                        ply + 1,
-                    )
-
-        # Start recursion from root
-        calculate_position_blunder_potential(analysis_tree, white=True)
-
-        def calculate_final_potential(acc: BlunderAccumulator) -> float:
-            if acc.total_moves == 0:
-                return 0.0
-
-            # Combine three factors:
-            # 1. Average severity of blunders
-            severity = (
-                acc.total_blunder_severity / acc.blunder_count
-                if acc.blunder_count > 0
-                else 0
-            )
-
-            # 2. Ratio of blunders to total moves
-            blunder_ratio = acc.blunder_count / acc.total_moves
-
-            # 3. Raw number of blunder opportunities (scaled)
-            blunder_opportunities = min(acc.blunder_count / 5, 1.0)  # Cap at 5 blunders
-
-            # Combine factors with weights
-            return (
-                0.4 * severity  # How bad are the blunders
-                + 0.4 * blunder_ratio  # What fraction of moves are blunders
-                + 0.2 * blunder_opportunities  # Raw blunder count (capped)
-            )
-
-        white_potential = calculate_final_potential(white_acc)
-        black_potential = calculate_final_potential(black_acc)
-
-        # Calculate combined potential using harmonic mean
-        total_potential = (
-            harmonic_mean(white_potential, black_potential)
-            if white_potential + black_potential > 0
-            else 0.0
-        )
-
-        return BlunderPotential(
-            white=white_potential,
-            black=black_potential,
-            total=total_potential,
-        )
