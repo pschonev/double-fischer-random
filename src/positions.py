@@ -186,12 +186,12 @@ def from_chess960_uid(uid: int, N: int = 960) -> tuple[int, int]:
     return (white, black)
 
 
-def is_symmetric(white: str, black: str) -> bool:
+def is_mirrored(white: str, black: str) -> bool:
     """Check if a position is symmetric"""
     return white == black
 
 
-def is_mirrored(white: str, black: str) -> bool:
+def is_flipped(white: str, black: str) -> bool:
     """Check if a position is mirrored"""
     return white == black[::-1]
 
