@@ -18,6 +18,7 @@ class AnalysisConfig(msgspec.Struct):
     """Contains the configuration for an analysis
 
     Attributes:
+        stockfish_version: The Stockfish version to use
         stockfish_depth: The Stockfish depth to use on every move except the first move
         stockfish_depth_firstmove: The depth to which Stockfish should analyze the first move
         analysis_depth: The depth to which the analysis should be performed
@@ -116,10 +117,11 @@ class AnalysisResult(AnalysisData):
 
     cfg: AnalysisConfig
 
-    playability_score: float
+    cpl: int
+    pv: list[str]
 
-    balance_score: float
     sharpness: Sharpness
+    playability_score: float
 
     symmetric: bool
     mirrored: bool
@@ -127,44 +129,41 @@ class AnalysisResult(AnalysisData):
     @classmethod
     def from_analysis_data(cls, data: AnalysisData) -> Self:
         """Create an AnalysisResult from an AnalysisData instance"""
-
-        # load the config from the configs
         cfg = load_config(data.cfg_id)
-
-        wdl = chess.engine.Cp(data.analysis_tree.cpl).wdl()
 
         white = get_chess960_position(data.white_id)
         black = get_chess960_position(data.black_id)
 
-        balance_score = cls._calculate_balance_score(wdl)
+        balance_score = cls._calculate_balance_score(data.analysis_tree.cpl)
         sharpness = cls._calculate_sharpness_score(
             data.analysis_tree,
             cfg.balanced_threshold,
         )
 
         return cls(
+            dfrc_id=chess960_uid(data.white_id, data.black_id),
             white_id=data.white_id,
             black_id=data.black_id,
             white=white,
             black=black,
-            dfrc_id=chess960_uid(data.white_id, data.black_id),
-            analyzer=data.analyzer,
-            validator=data.validator,
             cfg_id=data.cfg_id,
             cfg=cfg,
+            analyzer=data.analyzer,
+            validator=data.validator,
             analysis_tree=data.analysis_tree,
-            balance_score=balance_score,
-            sharpness=sharpness,
-            symmetric=is_symmetric(white, black),
-            mirrored=is_mirrored(white, black),
+            cpl=data.analysis_tree.cpl,
+            pv=data.analysis_tree.pv,
             playability_score=harmonic_mean(
                 balance_score,
                 sharpness.total,
             ),
+            sharpness=sharpness,
+            symmetric=is_symmetric(white, black),
+            mirrored=is_mirrored(white, black),
         )
 
     @staticmethod
-    def _calculate_balance_score(wdl: chess.engine.Wdl) -> float:
+    def _calculate_balance_score(cpl: int) -> float:
         """Calculate the balance score from the win, draw, loss probabilities
 
         Args:
@@ -174,6 +173,7 @@ class AnalysisResult(AnalysisData):
             A float between 0 and 1 representing the balance of the position.
             0 is perfectly balanced, 1 is completely unbalanced.
         """
+        wdl = chess.engine.Cp(cpl).wdl()
         return abs(wdl.wins - wdl.losses) / 1000
 
     @staticmethod
