@@ -106,7 +106,7 @@ def get_scharnagl_number(position: str) -> int:
     return scharnagl
 
 
-def chess960_uid(white: int, black: int, N: int = 960) -> int:
+def chess960_to_dfrc_uid(white: int, black: int, N: int = 960) -> int:
     """Maps a pair of Chess960 indices to a unique integer ID.
 
     This function maps a pair of Chess960 indices (w, b), each in the range
@@ -153,7 +153,7 @@ def chess960_uid(white: int, black: int, N: int = 960) -> int:
     return row_base + offset
 
 
-def from_chess960_uid(uid: int, N: int = 960) -> tuple[int, int]:
+def dfrc_to_chess960_uids(uid: int, N: int = 960) -> tuple[int, int]:
     """Maps a unique integer ID back to a pair of Chess960 indices.
 
     This function is the inverse of `chess960_uid`. It takes a unique integer
