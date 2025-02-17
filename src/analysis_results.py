@@ -4,7 +4,12 @@ import chess.engine
 import msgspec
 
 from src.analysis_config import AnalysisConfig, load_config
-from src.positions import get_chess960_position, chess960_uid, is_mirrored, is_flipped
+from src.positions import (
+    get_chess960_position,
+    chess960_to_dfrc_uid,
+    is_mirrored,
+    is_flipped,
+)
 from src.utils import harmonic_mean
 
 
@@ -32,12 +37,14 @@ class AnalysisData(msgspec.Struct):
 
 
 class Sharpness(msgspec.Struct):
-    """Contains the sharpness of a position
-    The total is a combination of the white and black sharpness"""
+    """
+    Contains the sharpness of a position.
+    A `None` value indicates that no good moves were available.
+    """
 
-    white: float
-    black: float
-    total: float
+    white: float | None
+    black: float | None
+    total: float | None
 
 
 class AnalysisResult(AnalysisData):
@@ -61,7 +68,7 @@ class AnalysisResult(AnalysisData):
     pv: list[str]
 
     sharpness: Sharpness
-    playability_score: float
+    playability_score: float | None
 
     mirrored: bool
     flipped: bool
@@ -79,9 +86,16 @@ class AnalysisResult(AnalysisData):
             data.analysis_tree,
             cfg.balanced_threshold,
         )
+        if sharpness.total is None:
+            playability_score = None
+        else:
+            playability_score = harmonic_mean(
+                balance_score,
+                sharpness.total,
+            )
 
         return cls(
-            dfrc_id=chess960_uid(data.white_id, data.black_id),
+            dfrc_id=chess960_to_dfrc_uid(data.white_id, data.black_id),
             white_id=data.white_id,
             black_id=data.black_id,
             white=white,
@@ -93,10 +107,7 @@ class AnalysisResult(AnalysisData):
             analysis_tree=data.analysis_tree,
             cpl=data.analysis_tree.cpl,
             pv=data.analysis_tree.pv,
-            playability_score=harmonic_mean(
-                balance_score,
-                sharpness.total,
-            ),
+            playability_score=playability_score,
             sharpness=sharpness,
             mirrored=is_mirrored(white, black),
             flipped=is_flipped(white, black),
@@ -121,27 +132,27 @@ class AnalysisResult(AnalysisData):
         analysis_tree: PositionNode,
         balanced_threshold: int,
     ) -> Sharpness:
-        """Calculate the sharpness score of a position
+        """Calculate the sharpness score of a position.
 
-        A branch (i.e. a decision point) will only contribute to sharpness if there is at least one
-        balanced (good) move. If no moves are good, we treat that branch as non-forcing (sharpness 0).
-        Furthermore, if exactly one move is balanced, then the branch is maximally forcing (score 1),
-        regardless of the total number of moves.
+        A branch (i.e. a decision point) contributes to the sharpness only if there is at least one
+        balanced (good) move. If no moves are good (or no moves are analyzed), we return None so the
+        absence of good moves is not conflated with a branch that is just non-forcing.
 
-        For branches with more than one balanced move, the score is scaled linearly so that:
-        - all moves good (x = t) gives 0 sharpness,
-        - one move good (x = 1) gives 1 sharpness, and
-        - intermediate cases interpolate linearly.
+        For branches with balanced moves:
+          - if there is exactly one move available (or one balanced move), the branch is considered
+            maximally forcing (score 1.0),
+          - if all available moves are good the branch yields 0 sharpness,
+          - intermediate cases are scaled linearly.
 
         Args:
             analysis_tree: The root of the analysis tree.
-            balanced_threshold: Moves with |cpl| below or equal to this threshold are deemed balanced.
+            balanced_threshold: Moves with |cpl| less than or equal to this threshold are deemed balanced.
 
         Returns:
-            A Sharpness object with sharpness scores for white, black, and their combination.
+            A Sharpness object with sharpness scores for white, black, and their combined harmonic mean,
+            or None if no good moves were found.
         """
 
-        # Local accumulator for moves.
         class SharpnessAccumulator(msgspec.Struct):
             balanced_moves: int = 0
             total_positions: int = 0
@@ -154,18 +165,14 @@ class AnalysisResult(AnalysisData):
             white: bool,
             ply: int = 0,
         ) -> None:
-            # Stop if there are no candidate moves forwarded
             if not node.children:
                 return
 
-            # Count moves that are considered balanced/good at this decision point.
             balanced_moves = sum(
                 1 for child in node.children if abs(child.cpl) <= balanced_threshold
             )
 
-            # Note: The way your tree is built, the children of the current node represent the moves
-            # available to the player who is about to move. Thus, we update the accumulator for the
-            # opponent. (For example, at the root call with white=True, the children are black’s moves.)
+            # The children of the current node represent moves available to the opponent.
             acc = black_acc if white else white_acc
             acc.balanced_moves += balanced_moves
             acc.total_positions += len(node.children)
@@ -175,30 +182,23 @@ class AnalysisResult(AnalysisData):
                 if abs(child.cpl) <= balanced_threshold:
                     _calculate_sharpness(child, not white, ply + 1)
 
-        # Initiate recursion.
         _calculate_sharpness(analysis_tree, white=True)
 
-        # Now, compute a final sharpness score for a given accumulator.
-        def calculate_final_score(acc: SharpnessAccumulator) -> float:
-            if acc.total_positions == 0:
-                return 0.0  # no moves analyzed
-            if acc.balanced_moves == 0:
-                return 0.0  # branch with no good moves is disregarded
-            # If there is exactly one balanced move at the decision point OR only one move in total,
-            # that branch is maximally forcing.
+        def calculate_final_score(acc: SharpnessAccumulator) -> float | None:
+            if acc.total_positions == 0 or acc.balanced_moves == 0:
+                return None  # Special case: no moves analyzed or no good moves found.
             if acc.total_positions == 1 or acc.balanced_moves == 1:
                 return 1.0
-            # Otherwise, scale the sharpness so that:
-            #   1 balanced move yields 1, and all moves balanced yields 0.
             return 1.0 - ((acc.balanced_moves - 1) / (acc.total_positions - 1))
 
         white_sharpness = calculate_final_score(white_acc)
         black_sharpness = calculate_final_score(black_acc)
 
-        # Combine using the harmonic mean as before.
-        if white_sharpness + black_sharpness == 0:
-            combined_sharpness = 0.0
+        if white_sharpness is None or black_sharpness is None:
+            combined_sharpness = None
         else:
             combined_sharpness = harmonic_mean(white_sharpness, black_sharpness)
 
-        return Sharpness(white_sharpness, black_sharpness, combined_sharpness)
+        return Sharpness(
+            white=white_sharpness, black=black_sharpness, total=combined_sharpness
+        )
