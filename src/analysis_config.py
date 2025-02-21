@@ -1,11 +1,8 @@
 import msgspec
 
 from enum import IntEnum
-import functools
-from typing import Dict
 
-# Configuration file path
-ANALYSIS_CONFIGS_PATH = "analysis_configs.toml"
+CONFIG_FILE = "analysis_configs.toml"
 
 
 class AnalysisConfig(msgspec.Struct):
@@ -22,13 +19,21 @@ class AnalysisConfig(msgspec.Struct):
 
     stockfish_version: str
 
-    stockfish_depth: int
-    stockfish_depth_firstmove: int
-
-    analysis_depth: int
-    num_top_moves: int
+    analysis_depth_ply: int  # how many halfmoves to analyze
+    stockfish_depth_per_ply: list[int]  # how deep to analyze each halfmove
+    num_top_moves_per_ply: list[int]  # how many top moves to record for each halfmove
 
     balanced_threshold: int
+
+    def __post_init__(self) -> None:
+        if len(self.stockfish_depth_per_ply) != self.analysis_depth_ply:
+            raise ValueError(
+                "stockfish_depth_per_ply must have the same length as analysis_depth_ply"
+            )
+        if len(self.num_top_moves_per_ply) != self.analysis_depth_ply:
+            raise ValueError(
+                "num_top_moves_per_ply must have the same length as analysis_depth_ply"
+            )
 
 
 class ConfigId(IntEnum):
@@ -43,20 +48,16 @@ class ConfigId(IntEnum):
 
 
 class AnalysisConfigs(msgspec.Struct):
-    """Container for all analysis configurations"""
+    """Container for all configurations"""
 
-    configs: Dict[ConfigId, AnalysisConfig]
-
-
-@functools.cache
-def load_configs(path: str = ANALYSIS_CONFIGS_PATH) -> AnalysisConfigs:
-    """Load all configs from TOML file"""
-    with open(path, "rb") as f:
-        return msgspec.toml.decode(f.read())
+    configs: dict[str, AnalysisConfig]
 
 
 def load_config(config_id: str | ConfigId) -> AnalysisConfig:
     """Load a specific config by its ID"""
-    if isinstance(config_id, str):
-        config_id = ConfigId(config_id)
-    return load_configs().configs[config_id]
+    if isinstance(config_id, ConfigId):
+        config_id = config_id.name
+
+    with open(CONFIG_FILE, "rb") as f:
+        cfg = msgspec.toml.decode(f.read(), type=AnalysisConfigs)
+        return cfg.configs[config_id]
