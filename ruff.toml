@@ -2,9 +2,7 @@ line-length = 88
 target-version = "py312"
 
 [lint]
-select = [
-    "ALL"
-]
+select = ["ALL"]
 ignore = [
     "ANN101",  # Missing type annotation for self in method
     "ANN102",  # Missing type annotation for cls in class method
