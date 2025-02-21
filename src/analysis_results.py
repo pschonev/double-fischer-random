@@ -13,13 +13,18 @@ from src.positions import (
 from src.utils import harmonic_mean
 
 
+class PositionAnalysis(msgspec.Struct):
+    cpl: int | None
+    mate: int | None
+    pv: list[str] | None
+
+
 class PositionNode(msgspec.Struct):
     """Node in the position analysis tree which represents a halfmove (ply) and its evaluation"""
 
     move: str
-    cpl: int
     children: list[Self]
-    pv: list[str]
+    analysis: PositionAnalysis
 
 
 class AnalysisData(msgspec.Struct):
@@ -28,8 +33,7 @@ class AnalysisData(msgspec.Struct):
     white_id: int
     black_id: int
 
-    analyzer: str
-    validator: str
+    analyzer: str  # github user
 
     cfg_id: str
 
@@ -64,8 +68,7 @@ class AnalysisResult(AnalysisData):
 
     cfg: AnalysisConfig
 
-    cpl: int
-    pv: list[str]
+    analysis_starting_pos: PositionAnalysis
 
     sharpness: Sharpness
     playability_score: float | None
@@ -81,7 +84,11 @@ class AnalysisResult(AnalysisData):
         white = get_chess960_position(data.white_id)
         black = get_chess960_position(data.black_id)
 
-        balance_score = cls._calculate_balance_score(data.analysis_tree.cpl)
+        root_analysis = data.analysis_tree.analysis
+
+        balance_score = cls._calculate_balance_score(
+            root_analysis.cpl, root_analysis.mate
+        )
         sharpness = cls._calculate_sharpness_score(
             data.analysis_tree,
             cfg.balanced_threshold,
@@ -103,10 +110,12 @@ class AnalysisResult(AnalysisData):
             cfg_id=data.cfg_id,
             cfg=cfg,
             analyzer=data.analyzer,
-            validator=data.validator,
             analysis_tree=data.analysis_tree,
-            cpl=data.analysis_tree.cpl,
-            pv=data.analysis_tree.pv,
+            analysis_starting_pos=PositionAnalysis(
+                cpl=root_analysis.cpl,
+                mate=root_analysis.mate,
+                pv=root_analysis.pv,
+            ),
             playability_score=playability_score,
             sharpness=sharpness,
             mirrored=is_mirrored(white, black),
@@ -114,7 +123,7 @@ class AnalysisResult(AnalysisData):
         )
 
     @staticmethod
-    def _calculate_balance_score(cpl: int) -> float:
+    def _calculate_balance_score(cpl: int | None, mate: int | None) -> float:
         """Calculate the balance score from the win, draw, loss probabilities
 
         Args:
@@ -124,6 +133,10 @@ class AnalysisResult(AnalysisData):
             A float between 0 and 1 representing the balance of the position.
             0 is perfectly balanced, 1 is completely unbalanced.
         """
+        if mate is None and cpl is None:
+            raise ValueError("At least one of mate or cpl must be provided")
+        if cpl is None:
+            return 1
         wdl = chess.engine.Cp(cpl).wdl()
         return abs(wdl.wins - wdl.losses) / 1000
 
@@ -169,7 +182,10 @@ class AnalysisResult(AnalysisData):
                 return
 
             balanced_moves = sum(
-                1 for child in node.children if abs(child.cpl) <= balanced_threshold
+                1
+                for child in node.children
+                if child.analysis.cpl is not None
+                and abs(child.analysis.cpl) <= balanced_threshold
             )
 
             # The children of the current node represent moves available to the opponent.
@@ -179,7 +195,10 @@ class AnalysisResult(AnalysisData):
 
             # Continue recursively only on moves that are balanced.
             for child in node.children:
-                if abs(child.cpl) <= balanced_threshold:
+                if (
+                    child.analysis.cpl is not None
+                    and abs(child.analysis.cpl) <= balanced_threshold
+                ):
                     _calculate_sharpness(child, not white, ply + 1)
 
         _calculate_sharpness(analysis_tree, white=True)
