@@ -1,8 +1,10 @@
 from typing import Final
+import logging
 
 from tqdm import tqdm
 
-from src.utils import logger
+logger = logging.getLogger(__name__)
+
 
 # Pre-computed knight position pairs for each value of n (0-9)
 # fmt: off
