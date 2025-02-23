@@ -13,6 +13,7 @@ dependencies = [
     "msgspec>=0.18.6",
     "pqdict>=1.4.0",
     "tqdm>=4.67.1",
+    "sqlalchemy>=2.0.38",
 ]
 
 [tool.uv]
