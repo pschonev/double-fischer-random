@@ -1,0 +1,50 @@
+name: Validate Contributions
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches:
+      - main
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    outputs:
+      start_id: ${{ steps.get-ids.outputs.start_id }}
+      end_id: ${{ steps.get-ids.outputs.end_id }}
+      validation_passed: ${{ steps.validation.outputs.passed }}
+      
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          
+      - name: Install dependencies
+        run: |
+          pip install pandas numpy jsonschema
+          
+      - name: Extract IDs from branch name
+        id: get-ids
+        run: |
+          BRANCH_NAME=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
+          if [[ $BRANCH_NAME =~ analysis/([0-9]+)_([0-9]+) ]]; then
+            echo "start_id=${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
+            echo "end_id=${BASH_REMATCH[2]}" >> $GITHUB_OUTPUT
+          else
+            echo "Branch name does not match required format: analysis/{start_id}_{end_id}"
+            exit 1
+          fi
+          
+      - name: Run validation
+        id: validation
+        run: |
+          python scripts/validate_contributions.py
+        env:
+          START_ID: ${{ steps.get-ids.outputs.start_id }}
+          END_ID: ${{ steps.get-ids.outputs.end_id }}
