@@ -1,6 +1,6 @@
 import dataclasses
 from pathlib import Path
-from typing import Generic, Type, TypeVar, Optional
+from typing import Type
 
 from sqlalchemy import Sequence, UniqueConstraint
 from sqlalchemy.sql import text
@@ -8,11 +8,9 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 
-T = TypeVar("T", bound=SQLModel)
-
 
 @dataclasses.dataclass
-class ParquetDatabase(Generic[T]):
+class ParquetDatabase[T: SQLModel]:
     model_class: Type[T]
     parquet_file: Path
     engine: Engine = dataclasses.field(init=False)
