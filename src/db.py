@@ -1,21 +1,30 @@
 import dataclasses
+import logging
+import warnings
 from pathlib import Path
-from typing import Type
 
-from sqlalchemy import Sequence, UniqueConstraint
-from sqlalchemy.sql import text
 from sqlalchemy.engine import Engine
-from sqlalchemy.exc import IntegrityError
-from sqlmodel import Field, Session, SQLModel, create_engine, select
+from sqlalchemy.exc import IntegrityError, SAWarning
+from sqlalchemy.sql import text
+from sqlmodel import (
+    Field,
+    PrimaryKeyConstraint,
+    Session,
+    SQLModel,
+    create_engine,
+    select,
+)
+
+logger = logging.getLogger(__name__)
 
 
 @dataclasses.dataclass
 class ParquetDatabase[T: SQLModel]:
-    model_class: Type[T]
+    model_class: type[T]
     parquet_file: Path
     engine: Engine = dataclasses.field(init=False)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.engine = create_engine("duckdb:///:memory:")
         SQLModel.metadata.create_all(self.engine)
 
@@ -25,37 +34,35 @@ class ParquetDatabase[T: SQLModel]:
                 # Load the data from parquet
                 session.exec(
                     text(
-                        f"INSERT INTO {self.model_class.__tablename__} "
-                        f"SELECT * FROM read_parquet('{self.parquet_file}')"
-                    )
-                )
+                        f"INSERT INTO {self.model_class.__tablename__} "  # noqa: S608
+                        f"SELECT * FROM read_parquet('{self.parquet_file}')",
+                    ),  # type: ignore
+                )  # type: ignore
                 session.commit()
 
-    def append(self, *items: T) -> None:
+    def append(self, items: list[T]) -> None:
         """Add new items to the database."""
-        with Session(self.engine) as session:
-            # Find the maximum ID to ensure new items get proper IDs
-            result = session.exec(
-                text(f"SELECT MAX(id) FROM {self.model_class.__tablename__}")
-            ).first()
-            next_id = (result[0] if result and result[0] is not None else 0) + 1
+        # Convert SQLAlchemy warnings to exceptions for this operation
+        with warnings.catch_warnings():
+            warnings.filterwarnings("error", category=SAWarning)
 
-            for item in items:
-                # Set ID if not already set
-                if getattr(item, "id", None) is None:
-                    setattr(item, "id", next_id)
+            with Session(self.engine) as session:
+                for item in items:
+                    try:
+                        session.add(item)
+                        session.flush()  # This will now raise an exception for warnings
+                    except IntegrityError as e:
+                        raise ValueError(
+                            f"Aborting attempt to add duplicate item: {item}",
+                        ) from e
+                    except SAWarning as e:
+                        raise SAWarning(
+                            "Detected duplicate primary key in batch. Aborting append operation. Item:",
+                            str(item),
+                        ) from e
 
-                try:
-                    session.add(item)
-                    session.flush()  # This will check constraints without committing
-                    next_id += 1  # Only increment ID after successful addition
-                except IntegrityError:
-                    session.rollback()  # Roll back the failed operation
-                    print(f"Skipped duplicate item: {item}")
-                    continue
-
-            session.commit()
-            self.save()
+                session.commit()
+                self.save()
 
     def save(self, codec: str = "zstd") -> None:
         """Save the database to parquet file with specified compression."""
@@ -63,49 +70,88 @@ class ParquetDatabase[T: SQLModel]:
             session.exec(
                 text(
                     f"COPY {self.model_class.__tablename__} TO '{self.parquet_file}' "
-                    f"(FORMAT 'parquet', CODEC '{codec}')"
-                )
-            )
-
-
-def id_field(table_name: str):
-    sequence = Sequence(f"{table_name}_id_seq")
-    return Field(
-        default=None,
-        primary_key=True,
-        sa_column_args=[sequence],
-        sa_column_kwargs={"server_default": sequence.next_value()},
-    )
+                    f"(FORMAT 'parquet', CODEC '{codec}')",
+                ),  # type: ignore
+            )  # type: ignore
 
 
 class Hero(SQLModel, table=True):
-    id: int | None = id_field("hero")
+    """Example class with composite primary key for testing ParquetDatabase."""
 
+    __tablename__ = "heroes"  # type: ignore
+
+    # Composite primary key
+    universe_id: int = Field(primary_key=True)
+    hero_code: str = Field(primary_key=True)
+
+    # Regular fields
     name: str = Field(index=True)
-    secret_name: str
+    alias_name: str
     age: int = Field(default=0)
 
-    # Add a unique constraint on name and age
-    __table_args__ = (UniqueConstraint("name", "age", name="unique_name_age"),)
+    __table_args__ = (PrimaryKeyConstraint("universe_id", "hero_code", name="pk_hero"),)
 
 
 if __name__ == "__main__":
-    db = ParquetDatabase(model_class=Hero, parquet_file=Path("data.parquet"))
+    db = ParquetDatabase(model_class=Hero, parquet_file=Path("heroes.parquet"))
 
-    # Add some heroes
+    # Add some heroes with composite keys
     db.append(
-        Hero(name="Deadpond", secret_name="Dive Wilson"),
-        Hero(name="Spider-Boy", secret_name="Pedro Parqueador"),
-        Hero(name="Rusty-Man", secret_name="Tommy Sharp", age=48),
-        Hero(name="Tarantula", secret_name="Natalia Roman-on"),
-        Hero(name="Black Lion", secret_name="Trevor Challa"),
-        Hero(name="Dr. Weird", secret_name="Steve Weird", age=36),
-        Hero(name="Dr. Weird", secret_name="Steve Weird", age=12),
+        [
+            Hero(
+                universe_id=1,
+                hero_code="DP",
+                name="Deadpond",
+                alias_name="Dive Wilson",
+            ),
+            Hero(
+                universe_id=1,
+                hero_code="SB",
+                name="Spider-Boy",
+                alias_name="Pedro Parqueador",
+            ),
+            Hero(
+                universe_id=1,
+                hero_code="RM",
+                name="Rusty-Man",
+                alias_name="Tommy Sharp",
+                age=48,
+            ),
+            Hero(
+                universe_id=2,
+                hero_code="TR",
+                name="Tarantula",
+                alias_name="Natalia Roman-on",
+            ),
+            Hero(
+                universe_id=2,
+                hero_code="BL",
+                name="Black Lion",
+                alias_name="Trevor Challa",
+            ),
+            # Same hero code but different universe - should be allowed
+            Hero(
+                universe_id=2,
+                hero_code="DP",
+                name="Dr. Peculiar",
+                alias_name="Steve Weird",
+                age=36,
+            ),
+            # Try adding a duplicate - should be skipped
+            Hero(
+                universe_id=1,
+                hero_code="DP",
+                name="Deadpond Clone",
+                alias_name="Dive Wilson Clone",
+            ),
+        ],
     )
     db.save()
 
-    # print the db
+    # Print the database contents
     with Session(db.engine) as session:
         heroes = session.exec(select(Hero)).all()
         for hero in heroes:
-            print(hero)
+            logging.info(
+                f"Hero {hero.universe_id}-{hero.hero_code}: {hero.name} ({hero.alias_name}), Age: {hero.age}",
+            )
