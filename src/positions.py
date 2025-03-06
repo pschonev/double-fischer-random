@@ -1,25 +1,26 @@
-from typing import Final
 import logging
+from typing import Final
 
 from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 
+N_FRC: Final[int] = 960  # number of possible Fischer Random Chess positions
 
 # Pre-computed knight position pairs for each value of n (0-9)
 # fmt: off
-KNIGHT_POSITIONS: Final[tuple[tuple[int, int], ...]] = (  
-    (0, 1), (0, 2), (0, 3), (0, 4),  # n = 0-3  
-    (1, 2), (1, 3), (1, 4),          # n = 4-6  
-    (2, 3), (2, 4),                   # n = 7-8  
-    (3, 4),                           # n = 9  
-)  
+KNIGHT_POSITIONS: Final[tuple[tuple[int, int], ...]] = (
+    (0, 1), (0, 2), (0, 3), (0, 4),  # n = 0-3
+    (1, 2), (1, 3), (1, 4),          # n = 4-6
+    (2, 3), (2, 4),                   # n = 7-8
+    (3, 4),                           # n = 9
+)
 # fmt: on
 
 
 def get_chess960_position(scharnagl: int) -> str:
     """Convert a Chess960 position number to its string representation."""
-    if not 0 <= scharnagl <= 959:
+    if not 0 <= scharnagl <= N_FRC - 1:
         raise ValueError(f"chess960 position index not 0 <= {scharnagl} <= 959")
 
     position = [""] * 8
@@ -56,7 +57,7 @@ def get_chess960_position(scharnagl: int) -> str:
 
     # Place rooks and king in remaining squares (RKR pattern)
     remaining = [i for i in range(8) if not position[i]]
-    if len(remaining) != 3:
+    if len(remaining) != 3:  # noqa: PLR2004
         raise ValueError(f"Invalid remaining squares: {remaining}")
     position[remaining[0]] = position[remaining[2]] = "r"
     position[remaining[1]] = "k"
@@ -68,7 +69,7 @@ def get_scharnagl_number(position: str) -> int:
     """Convert a Chess960 position string to its Scharnagl number (0-959)."""
     # Get bishop positions
     b_positions = sorted(i for i, p in enumerate(position) if p == "b")
-    if len(b_positions) != 2:
+    if len(b_positions) != 2:  # noqa: PLR2004
         raise ValueError("Invalid number of bishops")
 
     # Calculate bishop numbers
@@ -89,26 +90,24 @@ def get_scharnagl_number(position: str) -> int:
 
     # Get knight positions
     n_positions = sorted(i for i, p in enumerate(position) if p == "n")
-    if len(n_positions) != 2:
+    if len(n_positions) != 2:  # noqa: PLR2004
         raise ValueError("Invalid number of knights")
 
     # Calculate relative knight positions
-    available = [i for i in range(8) if i not in (b_positions + [q_pos])]
+    available = [i for i in range(8) if i not in ([*b_positions, q_pos])]
     n1, n2 = sorted(available.index(pos) for pos in n_positions)
 
     # Find knight pattern number
     try:
         n = KNIGHT_POSITIONS.index((n1, n2))
-    except ValueError:
-        raise ValueError(f"Invalid knight positions: {n1}, {n2}")
+    except ValueError as e:
+        raise ValueError(f"Invalid knight positions: {n1}, {n2}") from e
 
     # Calculate final Scharnagl number
-    scharnagl = ((n * 6 + q) * 4 + bb) * 4 + bw
-
-    return scharnagl
+    return ((n * 6 + q) * 4 + bb) * 4 + bw
 
 
-def chess960_to_dfrc_uid(white: int, black: int, N: int = 960) -> int:
+def chess960_to_dfrc_uid(white: int, black: int, n: int = 960) -> int:
     """Maps a pair of Chess960 indices to a unique integer ID.
 
     This function maps a pair of Chess960 indices (w, b), each in the range
@@ -132,9 +131,9 @@ def chess960_to_dfrc_uid(white: int, black: int, N: int = 960) -> int:
     w=4  21    22    23    24     4
 
     Args:
-        w: White's index in the range [0, N-1].
-        b: Black's index in the range [0, N-1].
-        N: The size of the Chess960 board (default is 960).
+        white: White's index in the range [0, N-1].
+        black: Black's index in the range [0, N-1].
+        n: The size of the Chess960 board (default is 960).
 
     Returns:
         A unique integer ID in the range [0, N^2 - 1].
@@ -142,20 +141,20 @@ def chess960_to_dfrc_uid(white: int, black: int, N: int = 960) -> int:
     Raises:
         ValueError: If w or b are not in the range [0, N-1].
     """
-    if not (0 <= white < N and 0 <= black < N):
-        raise ValueError(f"Indices w and b must be in the range [0, {N-1}].")
+    if not (0 <= white < n and 0 <= black < n):
+        raise ValueError(f"Indices w and b must be in the range [0, {n - 1}].")
 
     # diagonal of symmetric positions
     if white == black:
         return white
 
     # off-diagonal
-    row_base = N + white * (N - 1)
+    row_base = n + white * (n - 1)
     offset = black if black < white else (black - 1)
     return row_base + offset
 
 
-def dfrc_to_chess960_uids(uid: int, N: int = 960) -> tuple[int, int]:
+def dfrc_to_chess960_uids(uid: int, n: int = 960) -> tuple[int, int]:
     """Maps a unique integer ID back to a pair of Chess960 indices.
 
     This function is the inverse of `chess960_uid`. It takes a unique integer
@@ -164,7 +163,7 @@ def dfrc_to_chess960_uids(uid: int, N: int = 960) -> tuple[int, int]:
 
     Args:
         uid: A unique integer ID in the range [0, N^2 - 1].
-        N: The size of the Chess960 board (default is 960).
+        n: The size of the Chess960 board (default is 960).
 
     Returns:
         A tuple containing White's index (w) and Black's index (b), both in
@@ -173,17 +172,17 @@ def dfrc_to_chess960_uids(uid: int, N: int = 960) -> tuple[int, int]:
     Raises:
         ValueError: If uid is not in the range [0, N^2 - 1].
     """
-    if not (0 <= uid < N * N):
-        raise ValueError(f"UID must be in the range [0, {N*N - 1}].")
+    if not (0 <= uid < n * n):
+        raise ValueError(f"UID must be in the range [0, {n * n - 1}].")
 
-    if uid < N:
+    if uid < n:
         # Diagonal
         return (uid, uid)
 
     # Off-diagonal
-    offset = uid - N
-    white = offset // (N - 1)
-    remainder = offset % (N - 1)
+    offset = uid - n
+    white = offset // (n - 1)
+    remainder = offset % (n - 1)
     black = remainder if remainder < white else (remainder + 1)
     return (white, black)
 
@@ -216,7 +215,7 @@ def is_valid_chess960_position(sequence: str) -> bool:
         True if the sequence is a valid Chess960 position, False otherwise
     """
     valid = True
-    if len(sequence) != 8:
+    if len(sequence) != 8:  # noqa: PLR2004
         logger.error(f"Invalid sequence length {len(sequence)}")
         valid = False
     if sorted(sequence) != ["b", "b", "k", "n", "n", "q", "r", "r"]:
@@ -228,7 +227,7 @@ def is_valid_chess960_position(sequence: str) -> bool:
         valid = False
     # check if k between both r values
     if sequence.index("k") < sequence.index("r") or sequence.index(
-        "k"
+        "k",
     ) > sequence.rindex("r"):
         logger.error(f"Invalid sequence, king not between rooks in {sequence}")
         valid = False

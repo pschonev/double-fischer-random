@@ -1,18 +1,16 @@
-from dataclasses import dataclass
 import logging
-import os
+from dataclasses import dataclass
 
 import chess
 import chess.engine
+from tqdm import tqdm
 
-from src.analysis_config import AnalysisConfig, load_config, ConfigId
-from src.analysis_results import PositionNode, PositionAnalysis
+from src.analysis_config import AnalysisConfig, load_config
+from src.analysis_results import AnalysisParams, PositionAnalysis, PositionNode
 from src.positions import get_chess960_position
-
 
 AnalysisTree = PositionNode
 
-logging.getLogger("chess.engine").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
 
@@ -24,19 +22,21 @@ class RecursiveEngineAnalyzer:
     only_terminal_pv: bool = True
 
     def _get_candidates(
-        self, board: chess.Board, ply: int
+        self,
+        board: chess.Board,
+        ply: int,
     ) -> list[chess.engine.InfoDict]:
         """Get engine analysis candidates for the given board state."""
-        candidates = self.engine.analyse(
+        return self.engine.analyse(
             board,
             chess.engine.Limit(depth=self.cfg.stockfish_depth_per_ply[ply]),
             multipv=self.cfg.num_top_moves_per_ply[ply],
             info=chess.engine.INFO_SCORE | chess.engine.INFO_PV,
         )
-        return candidates
 
     def _compute_eval(
-        self, score: chess.engine.PovScore
+        self,
+        score: chess.engine.PovScore,
     ) -> tuple[int | None, int | None]:
         """Convert a PovScore to (centipawns, mate_score) tuple from White's perspective."""
         cp_val = score.white().score()
@@ -108,41 +108,44 @@ class RecursiveEngineAnalyzer:
 
 
 def analyse_dfrc_position(
-    white_id: int,
-    black_id: int,
-    cfg_id: ConfigId,
+    params: AnalysisParams,
     engine_path: str = "stockfish",
-    threads: int | None = None,
-    hash_size: int | None = None,
+    *,
+    verbose: bool = False,
 ) -> AnalysisTree:
     """Perform analysis on a Chess960 position given by unique IDs."""
+    chess_engine_logger = logging.getLogger("chess.engine")
+    chess_engine_logger.setLevel(logging.DEBUG if verbose else logging.WARNING)
+
     # Get the Chess960 position
-    white, black = get_chess960_position(white_id), get_chess960_position(black_id)
+    white, black = (
+        get_chess960_position(params.white_id),
+        get_chess960_position(params.black_id),
+    )
 
     # Initialize the chess board
     board = chess.Board(chess960=True)
     board.set_fen(
-        f"{white.lower()}/pppppppp/8/8/8/8/PPPPPPPP/{black.upper()} w - - 0 1"
+        f"{white.lower()}/pppppppp/8/8/8/8/PPPPPPPP/{black.upper()} w - - 0 1",
     )
-    logger.info(f"Analyzing position: {white_id=} {black_id=}\n{board.fen()}")
+    logger.info(
+        f"Analyzing position: {params.white_id=} {params.black_id=}\n{board.fen()}",
+    )
 
     # Load the analysis configuration
-    cfg = load_config(cfg_id)
+    cfg = load_config(params.cfg_id)
 
     # Initialize the Stockfish engine
     engine = chess.engine.SimpleEngine.popen_uci(engine_path)
     logger.info(f"{engine.id=}")
     if (stockfish_version := engine.id["name"]) != f"Stockfish {cfg.stockfish_version}":
         raise ValueError(
-            f"Invalid Stockfish version: {stockfish_version} was used, but Stockfish {cfg.stockfish_version} is required"
+            f"Invalid Stockfish version: {stockfish_version} was used, but Stockfish {cfg.stockfish_version} is required",
         )
 
     # Stockfish settings
-    available_cpus = os.process_cpu_count() or 1
-    _threads: int = threads or max(1, available_cpus - 2)
-    _hash_size: int = hash_size or 1024
-    engine.configure({"Threads": _threads, "Hash": _hash_size})
-    logger.info(f"{_threads=} {_hash_size=}")
+    engine.configure({"Threads": params.threads, "Hash": params.hash})
+    logger.info(f"{params.threads=} {params.hash=}")
 
     # Initialize the RecursiveEngineAnalyzer
     analyzer = RecursiveEngineAnalyzer(board=board, engine=engine, cfg=cfg)
@@ -150,7 +153,7 @@ def analyse_dfrc_position(
     # Perform analysis
     tree = analyzer.analyse()
     logger.info(
-        f"Analysis complete for position: {white_id=} {black_id=}\n{board.fen()}"
+        f"Analysis complete for position: {params.white_id=} {params.black_id=}\n{board.fen()}",
     )
     # Close the engine
     engine.quit()
@@ -159,11 +162,17 @@ def analyse_dfrc_position(
 
 
 if __name__ == "__main__":
-    tree = analyse_dfrc_position(
-        white_id=518, black_id=518, cfg_id=ConfigId.XS, hash_size=4096
+    params = AnalysisParams(
+        white_id=0,
+        black_id=0,
+        cfg_id="XS",
+        threads=6,
+        hash=4096,
     )
-    print(f"""
-          
+    tree = analyse_dfrc_position(
+        params=params,
+    )
+    logger.info(f"""
           -------------------------
 
           Analysis tree:
