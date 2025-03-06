@@ -4,8 +4,6 @@ target-version = "py312"
 [lint]
 select = ["ALL"]
 ignore = [
-    "ANN101",  # Missing type annotation for self in method
-    "ANN102",  # Missing type annotation for cls in class method
     "ANN401",  # Any type for **kwargs is acceptable
     "D100",    # Missing docstring in public module
     "D101",    # Missing docstring in public class
@@ -25,7 +23,8 @@ ignore = [
     "E402",    # Module level import not at top of file
     "E501",    # Line too long
     "FIX002",  # Use of deprecated or removed built-in functions
-    "G0004",   # allow logging with f-string
+    "G004",    # Logging statement uses string formatting
+    "PGH003",  # Ignore unspecific error messages
     "N815",    # Variable in function should be snake_case
     "PLW0603", # Use of global statement
     "PTH123",  # Use of unsafe file path
@@ -33,7 +32,6 @@ ignore = [
     "S311",    # Use of pseudo-random number generator
     "TD002",   # Use of deprecated or removed module
     "TD003",   # Use of deprecated or removed function
-    "TID",     # Tidy imports specific linting rules
     "TRY003",  # Exception message should be written
     "EM101",   # Allow using literal string in exception messages
     "EM102",   # Allow using f-strings in exception messages
@@ -41,3 +39,6 @@ ignore = [
 
 [lint.pydocstyle]
 convention = "google"
+
+[lint.pylint]
+max-args = 10
