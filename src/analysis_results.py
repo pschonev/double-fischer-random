@@ -352,7 +352,7 @@ if __name__ == "__main__":
     )
 
     # Load sample data from JSON file
-    with open("analysis/123.json", "rb") as f:
+    with open("analysis/11000.json", "rb") as f:
         sample_data: AnalysisData = msgspec.json.decode(f.read(), type=AnalysisData)
 
     # Convert tree to table

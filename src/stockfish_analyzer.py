@@ -1,5 +1,5 @@
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import chess
 import chess.engine
@@ -20,6 +20,17 @@ class RecursiveEngineAnalyzer:
     engine: chess.engine.SimpleEngine
     cfg: AnalysisConfig
     only_terminal_pv: bool = True
+    progress_bar: tqdm = field(init=False)
+
+    def __post_init__(self) -> None:
+        # Calculate maximum possible positions to analyze using the consolidated function
+        max_positions = self.calculate_subtree_size(
+            0,
+            self.cfg.analysis_depth_ply,
+            self.cfg.num_top_moves_per_ply,
+        )
+        # Initialize progress bar
+        self.progress_bar = tqdm(total=max_positions, desc="Analyzing positions")
 
     def _get_candidates(
         self,
@@ -42,8 +53,32 @@ class RecursiveEngineAnalyzer:
         cp_val = score.white().score()
         return (cp_val, None) if cp_val is not None else (None, score.white().mate())
 
+    def calculate_subtree_size(
+        self,
+        start_ply: int,
+        analysis_depth_ply: int,
+        num_top_moves_per_ply: list[int],
+    ) -> int:
+        """
+        Calculate the size of a subtree starting from a given ply.
+        When start_ply=0, this calculates the total size of the full analysis tree.
+        """
+        if start_ply >= self.cfg.analysis_depth_ply:
+            return 0
+
+        total = 1
+        product = 1
+
+        for ply in range(start_ply, analysis_depth_ply):
+            product *= num_top_moves_per_ply[ply]
+            total += product
+
+        return total
+
     def _build_analysis_tree(self, board: chess.Board, ply: int) -> PositionNode | None:
         """Recursively build the analysis tree."""
+        # Update progress bar for this position
+        self.progress_bar.update(1)
         candidates = self._get_candidates(board, ply)
 
         # Handle no legal moves (checkmate or stalemate)
@@ -70,6 +105,19 @@ class RecursiveEngineAnalyzer:
             or mate_val is not None
             or (cpl_val is not None and abs(cpl_val) >= self.cfg.balanced_threshold)
         )
+
+        # If terminal but not at max depth, count pruned nodes
+        if is_terminal and ply < self.cfg.analysis_depth_ply - 1:
+            # Calculate the size of the pruned subtree starting from next ply
+            # Multiply by number of candidates since each candidate would have its own subtree
+            pruned_nodes = len(candidates) * self.calculate_subtree_size(
+                ply + 1,
+                self.cfg.analysis_depth_ply,
+                self.cfg.num_top_moves_per_ply,
+            )
+            if pruned_nodes > 0:
+                self.progress_bar.update(pruned_nodes)
+                self.progress_bar.refresh()  # Force update
 
         # Build children if not terminal
         children = []
@@ -101,6 +149,10 @@ class RecursiveEngineAnalyzer:
     ) -> AnalysisTree:
         """Perform complete position analysis."""
         analysis_tree = self._build_analysis_tree(self.board.copy(), 0)
+
+        # Close progress bar
+        self.progress_bar.close()
+
         if analysis_tree is None:
             raise RuntimeError("Failed to analyze position: no valid moves found")
 
