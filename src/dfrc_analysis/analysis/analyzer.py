@@ -5,9 +5,14 @@ import chess
 import chess.engine
 from tqdm import tqdm
 
-from src.analysis_config import AnalysisConfig, load_config
-from src.analysis_results import AnalysisParams, PositionAnalysis, PositionNode
-from src.positions import get_chess960_position
+from dfrc_analysis.analysis.config import AnalysisConfig, load_config
+from dfrc_analysis.analysis.results import (
+    AnalysisParams,
+    PositionAnalysis,
+    PositionNode,
+)
+from dfrc_analysis.positions.positions import get_chess960_position
+from dfrc_analysis.utils import calculate_subtree_size
 
 AnalysisTree = PositionNode
 
@@ -24,7 +29,7 @@ class RecursiveEngineAnalyzer:
 
     def __post_init__(self) -> None:
         # Calculate maximum possible positions to analyze using the consolidated function
-        max_positions = self.calculate_subtree_size(
+        max_positions = calculate_subtree_size(
             0,
             self.cfg.analysis_depth_ply,
             self.cfg.num_top_moves_per_ply,
@@ -53,29 +58,7 @@ class RecursiveEngineAnalyzer:
         cp_val = score.white().score()
         return (cp_val, None) if cp_val is not None else (None, score.white().mate())
 
-    def calculate_subtree_size(
-        self,
-        start_ply: int,
-        analysis_depth_ply: int,
-        num_top_moves_per_ply: list[int],
-    ) -> int:
-        """
-        Calculate the size of a subtree starting from a given ply.
-        When start_ply=0, this calculates the total size of the full analysis tree.
-        """
-        if start_ply >= self.cfg.analysis_depth_ply:
-            return 0
-
-        total = 1
-        product = 1
-
-        for ply in range(start_ply, analysis_depth_ply):
-            product *= num_top_moves_per_ply[ply]
-            total += product
-
-        return total
-
-    def _build_analysis_tree(self, board: chess.Board, ply: int) -> PositionNode | None:
+    def _build_analysis_tree(self, board: chess.Board, ply: int) -> PositionNode | None:  # noqa: C901
         """Recursively build the analysis tree."""
         # Update progress bar for this position
         self.progress_bar.update(1)
@@ -110,7 +93,7 @@ class RecursiveEngineAnalyzer:
         if is_terminal and ply < self.cfg.analysis_depth_ply - 1:
             # Calculate the size of the pruned subtree starting from next ply
             # Multiply by number of candidates since each candidate would have its own subtree
-            pruned_nodes = len(candidates) * self.calculate_subtree_size(
+            pruned_nodes = len(candidates) * calculate_subtree_size(
                 ply + 1,
                 self.cfg.analysis_depth_ply,
                 self.cfg.num_top_moves_per_ply,

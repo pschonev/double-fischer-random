@@ -1,5 +1,5 @@
 import pytest
-from src.positions import (
+from src.positions.positions import (
     get_chess960_position,
     get_scharnagl_number,
     is_valid_chess960_position,

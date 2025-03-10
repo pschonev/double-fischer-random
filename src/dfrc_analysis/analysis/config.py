@@ -1,6 +1,6 @@
-import msgspec
-
 from enum import IntEnum
+
+import msgspec
 
 CONFIG_FILE = "analysis_configs.toml"
 
@@ -28,11 +28,11 @@ class AnalysisConfig(msgspec.Struct):
     def __post_init__(self) -> None:
         if len(self.stockfish_depth_per_ply) != self.analysis_depth_ply:
             raise ValueError(
-                "stockfish_depth_per_ply must have the same length as analysis_depth_ply"
+                "stockfish_depth_per_ply must have the same length as analysis_depth_ply",
             )
         if len(self.num_top_moves_per_ply) != self.analysis_depth_ply:
             raise ValueError(
-                "num_top_moves_per_ply must have the same length as analysis_depth_ply"
+                "num_top_moves_per_ply must have the same length as analysis_depth_ply",
             )
 
 

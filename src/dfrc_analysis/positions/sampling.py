@@ -1,17 +1,17 @@
 import random
 from collections import deque
-from collections.abc import Generator
-from typing import Callable
+from collections.abc import Callable, Generator
 
 from pqdict import pqdict
 from tqdm import tqdm
 
-from src.positions import get_chess960_position
-from src.similarity import sorensen_dice_hamming
+from dfrc_analysis.positions.positions import get_chess960_position
+from dfrc_analysis.positions.similarity import sorensen_dice_hamming
 
 
 def calculate_symmetry_score(white: int, black: int) -> float:
     """Calculate the symmetry score between two Chess960 positions.
+
     Args:
         white: The index of the white position in the range [0, 959].
         black: The index of the black position in the range [0, 959].
@@ -25,30 +25,31 @@ def calculate_symmetry_score(white: int, black: int) -> float:
     return 1 - sorensen_dice_hamming(pos_white, pos_black)
 
 
-class RecentIndices:
+class RecentIndices[T]:
     """A deque-like data structure that keeps track of the most recent indices."""
 
-    def __init__(self, maxlen):
+    def __init__(self, maxlen: int) -> None:
         self._deque = deque(maxlen=maxlen)
         self._set = set()
         self.maxlen = maxlen
 
-    def appendleft(self, item):
+    def appendleft(self, item: T) -> None:
         if len(self._deque) >= self.maxlen:
             removed_item = self._deque.pop()
             self._set.discard(removed_item)
         self._deque.appendleft(item)
         self._set.add(item)
 
-    def __contains__(self, item):
+    def __contains__(self, item: T) -> bool:
         return item in self._set
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._deque)
 
 
 def sample_positions(
-    N: int = 960, priority_func: Callable[[int, int], float] = lambda w, b: 0.5
+    n: int = 960,
+    priority_func: Callable[[int, int], float] = lambda w, b: 0.5,
 ) -> Generator[tuple[int, int], None, None]:
     """
     Lazily generates Double Fischer Random Chess positions in order of least analysis.
@@ -61,7 +62,7 @@ def sample_positions(
     with initial priorities set using a custom function.
 
     Args:
-        N (int): The number of possible positions for each color (default: 960).
+        n (int): The number of possible positions for each color (default: 960).
         priority_func (callable): A function that takes two integers `(w, b)`
             and returns a float between 0 and 1. This value is used as a
             probability to initialize the priority of the position.
@@ -81,11 +82,11 @@ def sample_positions(
     pq = pqdict()
     random.seed(42)
 
-    recent_white_indices = RecentIndices(maxlen=N // 2)
-    recent_black_indices = RecentIndices(maxlen=N // 2)
+    recent_white_indices = RecentIndices(maxlen=n // 2)
+    recent_black_indices = RecentIndices(maxlen=n // 2)
 
-    for w in tqdm(range(N), desc="Initializing positions"):
-        for b in range(N):
+    for w in tqdm(range(n), desc="Initializing positions"):
+        for b in range(n):
             # calculate an initial priority that is
             # between 0 (high priority) and 4 (low priority)
             priority_score = priority_func(w, b)  # between 0 and 1
@@ -93,7 +94,7 @@ def sample_positions(
             initial_priority = probabilistic_priority * 10 // 2
             pq[(w, b)] = initial_priority
 
-    update_threshold = N * 32
+    update_threshold = n * 32
     while pq:
         (w, b), priority = pq.popitem()
 
@@ -118,7 +119,7 @@ if __name__ == "__main__":
         for k, (w, b) in tqdm(
             enumerate(
                 sample_positions(
-                    N=N,
+                    n=N,
                     priority_func=calculate_symmetry_score,
                 ),
             ),
@@ -128,5 +129,5 @@ if __name__ == "__main__":
             f.write(f"{k},{w},{b}\n")
             chess960_combinations.add((w, b))
         print(
-            f"Expected positions: {N*N}\nGenerated positions: {k+1}\nGenerated unique positions: {len(chess960_combinations)}"
+            f"Expected positions: {N * N}\nGenerated positions: {k + 1}\nGenerated unique positions: {len(chess960_combinations)}",
         )

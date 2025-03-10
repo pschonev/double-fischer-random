@@ -5,10 +5,10 @@ from pathlib import Path
 
 import msgspec
 
-from src.analysis_config import ConfigId
-from src.analysis_results import AnalysisData, AnalysisParams
-from src.positions import dfrc_to_chess960_uids
-from src.stockfish_analyzer import analyse_dfrc_position
+from dfrc_analysis.analysis.analyzer import analyse_dfrc_position
+from dfrc_analysis.analysis.config import ConfigId
+from dfrc_analysis.analysis.results import AnalysisData, AnalysisParams
+from dfrc_analysis.positions.positions import dfrc_to_chess960_uids
 
 logger = logging.getLogger(__name__)
 

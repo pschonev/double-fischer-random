@@ -9,7 +9,7 @@ import polars as pl
 from github import Github
 from cyclopts import App, Parameter
 
-from src.analysis_config import ConfigId
+from src.dfrc_analysis.analysis.config import ConfigId
 
 # Set up logging
 logging.basicConfig(

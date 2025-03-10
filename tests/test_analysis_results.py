@@ -1,10 +1,15 @@
 from math import isclose
-from src.analysis_results import AnalysisResult, PositionNode
+
+from dfrc_analysis.analysis.eval import calculate_sharpness_score
+from src.dfrc_analysis.analysis.results import PositionNode
 
 
 # Helper to build PositionNode instances.
 def make_node(
-    move: str, cpl: int, children: list | None = None, pv: list | None = None
+    move: str,
+    cpl: int,
+    children: list | None = None,
+    pv: list | None = None,
 ):
     if children is None:
         children = []
@@ -25,15 +30,15 @@ def test_sharpness_empty_tree():
     root = make_node("start", 0, children=[])
     sharp = AnalysisResult._calculate_sharpness_score(root, BALANCED_THRESHOLD)
     # Since no moves are analyzed, both accumulators remain untouched and the score is None.
-    assert (
-        sharp.white is None
-    ), f"Expected white sharpness to be None when no moves are present, got {sharp.white}"
-    assert (
-        sharp.black is None
-    ), f"Expected black sharpness to be None when no moves are present, got {sharp.black}"
-    assert (
-        sharp.total is None
-    ), f"Expected combined sharpness to be None when no moves are present, got {sharp.total}"
+    assert sharp.white is None, (
+        f"Expected white sharpness to be None when no moves are present, got {sharp.white}"
+    )
+    assert sharp.black is None, (
+        f"Expected black sharpness to be None when no moves are present, got {sharp.black}"
+    )
+    assert sharp.total is None, (
+        f"Expected combined sharpness to be None when no moves are present, got {sharp.total}"
+    )
 
 
 ###############################################################################
@@ -46,19 +51,19 @@ def test_sharpness_all_balanced():
     # Create a root that has 5 children (with cpl=10 <= BALANCED_THRESHOLD => balanced).
     children = [make_node(f"move{i}", 10) for i in range(5)]
     root = make_node("start", 0, children=children)
-    sharp = AnalysisResult._calculate_sharpness_score(root, BALANCED_THRESHOLD)
+    sharp = calculate_sharpness_score(root, BALANCED_THRESHOLD)
     # Expected outcome:
     #   white sharpness remains None (no decision made by white),
     #   black sharpness becomes 0.0 (all available moves balanced, so minimal forcing),
     #   combined sharpness is None (since one branch is missing).
-    assert (
-        sharp.white is None
-    ), f"Expected white sharpness to be None when no decision for white, got {sharp.white}"
+    assert sharp.white is None, (
+        f"Expected white sharpness to be None when no decision for white, got {sharp.white}"
+    )
     assert sharp.black is not None, "Expected black sharpness to be non-None."
     assert isclose(sharp.black, 0.0), f"Expected black sharpness 0.0, got {sharp.black}"
-    assert (
-        sharp.total is None
-    ), f"Expected combined sharpness to be None when one side is None, got {sharp.total}"
+    assert sharp.total is None, (
+        f"Expected combined sharpness to be None when one side is None, got {sharp.total}"
+    )
 
 
 ###############################################################################
@@ -72,21 +77,21 @@ def test_sharpness_one_balanced_among_unbalanced():
     unbalanced_children = [make_node(f"unbalanced_move{i}", 30) for i in range(4)]
     children = [balanced_child] + unbalanced_children
     root = make_node("start", 0, children=children)
-    sharp = AnalysisResult._calculate_sharpness_score(root, BALANCED_THRESHOLD)
+    sharp = calculate_sharpness_score(root, BALANCED_THRESHOLD)
     # Expected outcome:
     #   white sharpness remains None (no decision by white),
     #   black sharpness becomes 1.0 (only one balanced move available at this level),
     #   combined sharpness is None due to the missing white branch.
-    assert (
-        sharp.white is None
-    ), f"Expected white sharpness to be None when no decision for white, got {sharp.white}"
+    assert sharp.white is None, (
+        f"Expected white sharpness to be None when no decision for white, got {sharp.white}"
+    )
     assert sharp.black is not None, "Expected black sharpness to be non-None."
-    assert isclose(
-        sharp.black, 1.0, rel_tol=1e-6
-    ), f"Expected black sharpness 1.0, got {sharp.black}"
-    assert (
-        sharp.total is None
-    ), f"Expected combined sharpness to be None when one branch is None, got {sharp.total}"
+    assert isclose(sharp.black, 1.0, rel_tol=1e-6), (
+        f"Expected black sharpness 1.0, got {sharp.black}"
+    )
+    assert sharp.total is None, (
+        f"Expected combined sharpness to be None when one branch is None, got {sharp.total}"
+    )
 
 
 ###############################################################################
@@ -123,7 +128,7 @@ def test_sharpness_extended_branch():
     level3_children = [balanced_A1_child] + unbalanced_A1_children
     balanced_A1.children = level3_children
 
-    sharp = AnalysisResult._calculate_sharpness_score(root, BALANCED_THRESHOLD)
+    sharp = calculate_sharpness_score(root, BALANCED_THRESHOLD)
     expected_black = 8 / 9  # ≈ 0.888889
     expected_white = 1.0
     # Harmonic mean of 1.0 and 8/9: (2 * 1.0 * (8/9)) / (1.0 + (8/9)) = 16/17 ≈ 0.941176
@@ -134,15 +139,15 @@ def test_sharpness_extended_branch():
     assert sharp.white is not None, "Expected white sharpness to be non-None."
     assert sharp.black is not None, "Expected black sharpness to be non-None."
     assert sharp.total is not None, "Expected combined sharpness to be non-None."
-    assert isclose(
-        sharp.white, expected_white, rel_tol=1e-6
-    ), f"Expected white sharpness {expected_white}, got {sharp.white}"
-    assert isclose(
-        sharp.black, expected_black, rel_tol=1e-6
-    ), f"Expected black sharpness {expected_black}, got {sharp.black}"
-    assert isclose(
-        sharp.total, expected_total, rel_tol=1e-6
-    ), f"Expected combined sharpness {expected_total}, got {sharp.total}"
+    assert isclose(sharp.white, expected_white, rel_tol=1e-6), (
+        f"Expected white sharpness {expected_white}, got {sharp.white}"
+    )
+    assert isclose(sharp.black, expected_black, rel_tol=1e-6), (
+        f"Expected black sharpness {expected_black}, got {sharp.black}"
+    )
+    assert isclose(sharp.total, expected_total, rel_tol=1e-6), (
+        f"Expected combined sharpness {expected_total}, got {sharp.total}"
+    )
 
 
 ###############################################################################
@@ -165,18 +170,18 @@ def test_sharpness_zero_balanced_extended_branch():
     level2_children = [make_node(f"A_level2_{i}", 30, children=[]) for i in range(5)]
     child_A.children = level2_children
 
-    sharp = AnalysisResult._calculate_sharpness_score(root, BALANCED_THRESHOLD)
+    sharp = calculate_sharpness_score(root, BALANCED_THRESHOLD)
     # Expected:
     #   white sharpness is None (no balanced moves found at level 2),
     #   black sharpness remains 1.0 (from level 1),
     #   combined sharpness is None.
-    assert (
-        sharp.white is None
-    ), f"Expected white sharpness to be None when no balanced moves are available, got {sharp.white}"
+    assert sharp.white is None, (
+        f"Expected white sharpness to be None when no balanced moves are available, got {sharp.white}"
+    )
     assert sharp.black is not None, "Expected black sharpness to be non-None."
-    assert isclose(
-        sharp.black, 1.0, rel_tol=1e-6
-    ), f"Expected black sharpness 1.0, got {sharp.black}"
-    assert (
-        sharp.total is None
-    ), f"Expected combined sharpness to be None due to one missing branch, got {sharp.total}"
+    assert isclose(sharp.black, 1.0, rel_tol=1e-6), (
+        f"Expected black sharpness 1.0, got {sharp.black}"
+    )
+    assert sharp.total is None, (
+        f"Expected combined sharpness to be None due to one missing branch, got {sharp.total}"
+    )

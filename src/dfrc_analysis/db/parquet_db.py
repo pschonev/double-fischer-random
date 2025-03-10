@@ -7,12 +7,9 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.exc import IntegrityError, SAWarning
 from sqlalchemy.sql import text
 from sqlmodel import (
-    Field,
-    PrimaryKeyConstraint,
     Session,
     SQLModel,
     create_engine,
-    select,
 )
 
 logger = logging.getLogger(__name__)
@@ -73,85 +70,3 @@ class ParquetDatabase[T: SQLModel]:
                     f"(FORMAT 'parquet', CODEC '{codec}')",
                 ),  # type: ignore
             )  # type: ignore
-
-
-class Hero(SQLModel, table=True):
-    """Example class with composite primary key for testing ParquetDatabase."""
-
-    __tablename__ = "heroes"  # type: ignore
-
-    # Composite primary key
-    universe_id: int = Field(primary_key=True)
-    hero_code: str = Field(primary_key=True)
-
-    # Regular fields
-    name: str = Field(index=True)
-    alias_name: str
-    age: int = Field(default=0)
-
-    __table_args__ = (PrimaryKeyConstraint("universe_id", "hero_code", name="pk_hero"),)
-
-
-if __name__ == "__main__":
-    db = ParquetDatabase(model_class=Hero, parquet_file=Path("heroes.parquet"))
-
-    # Add some heroes with composite keys
-    db.append(
-        [
-            Hero(
-                universe_id=1,
-                hero_code="DP",
-                name="Deadpond",
-                alias_name="Dive Wilson",
-            ),
-            Hero(
-                universe_id=1,
-                hero_code="SB",
-                name="Spider-Boy",
-                alias_name="Pedro Parqueador",
-            ),
-            Hero(
-                universe_id=1,
-                hero_code="RM",
-                name="Rusty-Man",
-                alias_name="Tommy Sharp",
-                age=48,
-            ),
-            Hero(
-                universe_id=2,
-                hero_code="TR",
-                name="Tarantula",
-                alias_name="Natalia Roman-on",
-            ),
-            Hero(
-                universe_id=2,
-                hero_code="BL",
-                name="Black Lion",
-                alias_name="Trevor Challa",
-            ),
-            # Same hero code but different universe - should be allowed
-            Hero(
-                universe_id=2,
-                hero_code="DP",
-                name="Dr. Peculiar",
-                alias_name="Steve Weird",
-                age=36,
-            ),
-            # Try adding a duplicate - should be skipped
-            Hero(
-                universe_id=1,
-                hero_code="DP",
-                name="Deadpond Clone",
-                alias_name="Dive Wilson Clone",
-            ),
-        ],
-    )
-    db.save()
-
-    # Print the database contents
-    with Session(db.engine) as session:
-        heroes = session.exec(select(Hero)).all()
-        for hero in heroes:
-            logging.info(
-                f"Hero {hero.universe_id}-{hero.hero_code}: {hero.name} ({hero.alias_name}), Age: {hero.age}",
-            )

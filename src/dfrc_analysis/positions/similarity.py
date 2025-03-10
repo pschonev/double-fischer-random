@@ -1,13 +1,19 @@
-from collections.abc import Callable
 import functools
+import logging
+from collections.abc import Callable
 
 import numpy as np
-from src.utils import is_valid_chess960_position, logger
+
+from dfrc_analysis.positions.positions import is_valid_chess960_position
+
+logger = logging.getLogger(__name__)
 
 
 @functools.cache
 def generate_pairs(
-    seq: str, *, consider_duplicate_pairs: bool = True
+    seq: str,
+    *,
+    consider_duplicate_pairs: bool = True,
 ) -> set[tuple[str, str, bool]]:
     """
     Generates a set of pairs from a given sequence.
@@ -283,12 +289,12 @@ if __name__ == "__main__":
         -----------------
         Jaccard: {jaccard_score:.2f}
         Sorensen-Dice: {sorensen_dice_score:.2f}
-        Hamming: {1-hamming_score:.2f}
+        Hamming: {1 - hamming_score:.2f}
         Jaro: {jaro_score:.2f}
-        Levenshtein: {1-levenshtein_score:.2f}
+        Levenshtein: {1 - levenshtein_score:.2f}
         -----------------
         Jaro + Sorensen-Dice: {(jaro_score + sorensen_dice_score) / 2:.2f} (biased: {weighted_score(jaro_score, sorensen_dice_score):.2f})
-        Hamming + Soresen-Dice: {(1-hamming_score + sorensen_dice_score) / 2:.2f} (biased: {weighted_score(1-hamming_score, sorensen_dice_score):.2f})
-        (Jaro + Sorensen-Dice) + Hamming: {((jaro_score + sorensen_dice_score) / 2 + (1-hamming_score)) / 2:.2f} (biased: {weighted_score(weighted_score(jaro_score, sorensen_dice_score), 1-hamming_score):.2f})
+        Hamming + Soresen-Dice: {(1 - hamming_score + sorensen_dice_score) / 2:.2f} (biased: {weighted_score(1 - hamming_score, sorensen_dice_score):.2f})
+        (Jaro + Sorensen-Dice) + Hamming: {((jaro_score + sorensen_dice_score) / 2 + (1 - hamming_score)) / 2:.2f} (biased: {weighted_score(weighted_score(jaro_score, sorensen_dice_score), 1 - hamming_score):.2f})
         """
         )
