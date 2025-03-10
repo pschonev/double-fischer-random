@@ -36,78 +36,89 @@ class Sharpness(msgspec.Struct):
     total: float | None
 
 
+def calculate_max_possible_nodes(
+    depth: int,
+    moves_per_ply: list[int],
+    start_ply: int = 0,
+) -> int:
+    """Calculate theoretical maximum number of nodes for a given starting ply."""
+    total = 0
+    current_product = 1
+    for ply in range(start_ply, depth, 2):
+        current_product *= moves_per_ply[ply]
+        total += current_product
+    return total
+
+
+def get_balanced_nodes(
+    nodes: list[TreeNode],
+    balanced_threshold: int,
+    is_white: bool,
+) -> int:
+    """Count balanced nodes for a given color."""
+    expected_parity = 1 if is_white else 0  # White moves are odd levels, black even
+    return sum(
+        1
+        for node in nodes
+        if node.cpl is not None
+        and abs(node.cpl) <= balanced_threshold
+        and (node.lft % 2 == expected_parity)
+    )
+
+
+def calculate_sharpness_core(
+    balanced_nodes: int,
+    min_nodes: int,
+    max_nodes: int,
+) -> float | None:
+    """Calculate sharpness score given node counts."""
+    if balanced_nodes < min_nodes:
+        return None  # Not enough balanced nodes for a complete line
+
+    if balanced_nodes == min_nodes:
+        return 1.0  # Maximum sharpness - only one line playable
+
+    extra_balanced = balanced_nodes - min_nodes
+    extra_possible = max_nodes - min_nodes
+    return 1.0 - (extra_balanced / extra_possible)
+
+
 def calculate_sharpness_score(
     nodes: list[TreeNode],
     cfg: AnalysisConfig,
 ) -> Sharpness:
-    # Calculate theoretical maximum nodes for white and black
-    def calculate_max_possible_nodes(*, is_white: bool) -> int:
-        total = 0
-        current_product = 1
-
-        # Determine which plies belong to this player
-        start_ply = 0 if is_white else 1
-
-        for ply in range(start_ply, cfg.analysis_depth_ply, 2):
-            current_product *= cfg.num_top_moves_per_ply[ply]
-            total += current_product
-
-        return total
-
-    white_max = calculate_max_possible_nodes(is_white=True)
-    black_max = calculate_max_possible_nodes(is_white=False)
-
-    # Count balanced nodes for white and black
-    white_balanced = sum(
-        1
-        for node in nodes
-        if node.cpl is not None
-        and abs(node.cpl) <= cfg.balanced_threshold
-        and (node.lft % 2 == 1)  # White's moves are at odd levels in the tree
+    """Calculate sharpness scores for both colors and combined."""
+    # Calculate max possible nodes
+    white_max = calculate_max_possible_nodes(
+        cfg.analysis_depth_ply,
+        cfg.num_top_moves_per_ply,
+        start_ply=0,
+    )
+    black_max = calculate_max_possible_nodes(
+        cfg.analysis_depth_ply,
+        cfg.num_top_moves_per_ply,
+        start_ply=1,
     )
 
-    black_balanced = sum(
-        1
-        for node in nodes
-        if node.cpl is not None
-        and abs(node.cpl) <= cfg.balanced_threshold
-        and (node.lft % 2 == 0)  # Black's moves are at even levels in the tree
-    )
+    # Count balanced nodes
+    white_balanced = get_balanced_nodes(nodes, cfg.balanced_threshold, is_white=True)
+    black_balanced = get_balanced_nodes(nodes, cfg.balanced_threshold, is_white=False)
 
-    # Calculate minimum nodes needed for a single complete line
-    white_min = (cfg.analysis_depth_ply + 1) // 2  # Ceiling division for white
-    black_min = cfg.analysis_depth_ply // 2  # Floor division for black
+    # Minimum nodes needed for a complete line
+    white_min = (cfg.analysis_depth_ply + 1) // 2  # Ceiling division
+    black_min = cfg.analysis_depth_ply // 2  # Floor division
 
-    # Calculate sharpness scores
-    def calculate_score(
-        balanced: int,
-        min_needed: int,
-        max_possible: int,
-    ) -> float | None:
-        if balanced < min_needed:
-            return None  # Not enough balanced nodes for even one complete line
+    # Calculate individual sharpness scores
+    white_sharpness = calculate_sharpness_core(white_balanced, white_min, white_max)
+    black_sharpness = calculate_sharpness_core(black_balanced, black_min, black_max)
 
-        if balanced == min_needed:
-            return 1.0  # Maximum sharpness - only one line is playable
-
-        # Calculate how many nodes beyond the minimum we have
-        extra_balanced = balanced - min_needed
-        extra_possible = max_possible - min_needed
-
-        # Return inverted ratio (1.0 = max sharpness, 0.0 = all moves playable)
-        return 1.0 - (extra_balanced / extra_possible)
-
-    white_sharpness = calculate_score(white_balanced, white_min, white_max)
-    black_sharpness = calculate_score(black_balanced, black_min, black_max)
-
-    # Calculate combined sharpness using harmonic mean
-    if white_sharpness is None or black_sharpness is None:
-        combined_sharpness = None
-    else:
-        combined_sharpness = harmonic_mean(white_sharpness, black_sharpness)
+    # Calculate combined score
+    total_sharpness = None
+    if white_sharpness is not None and black_sharpness is not None:
+        total_sharpness = harmonic_mean(white_sharpness, black_sharpness)
 
     return Sharpness(
         white=white_sharpness,
         black=black_sharpness,
-        total=combined_sharpness,
+        total=total_sharpness,
     )
