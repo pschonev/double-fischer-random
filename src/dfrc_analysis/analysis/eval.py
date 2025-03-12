@@ -36,6 +36,34 @@ class Sharpness(msgspec.Struct):
     total: float | None
 
 
+def calculate_sharpness_ratio(
+    balanced_nodes: int,
+    max_total_nodes: int,
+    power: float = 1.0,
+) -> float:
+    """Calculate sharpness ratio based on balanced nodes vs maximum possible nodes.
+
+    A linear calculation (power=1.0) is used by default since non-linearity is largely
+    unnecessary due to the tree structure:
+    - Balanced nodes higher in the tree unlock multiple nodes below them
+    - This creates an implicit weighing where higher nodes naturally have more impact
+    - The multiplicative nature of the tree means adding a balanced node at depth N
+      can unlock N^d nodes at deeper levels
+
+    Args:
+        balanced_nodes: Number of nodes within acceptable evaluation threshold
+        max_total_nodes: Maximum theoretical number of nodes possible
+        power: Optional power to adjust sensitivity (default=1.0 for linear calculation)
+
+    Returns:
+        Float between 0.0 and 1.0, where:
+        - Values closer to 1.0 indicate fewer balanced nodes (sharper position)
+        - Values closer to 0.0 indicate more balanced nodes (more open position)
+    """
+    ratio = balanced_nodes / max_total_nodes
+    return 1.0 - (ratio**power)
+
+
 def calculate_max_possible_nodes(
     depth: int,
     moves_per_ply: list[int],
