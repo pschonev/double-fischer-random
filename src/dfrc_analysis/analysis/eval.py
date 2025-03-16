@@ -64,83 +64,90 @@ def calculate_sharpness_ratio(
     return 1.0 - (ratio**power)
 
 
-def calculate_max_possible_nodes(
+# eval.py
+
+
+def filter_balanced_nodes(nodes: list[TreeNode], threshold: int) -> list[TreeNode]:
+    """Filter nodes within the balanced threshold."""
+    return [n for n in nodes if n.cpl is not None and abs(n.cpl) <= threshold]
+
+
+def split_nodes_by_color(
+    nodes: list[TreeNode],
+) -> tuple[list[TreeNode], list[TreeNode]]:
+    """Split nodes into white and black moves using nested set IDs."""
+    white_nodes = [n for n in nodes if n.lft % 2 == 1]
+    black_nodes = [n for n in nodes if n.lft % 2 == 0]
+    return white_nodes, black_nodes
+
+
+def calculate_nodes_at_depth(
     depth: int,
     moves_per_ply: list[int],
-    start_ply: int = 0,
+    start_index: int = 0,
 ) -> int:
-    """Calculate theoretical maximum number of nodes for a given starting ply."""
-    total = 0
-    current_product = 1
-    for ply in range(start_ply, depth, 2):
-        current_product *= moves_per_ply[ply]
-        total += current_product
+    """Calculate number of nodes at a given depth starting from specified index.
+
+    Args:
+        depth: Total depth to calculate for
+        moves_per_ply: List of moves per ply
+        start_index: Starting index (0 for white positions, 1 for black positions)
+
+    Returns:
+        Total number of possible nodes
+    """
+    total = 1
+    for i in range(start_index, depth, 2):
+        total *= moves_per_ply[i]
+        if i + 1 < depth:
+            total *= moves_per_ply[i + 1]
     return total
 
 
-def get_balanced_nodes(
-    nodes: list[TreeNode],
-    balanced_threshold: int,
-    is_white: bool,
-) -> int:
-    """Count balanced nodes for a given color."""
-    expected_parity = 1 if is_white else 0  # White moves are odd levels, black even
-    return sum(
-        1
-        for node in nodes
-        if node.cpl is not None
-        and abs(node.cpl) <= balanced_threshold
-        and (node.lft % 2 == expected_parity)
-    )
+def calculate_max_nodes_per_color(
+    depth: int, moves_per_ply: list[int]
+) -> tuple[int, int]:
+    """Calculate maximum possible nodes for white and black."""
+    white_max = calculate_nodes_at_depth(depth, moves_per_ply, start_index=0)
+    black_max = calculate_nodes_at_depth(depth, moves_per_ply, start_index=1)
+    return white_max, black_max
 
 
-def calculate_sharpness_core(
-    balanced_nodes: int,
-    min_nodes: int,
-    max_nodes: int,
+def calculate_min_nodes_per_color(depth: int) -> tuple[int, int]:
+    """Calculate minimum nodes needed for a complete line per color."""
+    white_min = (depth + 1) // 2  # Ceiling division
+    black_min = depth // 2  # Floor division
+    return white_min, black_min
+
+
+def calculate_color_sharpness(
+    nodes: list[TreeNode], min_nodes: int, max_nodes: int
 ) -> float | None:
-    """Calculate sharpness score given node counts."""
-    if balanced_nodes < min_nodes:
-        return None  # Not enough balanced nodes for a complete line
-
-    if balanced_nodes == min_nodes:
-        return 1.0  # Maximum sharpness - only one line playable
-
-    extra_balanced = balanced_nodes - min_nodes
-    extra_possible = max_nodes - min_nodes
-    return 1.0 - (extra_balanced / extra_possible)
+    """Calculate sharpness score for one color."""
+    if len(nodes) == 0:
+        return None  # No playable moves
+    if len(nodes) <= min_nodes:
+        return 1.0  # Only one line playable
+    return calculate_sharpness_ratio(len(nodes), max_nodes)
 
 
-def calculate_sharpness_score(
+def calculate_position_sharpness(
     nodes: list[TreeNode],
     cfg: AnalysisConfig,
 ) -> Sharpness:
-    """Calculate sharpness scores for both colors and combined."""
-    # Calculate max possible nodes
-    white_max = calculate_max_possible_nodes(
-        cfg.analysis_depth_ply,
-        cfg.num_top_moves_per_ply,
-        start_ply=0,
-    )
-    black_max = calculate_max_possible_nodes(
-        cfg.analysis_depth_ply,
-        cfg.num_top_moves_per_ply,
-        start_ply=1,
+    """Calculate sharpness scores for white, black and combined position."""
+    balanced_nodes = filter_balanced_nodes(nodes, cfg.balanced_threshold)
+    white_nodes, black_nodes = split_nodes_by_color(balanced_nodes)
+
+    white_max, black_max = calculate_max_nodes_per_color(
+        cfg.analysis_depth_ply, cfg.num_top_moves_per_ply
     )
 
-    # Count balanced nodes
-    white_balanced = get_balanced_nodes(nodes, cfg.balanced_threshold, is_white=True)
-    black_balanced = get_balanced_nodes(nodes, cfg.balanced_threshold, is_white=False)
+    white_min, black_min = calculate_min_nodes_per_color(cfg.analysis_depth_ply)
 
-    # Minimum nodes needed for a complete line
-    white_min = (cfg.analysis_depth_ply + 1) // 2  # Ceiling division
-    black_min = cfg.analysis_depth_ply // 2  # Floor division
+    white_sharpness = calculate_color_sharpness(white_nodes, white_min, white_max)
+    black_sharpness = calculate_color_sharpness(black_nodes, black_min, black_max)
 
-    # Calculate individual sharpness scores
-    white_sharpness = calculate_sharpness_core(white_balanced, white_min, white_max)
-    black_sharpness = calculate_sharpness_core(black_balanced, black_min, black_max)
-
-    # Calculate combined score
     total_sharpness = None
     if white_sharpness is not None and black_sharpness is not None:
         total_sharpness = harmonic_mean(white_sharpness, black_sharpness)
