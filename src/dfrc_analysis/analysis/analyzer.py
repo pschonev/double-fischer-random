@@ -161,7 +161,7 @@ def analyse_dfrc_position(
     # Initialize the chess board
     board = chess.Board(chess960=True)
     board.set_fen(
-        f"{white.lower()}/pppppppp/8/8/8/8/PPPPPPPP/{black.upper()} w - - 0 1",
+        f"{black.lower()}/pppppppp/8/8/8/8/PPPPPPPP/{white.upper()} w - - 0 1",
     )
     logger.info(
         f"Analyzing position: {params.white_id=} {params.black_id=}\n{board.fen()}",
