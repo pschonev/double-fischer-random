@@ -1,5 +1,8 @@
 import pytest
-from src.positions.positions import (
+
+from dfrc_analysis.positions.positions import (
+    chess960_to_dfrc_uid,
+    dfrc_to_chess960_uids,
     get_chess960_position,
     get_scharnagl_number,
     is_valid_chess960_position,
@@ -36,3 +39,25 @@ def test_invalid_scharnagl_numbers():
 
     with pytest.raises(ValueError):
         get_chess960_position(960)
+
+
+def test_dfrc_uid_conversion():
+    n = 960
+    seen_uids = set()
+
+    for white_id in range(n):
+        for black_id in range(n):
+            uid = chess960_to_dfrc_uid(white_id, black_id)
+            assert uid not in seen_uids, f"UID {uid} was already generated"
+            seen_uids.add(uid)
+
+            recovered_white_id, recovered_black_id = dfrc_to_chess960_uids(uid)
+            assert recovered_white_id == white_id and recovered_black_id == black_id, (
+                f"Conversion mismatch: ({white_id}, {black_id}) generated UID {uid} "
+                f"but converted back to ({recovered_white_id}, {recovered_black_id})"
+            )
+
+    # Ensure we have 960 * 960 unique UIDs
+    assert len(seen_uids) == n * n, (
+        f"Expected {n * n} unique UIDs, found {len(seen_uids)}"
+    )

@@ -104,7 +104,10 @@ def build_analysis_result(
         )
 
     return AnalysisResult(
-        dfrc_id=chess960_to_dfrc_uid(data.params.white_id, data.params.black_id),
+        dfrc_id=chess960_to_dfrc_uid(
+            white=data.params.white_id,
+            black=data.params.black_id,
+        ),
         white_id=data.params.white_id,
         black_id=data.params.black_id,
         white=white,
@@ -119,6 +122,11 @@ def build_analysis_result(
         white_sharpness=sharpness.white,
         black_sharpness=sharpness.black,
         total_sharpness=sharpness.total,
+        balance_score=balance_score,
         mirrored=is_mirrored(white, black),
         flipped=is_flipped(white, black),
+        swapped_id=chess960_to_dfrc_uid(
+            white=data.params.black_id,
+            black=data.params.white_id,
+        ),
     )

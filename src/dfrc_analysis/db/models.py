@@ -35,11 +35,13 @@ class AnalysisResult(SQLModel, table=True):
     white_sharpness: float | None = None
     black_sharpness: float | None = None
     total_sharpness: float | None = None
+    balance_score: float
     playability_score: float | None = None
 
     # Position properties
     mirrored: bool
     flipped: bool
+    swapped_id: int
 
     # Timestamp for when the analysis was created
     created_at: datetime = Field(default_factory=datetime.utcnow)
