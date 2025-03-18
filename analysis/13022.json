@@ -1,1 +1,45 @@
-{"params":{"white_id":12,"black_id":555,"threads":6,"hash":4096,"cfg_id":"XS"},"analyzer":"test_analyzer","analysis_tree":{"move":"root","children":[],"analysis":{"cpl":64,"mate":null,"pv":["f2f4","c7c6","a2a4","b8c7","g2g3","e7e5","f1f2","d8e6","f4f5","e6g5","g1f1","h7h5","f5f6","h8h6","f6g7","f8g7","e2e4","f7f6","d2d3","c8e7","h1g2","a8d8","b1c3","c7b6","f2e2"]}}}
+{
+    "params": {
+        "white_id": 555,
+        "black_id": 12,
+        "threads": 6,
+        "hash": 4096,
+        "cfg_id": "XS"
+    },
+    "analyzer": "test_analyzer",
+    "analysis_tree": {
+        "move": "root",
+        "children": [],
+        "analysis": {
+            "cpl": 64,
+            "mate": null,
+            "pv": [
+                "f2f4",
+                "c7c6",
+                "a2a4",
+                "b8c7",
+                "g2g3",
+                "e7e5",
+                "f1f2",
+                "d8e6",
+                "f4f5",
+                "e6g5",
+                "g1f1",
+                "h7h5",
+                "f5f6",
+                "h8h6",
+                "f6g7",
+                "f8g7",
+                "e2e4",
+                "f7f6",
+                "d2d3",
+                "c8e7",
+                "h1g2",
+                "a8d8",
+                "b1c3",
+                "c7b6",
+                "f2e2"
+            ]
+        }
+    }
+}

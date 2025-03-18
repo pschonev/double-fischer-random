@@ -1,1 +1,45 @@
-{"params":{"white_id":12,"black_id":561,"threads":6,"hash":4096,"cfg_id":"XS"},"analyzer":"test_analyzer","analysis_tree":{"move":"root","children":[],"analysis":{"cpl":51,"mate":null,"pv":["g2g4","c7c6","c2c4","h7h6","d1c2","e7e5","b2b3","f7f6","f1e3","d8e6","h2h4","a7a5","a1b2","g8h7","c2h7","h8h7","c1d3","b7b6","b1c1","h7h8","e3f5","c8e7","e2e3","a5a4","f5g3"]}}}
+{
+    "params": {
+        "white_id": 561,
+        "black_id": 12,
+        "threads": 6,
+        "hash": 4096,
+        "cfg_id": "XS"
+    },
+    "analyzer": "test_analyzer",
+    "analysis_tree": {
+        "move": "root",
+        "children": [],
+        "analysis": {
+            "cpl": 51,
+            "mate": null,
+            "pv": [
+                "g2g4",
+                "c7c6",
+                "c2c4",
+                "h7h6",
+                "d1c2",
+                "e7e5",
+                "b2b3",
+                "f7f6",
+                "f1e3",
+                "d8e6",
+                "h2h4",
+                "a7a5",
+                "a1b2",
+                "g8h7",
+                "c2h7",
+                "h8h7",
+                "c1d3",
+                "b7b6",
+                "b1c1",
+                "h7h8",
+                "e3f5",
+                "c8e7",
+                "e2e3",
+                "a5a4",
+                "f5g3"
+            ]
+        }
+    }
+}

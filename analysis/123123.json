@@ -1,7 +1,7 @@
 {
     "params": {
-        "white_id": 127,
-        "black_id": 371,
+        "white_id": 371,
+        "black_id": 127,
         "threads": 6,
         "hash": 4096,
         "cfg_id": "XS"

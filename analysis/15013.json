@@ -1,0 +1,4254 @@
+{
+    "params": {
+        "white_id": 628,
+        "black_id": 14,
+        "threads": 6,
+        "hash": 4096,
+        "cfg_id": "XS"
+    },
+    "analyzer": "test_analyzer",
+    "analysis_tree": {
+        "move": "root",
+        "children": [
+            {
+                "move": "d7d5",
+                "children": [
+                    {
+                        "move": "c2c3",
+                        "children": [
+                            {
+                                "move": "c7c5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 17,
+                                    "mate": null,
+                                    "pv": [
+                                        "c7c5",
+                                        "d4c5",
+                                        "h7h5",
+                                        "e2e4",
+                                        "b7b6",
+                                        "c5b6",
+                                        "c8b6",
+                                        "e4d5",
+                                        "a8d5",
+                                        "d1e3",
+                                        "d5c6",
+                                        "a2a4",
+                                        "g7g6",
+                                        "f1b5",
+                                        "b6d7",
+                                        "e1e2",
+                                        "f7f5",
+                                        "g1d1",
+                                        "g8f7",
+                                        "f2f4"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "c7c5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 15,
+                                    "mate": null,
+                                    "pv": [
+                                        "c7c5",
+                                        "d4c5",
+                                        "b8d7",
+                                        "c2c4",
+                                        "d5c4",
+                                        "d1c3",
+                                        "d7c5",
+                                        "h1g3",
+                                        "a8b8",
+                                        "c1e3",
+                                        "b8c7",
+                                        "b1c2",
+                                        "f7f6",
+                                        "f2f4",
+                                        "e7e6",
+                                        "f1f2",
+                                        "g8f7",
+                                        "a1d1",
+                                        "d8d1",
+                                        "e1d1",
+                                        "b7b5",
+                                        "c3b5",
+                                        "c7d7",
+                                        "b5d4",
+                                        "e6e5",
+                                        "f4e5",
+                                        "f6e5",
+                                        "d1c1",
+                                        "e5d4",
+                                        "e3d4",
+                                        "c5e6",
+                                        "g1d1",
+                                        "e6d4",
+                                        "d1d4",
+                                        "f8c5",
+                                        "d4e4",
+                                        "c5e7",
+                                        "g3f5",
+                                        "h7h5",
+                                        "g4g5"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "d5e4",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -4,
+                                    "mate": null,
+                                    "pv": [
+                                        "d5e4",
+                                        "c2c3",
+                                        "c7c5",
+                                        "d4c5",
+                                        "e7e6",
+                                        "b1e4",
+                                        "f8c5",
+                                        "f1b5",
+                                        "b8d7",
+                                        "b5b7",
+                                        "a8b7",
+                                        "e4b7",
+                                        "f7f5",
+                                        "h1g3",
+                                        "c8d6",
+                                        "b7c6",
+                                        "d8c8",
+                                        "c6a4",
+                                        "e8e7",
+                                        "c1g5",
+                                        "d7f6",
+                                        "g5f4",
+                                        "h7h6",
+                                        "b2b4",
+                                        "c5b6",
+                                        "d1b2",
+                                        "c8c3",
+                                        "g3e2",
+                                        "c3c8"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "e7e6",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -32,
+                                    "mate": null,
+                                    "pv": [
+                                        "e7e6",
+                                        "g2g4",
+                                        "c7c5",
+                                        "d4c5",
+                                        "f8c5",
+                                        "h1g3",
+                                        "f7f6",
+                                        "c1e3",
+                                        "d5d4",
+                                        "g3e4",
+                                        "c5b6",
+                                        "e3d2",
+                                        "b8c6",
+                                        "g1g3",
+                                        "c8d6",
+                                        "e4d6",
+                                        "d8d6",
+                                        "c2c4",
+                                        "d4c3",
+                                        "d1c3",
+                                        "a8b8"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "h7h5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -41,
+                                    "mate": null,
+                                    "pv": [
+                                        "h7h5",
+                                        "c2c3",
+                                        "b8c6",
+                                        "f2f3",
+                                        "e7e5",
+                                        "f1f2",
+                                        "f7f6",
+                                        "g2g4",
+                                        "e5d4",
+                                        "c3d4",
+                                        "h5g4"
+                                    ]
+                                }
+                            }
+                        ],
+                        "analysis": {
+                            "cpl": 22,
+                            "mate": null,
+                            "pv": null
+                        }
+                    },
+                    {
+                        "move": "g2g4",
+                        "children": [
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 43,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "h1g3",
+                                        "h7h6",
+                                        "f1h3",
+                                        "g8h7",
+                                        "f2f4",
+                                        "c7c5",
+                                        "f4f5",
+                                        "c5d4",
+                                        "f5e6",
+                                        "f7e6",
+                                        "g4g5",
+                                        "e8d7",
+                                        "g5h6",
+                                        "g7h6",
+                                        "c2c3",
+                                        "h7b1",
+                                        "a1b1",
+                                        "h8g8",
+                                        "d1f2",
+                                        "d4c3",
+                                        "b2c3",
+                                        "b7b6",
+                                        "f2g4",
+                                        "d7c7",
+                                        "g4f6",
+                                        "g8g6",
+                                        "c1f4",
+                                        "c7b7",
+                                        "h3e6",
+                                        "c8e7",
+                                        "e2e4"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 28,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "g2g4",
+                                        "c7c5",
+                                        "d4c5",
+                                        "h7h6",
+                                        "f1h3",
+                                        "g8h7",
+                                        "b1h7",
+                                        "h8h7",
+                                        "f2f4",
+                                        "b8d7",
+                                        "f4f5",
+                                        "d7c5",
+                                        "g1f1",
+                                        "c8d6",
+                                        "c1e3",
+                                        "a8c8",
+                                        "e3c5",
+                                        "c8c5",
+                                        "f5e6",
+                                        "f7e6"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 38,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "e4d5",
+                                        "d8d5",
+                                        "c2c3",
+                                        "c7c5",
+                                        "d4c5",
+                                        "h7h5",
+                                        "f1e2",
+                                        "f8c5",
+                                        "h2h4",
+                                        "f7f6",
+                                        "h1g3",
+                                        "b8c6",
+                                        "g1h1",
+                                        "g8f7",
+                                        "d1e3",
+                                        "d5d8",
+                                        "a2a4",
+                                        "a8b8",
+                                        "b2b4"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "c7c5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 12,
+                                    "mate": null,
+                                    "pv": [
+                                        "c7c5",
+                                        "d4c5",
+                                        "b8c6",
+                                        "f4c7",
+                                        "f8c5",
+                                        "c7d8",
+                                        "e8d8",
+                                        "g2g4",
+                                        "a8b8",
+                                        "f1h3",
+                                        "c8b6",
+                                        "c2c3",
+                                        "b8c7",
+                                        "h1g3",
+                                        "d7d5",
+                                        "b1d3",
+                                        "b6d7",
+                                        "e1f1",
+                                        "d8c8"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -28,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "c2c3",
+                                        "h7h5",
+                                        "h2h4",
+                                        "c7c5",
+                                        "d4c5",
+                                        "f7f5",
+                                        "c1g5",
+                                        "d8d7",
+                                        "g3f5",
+                                        "e6f5",
+                                        "b1f5",
+                                        "f8c5",
+                                        "g2g4",
+                                        "c8e7",
+                                        "f5d7",
+                                        "b8d7",
+                                        "g4h5",
+                                        "a8c8",
+                                        "d1e3",
+                                        "g8f7",
+                                        "g5e7",
+                                        "c5e7",
+                                        "g1g7"
+                                    ]
+                                }
+                            }
+                        ],
+                        "analysis": {
+                            "cpl": 42,
+                            "mate": null,
+                            "pv": null
+                        }
+                    },
+                    {
+                        "move": "e2e4",
+                        "children": [
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 28,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "e4d5",
+                                        "c7c6",
+                                        "c2c3",
+                                        "c6d5",
+                                        "f2f4",
+                                        "b8c6",
+                                        "f4f5",
+                                        "c8d6",
+                                        "c1f4",
+                                        "a8c8",
+                                        "d1e3",
+                                        "g8h7",
+                                        "g2g4",
+                                        "h5g4",
+                                        "h1g3",
+                                        "e7e6",
+                                        "f1e2",
+                                        "c6e7",
+                                        "f5f6",
+                                        "e7g6",
+                                        "b1g6",
+                                        "h7g6",
+                                        "e3g4"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 24,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "e2e4",
+                                        "c7c5",
+                                        "d4c5",
+                                        "b7b6",
+                                        "c5b6",
+                                        "c8b6",
+                                        "f2f3",
+                                        "g8h7",
+                                        "h1f2",
+                                        "e7e6",
+                                        "e4d5",
+                                        "h7b1",
+                                        "f1b5",
+                                        "b8d7",
+                                        "d5e6",
+                                        "b1g6",
+                                        "e6d7",
+                                        "d8d7",
+                                        "e1e2",
+                                        "h5h4",
+                                        "g1e1",
+                                        "f8e7",
+                                        "e2f1",
+                                        "h4h3",
+                                        "c1f4",
+                                        "h3g2",
+                                        "f1g2",
+                                        "h8h5",
+                                        "e1e5",
+                                        "b6d5",
+                                        "f4g3",
+                                        "h5e5",
+                                        "g3e5",
+                                        "g6h5",
+                                        "b5e2",
+                                        "e8f8",
+                                        "d1e3",
+                                        "e7c5"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "h5g4",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 10,
+                                    "mate": null,
+                                    "pv": [
+                                        "h5g4",
+                                        "g1g4",
+                                        "f7f6",
+                                        "d1e3",
+                                        "d7d5",
+                                        "c2c3",
+                                        "b8c6",
+                                        "f1g2",
+                                        "g8f7",
+                                        "f2f4",
+                                        "e7e6",
+                                        "f4f5",
+                                        "c6e7",
+                                        "g4g7",
+                                        "f8g7",
+                                        "g2g7",
+                                        "h8g8",
+                                        "g7f6",
+                                        "d8d6",
+                                        "f6e5",
+                                        "e7c6",
+                                        "e5f4",
+                                        "g8g1",
+                                        "e1f2",
+                                        "g1c1"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "d7d6",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -4,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d6",
+                                        "c2c3",
+                                        "f7f6",
+                                        "f4d2",
+                                        "e7e5",
+                                        "h2h4",
+                                        "c7c5",
+                                        "d4e5",
+                                        "d6e5",
+                                        "d1e3",
+                                        "b8c6",
+                                        "g2g4",
+                                        "h5g4",
+                                        "h4h5",
+                                        "e8d7"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -15,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "g2g4",
+                                        "h5g4",
+                                        "g1g4",
+                                        "f7f6",
+                                        "c2c3",
+                                        "g8f7",
+                                        "f1g2",
+                                        "c7c5",
+                                        "d4c5",
+                                        "b8d7",
+                                        "h1f2",
+                                        "e7e6",
+                                        "b1c2",
+                                        "c8e7",
+                                        "c1e3",
+                                        "a8c8",
+                                        "f2d3",
+                                        "e6e5",
+                                        "c2a4",
+                                        "f7e6"
+                                    ]
+                                }
+                            }
+                        ],
+                        "analysis": {
+                            "cpl": 36,
+                            "mate": null,
+                            "pv": null
+                        }
+                    },
+                    {
+                        "move": "g2g4",
+                        "children": [
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 43,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "h1g3",
+                                        "c8d6",
+                                        "c2c3",
+                                        "c7c5",
+                                        "f1h3",
+                                        "b8c6",
+                                        "d4c5",
+                                        "b6c5",
+                                        "f2f4",
+                                        "a8b7",
+                                        "g4g5",
+                                        "e7e6",
+                                        "d1f2",
+                                        "e8d7",
+                                        "e2e4",
+                                        "d7c7",
+                                        "e4e5",
+                                        "d6c8",
+                                        "g3e2",
+                                        "c7b8",
+                                        "b2b3",
+                                        "h7h6",
+                                        "c1d2"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 32,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "e2e4",
+                                        "c7c5",
+                                        "f1b5",
+                                        "a8c6",
+                                        "b5c6",
+                                        "b8c6",
+                                        "d4c5",
+                                        "d5d4",
+                                        "c5b6",
+                                        "a7b6",
+                                        "c3d4",
+                                        "c6d4",
+                                        "c1e3",
+                                        "f7f6",
+                                        "e3d4",
+                                        "d8d4",
+                                        "h1g3",
+                                        "g7g6",
+                                        "d1e3",
+                                        "f8h6",
+                                        "e1e2",
+                                        "c8d6",
+                                        "b2b3",
+                                        "g8e6",
+                                        "b1c2"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 22,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "g2g4",
+                                        "c8d6",
+                                        "c2c3",
+                                        "c7c5",
+                                        "d4c5",
+                                        "b6c5",
+                                        "h1g3",
+                                        "b8d7",
+                                        "b1c2",
+                                        "a8c6",
+                                        "e2e4",
+                                        "d5e4",
+                                        "f1g2",
+                                        "f7f6",
+                                        "g3e4",
+                                        "d6e4",
+                                        "c2e4",
+                                        "c6c7",
+                                        "c1e3",
+                                        "g7g6",
+                                        "h2h4",
+                                        "f8g7"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "c7c5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 4,
+                                    "mate": null,
+                                    "pv": [
+                                        "c7c5",
+                                        "d4c5",
+                                        "a8b7",
+                                        "c5b6",
+                                        "c8b6",
+                                        "g2g4",
+                                        "f7f6",
+                                        "c2c3",
+                                        "d7d5",
+                                        "f1h3",
+                                        "e7e5",
+                                        "f4c1",
+                                        "g8e6",
+                                        "f2f4",
+                                        "e5f4",
+                                        "c1f4",
+                                        "b8c6",
+                                        "b1f5",
+                                        "e6f7",
+                                        "g1f1",
+                                        "g7g6",
+                                        "f5d3"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "h7h5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 9,
+                                    "mate": null,
+                                    "pv": [
+                                        "h7h5",
+                                        "h2h4",
+                                        "g8h7",
+                                        "f2f4",
+                                        "e7e6",
+                                        "f4f5",
+                                        "c7c5",
+                                        "c2c3",
+                                        "c5d4",
+                                        "c3d4",
+                                        "a8d5",
+                                        "e2e3",
+                                        "c8d6",
+                                        "d1c3",
+                                        "d5a5",
+                                        "f5e6",
+                                        "d7e6",
+                                        "b1h7",
+                                        "h8h7",
+                                        "c1d2",
+                                        "a5a6",
+                                        "f1f3",
+                                        "g7g6",
+                                        "g3e4",
+                                        "f8e7",
+                                        "g1h1",
+                                        "f7f5",
+                                        "e4d6",
+                                        "e7d6",
+                                        "a1c1",
+                                        "h7f7",
+                                        "f3e2",
+                                        "f7g7"
+                                    ]
+                                }
+                            }
+                        ],
+                        "analysis": {
+                            "cpl": 40,
+                            "mate": null,
+                            "pv": null
+                        }
+                    },
+                    {
+                        "move": "g2g4",
+                        "children": [],
+                        "analysis": {
+                            "cpl": 53,
+                            "mate": null,
+                            "pv": [
+                                "g2g4",
+                                "e7e6",
+                                "c2c3",
+                                "d7d5",
+                                "f1h3",
+                                "c7c5",
+                                "d4c5",
+                                "b8d7",
+                                "c1e3",
+                                "d7c5",
+                                "f2f4",
+                                "a8b8",
+                                "f4f5",
+                                "e6e5",
+                                "g4g5",
+                                "b8c7",
+                                "h1g3",
+                                "d5d4",
+                                "e3d2",
+                                "g8f7",
+                                "g5f6",
+                                "g7f6",
+                                "g3h5",
+                                "c7b6",
+                                "h3h4",
+                                "c5d7",
+                                "d1f2",
+                                "c8e7"
+                            ]
+                        }
+                    }
+                ],
+                "analysis": {
+                    "cpl": 11,
+                    "mate": null,
+                    "pv": null
+                }
+            },
+            {
+                "move": "d7d5",
+                "children": [
+                    {
+                        "move": "d2d4",
+                        "children": [
+                            {
+                                "move": "c7c5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 14,
+                                    "mate": null,
+                                    "pv": [
+                                        "c7c5",
+                                        "d4c5",
+                                        "b8d7",
+                                        "c2c3",
+                                        "d7c5",
+                                        "h1g3",
+                                        "c8d6",
+                                        "f2f4",
+                                        "a8c8",
+                                        "f1f2",
+                                        "f7f6",
+                                        "c1e3",
+                                        "c5d7",
+                                        "f4f5",
+                                        "d7e5",
+                                        "e3a7",
+                                        "e5g4",
+                                        "f2f4",
+                                        "g4e5",
+                                        "a7d4",
+                                        "g8f7",
+                                        "d4e5",
+                                        "f6e5",
+                                        "f4e5",
+                                        "c8c5",
+                                        "g1f1",
+                                        "d6c4",
+                                        "e5f4",
+                                        "h7h5",
+                                        "b2b3",
+                                        "h5h4"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "c7c5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 10,
+                                    "mate": null,
+                                    "pv": [
+                                        "c7c5",
+                                        "b2b3",
+                                        "b8c6",
+                                        "c1b2",
+                                        "a8b8",
+                                        "g4g5",
+                                        "e7e6",
+                                        "f1h3",
+                                        "c8e7",
+                                        "g3h5",
+                                        "d5d4",
+                                        "c2c3",
+                                        "e7g6",
+                                        "b3b4",
+                                        "h7h6",
+                                        "b4c5",
+                                        "h6g5",
+                                        "c3d4",
+                                        "f7f5",
+                                        "g1g5",
+                                        "g6f4",
+                                        "h3f3",
+                                        "f4h5",
+                                        "g5h5",
+                                        "h8h5",
+                                        "f3h5",
+                                        "g8f7",
+                                        "h5h8",
+                                        "c6d4",
+                                        "b2c3"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "c7c5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -5,
+                                    "mate": null,
+                                    "pv": [
+                                        "c7c5",
+                                        "f1f2",
+                                        "h7h5",
+                                        "g4h5",
+                                        "h8h5",
+                                        "c2c3",
+                                        "b8c6",
+                                        "h1g3",
+                                        "h5h8",
+                                        "f2c5",
+                                        "d5d4",
+                                        "c5g5",
+                                        "e7e6",
+                                        "g3h5",
+                                        "g8h7",
+                                        "f4f5",
+                                        "h7f5",
+                                        "b1f5",
+                                        "e6f5",
+                                        "d2d3"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "a7a5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -7,
+                                    "mate": null,
+                                    "pv": [
+                                        "a7a5",
+                                        "f1h3",
+                                        "a5a4",
+                                        "f2f4",
+                                        "b8c6",
+                                        "h1f2",
+                                        "c8d6",
+                                        "c1a3",
+                                        "g7g6",
+                                        "c2c3",
+                                        "d6b5",
+                                        "a3c1",
+                                        "f8g7",
+                                        "d2d4",
+                                        "a4b3",
+                                        "f4f5",
+                                        "f7f6",
+                                        "g4g5",
+                                        "g8f7",
+                                        "g5f6"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "c7c5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -22,
+                                    "mate": null,
+                                    "pv": [
+                                        "c7c5",
+                                        "f2f4",
+                                        "b8c6",
+                                        "f4f5",
+                                        "f7f6",
+                                        "h1f2",
+                                        "e7e5",
+                                        "g4g5",
+                                        "f6g5",
+                                        "f1h3",
+                                        "c8d6",
+                                        "d2d3",
+                                        "d6f7",
+                                        "c1g5",
+                                        "f7g5",
+                                        "g1g5",
+                                        "d8d6",
+                                        "b1c2",
+                                        "a8d8",
+                                        "g5g1",
+                                        "d6h6",
+                                        "h3g2",
+                                        "g7g6",
+                                        "d1e3",
+                                        "d5d4",
+                                        "e3g4"
+                                    ]
+                                }
+                            }
+                        ],
+                        "analysis": {
+                            "cpl": 14,
+                            "mate": null,
+                            "pv": null
+                        }
+                    },
+                    {
+                        "move": "c2c4",
+                        "children": [
+                            {
+                                "move": "c8b6",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 40,
+                                    "mate": null,
+                                    "pv": [
+                                        "c8b6",
+                                        "b2b3",
+                                        "d7d5",
+                                        "c4d5",
+                                        "b6d5",
+                                        "c1b2",
+                                        "b8c6",
+                                        "f2f4",
+                                        "a8c8",
+                                        "d1c3",
+                                        "f7f6",
+                                        "g4g5",
+                                        "d5b4",
+                                        "a2a3",
+                                        "c8d7",
+                                        "c3e4",
+                                        "f6f5",
+                                        "f1h3",
+                                        "f5e4",
+                                        "h3d7",
+                                        "d8d7",
+                                        "a3b4",
+                                        "c5b4",
+                                        "g1g3",
+                                        "e7e5",
+                                        "f4e5",
+                                        "e4e3",
+                                        "g3e3",
+                                        "f8c5",
+                                        "e5e6",
+                                        "d7e7",
+                                        "e3e4",
+                                        "g8e6",
+                                        "h1g3",
+                                        "e8d8",
+                                        "g3h5",
+                                        "h8f8",
+                                        "e2e3",
+                                        "e6h3",
+                                        "e4e7"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 0,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "b2b3",
+                                        "b8c6",
+                                        "c1b2",
+                                        "a8b8",
+                                        "f1h3",
+                                        "b8c7",
+                                        "g4g5",
+                                        "c7d7",
+                                        "h3d7",
+                                        "e8d7",
+                                        "c2c4",
+                                        "d5d4",
+                                        "f2f4",
+                                        "f7f6",
+                                        "d1f2",
+                                        "f6g5",
+                                        "g3e4",
+                                        "g5f4",
+                                        "e4c5",
+                                        "d7c7",
+                                        "b1e4",
+                                        "e7e5",
+                                        "e4c6",
+                                        "f8c5",
+                                        "c6e4"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 2,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "c1b2",
+                                        "b8c6",
+                                        "h1g3",
+                                        "a8b8",
+                                        "f2f4",
+                                        "f7f6",
+                                        "g4g5",
+                                        "b8c7",
+                                        "g3h5",
+                                        "d5d4",
+                                        "g5f6",
+                                        "e7f6",
+                                        "c2c3",
+                                        "c7f7",
+                                        "h5g3",
+                                        "f7d7",
+                                        "b1f5",
+                                        "g8e6",
+                                        "f5e6",
+                                        "d7e6",
+                                        "c3d4",
+                                        "c5d4",
+                                        "f4f5",
+                                        "e6d5",
+                                        "d1f2"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -1,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "f1f2",
+                                        "e7e6",
+                                        "f4f5",
+                                        "f7f6",
+                                        "c2c3",
+                                        "b8c6",
+                                        "g4g5",
+                                        "f6g5",
+                                        "d2d4",
+                                        "h7h6",
+                                        "d4c5",
+                                        "e6f5",
+                                        "b1f5",
+                                        "c8e7",
+                                        "f5c2",
+                                        "a8c8",
+                                        "b2b4",
+                                        "g8e6",
+                                        "c1e3",
+                                        "g7g6",
+                                        "b4b5",
+                                        "c6e5",
+                                        "f2f6",
+                                        "e5f7",
+                                        "e3d4",
+                                        "h8g8"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "b8c6",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -21,
+                                    "mate": null,
+                                    "pv": [
+                                        "b8c6",
+                                        "c2c4",
+                                        "g7g6",
+                                        "h2h4",
+                                        "c8b6",
+                                        "h4h5",
+                                        "d7d5",
+                                        "c4d5",
+                                        "b6d5",
+                                        "h1g3",
+                                        "a8c8",
+                                        "d1c3",
+                                        "d5f4",
+                                        "b1e4",
+                                        "f8g7",
+                                        "h5h6",
+                                        "g7e5",
+                                        "e2e3"
+                                    ]
+                                }
+                            }
+                        ],
+                        "analysis": {
+                            "cpl": 41,
+                            "mate": null,
+                            "pv": null
+                        }
+                    },
+                    {
+                        "move": "d2d4",
+                        "children": [
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 49,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "h1g3",
+                                        "c8d6",
+                                        "f1h3",
+                                        "c7c5",
+                                        "c2c3",
+                                        "b8c6",
+                                        "d4c5",
+                                        "b6c5",
+                                        "f2f4",
+                                        "e7e6",
+                                        "g4g5",
+                                        "a8b7",
+                                        "e2e4",
+                                        "d5e4",
+                                        "g3e4",
+                                        "h7h6",
+                                        "e4c5",
+                                        "b7b5",
+                                        "b2b4",
+                                        "d6f5",
+                                        "a2a4",
+                                        "b5c4",
+                                        "b1a2",
+                                        "h6g5",
+                                        "h3f5",
+                                        "c4a2",
+                                        "a1a2",
+                                        "e6f5",
+                                        "a2e2",
+                                        "f8e7",
+                                        "b4b5"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 43,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "d2d4",
+                                        "c8d6",
+                                        "c2c3",
+                                        "c7c5",
+                                        "f1h3",
+                                        "b8c6",
+                                        "d4c5",
+                                        "b6c5",
+                                        "f2f4",
+                                        "e7e6",
+                                        "g4g5",
+                                        "e8d7",
+                                        "e2e4",
+                                        "d7c7",
+                                        "e4e5",
+                                        "d6c8",
+                                        "g3e2",
+                                        "c7b8",
+                                        "b2b3",
+                                        "a8b7",
+                                        "b1d3",
+                                        "f8e7",
+                                        "c1e3",
+                                        "h7h6",
+                                        "g5g6",
+                                        "f7g6",
+                                        "d3g6"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "c7c5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 28,
+                                    "mate": null,
+                                    "pv": [
+                                        "c7c5",
+                                        "b2b3",
+                                        "d7d5",
+                                        "h1g3",
+                                        "b8c6",
+                                        "c2c4",
+                                        "d5c4",
+                                        "c1b2",
+                                        "a8b7",
+                                        "b3c4",
+                                        "b7d7",
+                                        "b1e4",
+                                        "c6d4",
+                                        "f2f4",
+                                        "c8d6",
+                                        "a1c1",
+                                        "d6e4",
+                                        "g3e4",
+                                        "f7f6"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 25,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "h1g3",
+                                        "c8d6",
+                                        "c1b2",
+                                        "f7f6",
+                                        "g4g5",
+                                        "c7c5",
+                                        "g5f6",
+                                        "g7f6",
+                                        "c2c4",
+                                        "d5d4",
+                                        "f1h3",
+                                        "b8c6",
+                                        "g3e4",
+                                        "d6e4",
+                                        "b1e4",
+                                        "a8c8",
+                                        "e4f5",
+                                        "e7e6",
+                                        "f5e4",
+                                        "f6f5",
+                                        "e4c6",
+                                        "c8c6",
+                                        "f2f3",
+                                        "e8d7"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 22,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "d2d4",
+                                        "c8d6",
+                                        "h1g3",
+                                        "c7c5",
+                                        "d4c5",
+                                        "b6c5",
+                                        "c2c3",
+                                        "b8d7",
+                                        "b1c2",
+                                        "f7f6",
+                                        "f1h3",
+                                        "g8f7",
+                                        "f4f5",
+                                        "e7e5",
+                                        "g4g5",
+                                        "d8b8",
+                                        "g5g6",
+                                        "f7g8",
+                                        "b2b3",
+                                        "a7a5",
+                                        "c3c4",
+                                        "d5d4",
+                                        "d1f2",
+                                        "a5a4",
+                                        "a1b1",
+                                        "e8d8",
+                                        "g3e4"
+                                    ]
+                                }
+                            }
+                        ],
+                        "analysis": {
+                            "cpl": 42,
+                            "mate": null,
+                            "pv": null
+                        }
+                    },
+                    {
+                        "move": "d2d4",
+                        "children": [],
+                        "analysis": {
+                            "cpl": 53,
+                            "mate": null,
+                            "pv": [
+                                "d2d4",
+                                "d7d5",
+                                "f1h3",
+                                "e7e6",
+                                "h1g3",
+                                "c7c5",
+                                "d4c5",
+                                "b8d7",
+                                "c2c4",
+                                "c8e7",
+                                "d1c3",
+                                "d7c5",
+                                "c4d5",
+                                "e7d5",
+                                "c3d5",
+                                "d8d5",
+                                "g3e4",
+                                "a8c8",
+                                "b1c2",
+                                "e6e5",
+                                "e4c3",
+                                "d5d8",
+                                "c1e3",
+                                "g8f7"
+                            ]
+                        }
+                    },
+                    {
+                        "move": "h1g3",
+                        "children": [],
+                        "analysis": {
+                            "cpl": 55,
+                            "mate": null,
+                            "pv": [
+                                "h1g3",
+                                "d7d5",
+                                "d2d4",
+                                "h7h6",
+                                "f1h3",
+                                "g8h7",
+                                "f2f4",
+                                "c7c5",
+                                "f4f5",
+                                "c5d4",
+                                "f5e6",
+                                "f7e6",
+                                "g4g5",
+                                "e8d7",
+                                "g5h6",
+                                "g7h6",
+                                "c2c3",
+                                "h7b1",
+                                "a1b1",
+                                "f8e7",
+                                "g3h5",
+                                "d8g8",
+                                "g1g7",
+                                "g8g7",
+                                "h5g7"
+                            ]
+                        }
+                    }
+                ],
+                "analysis": {
+                    "cpl": 12,
+                    "mate": null,
+                    "pv": null
+                }
+            },
+            {
+                "move": "h7h5",
+                "children": [
+                    {
+                        "move": "d2d4",
+                        "children": [
+                            {
+                                "move": "e7e6",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -10,
+                                    "mate": null,
+                                    "pv": [
+                                        "e7e6",
+                                        "e2e4",
+                                        "d7d5",
+                                        "e4d5",
+                                        "e6d5",
+                                        "c2c3",
+                                        "c7c5",
+                                        "f1f3",
+                                        "c5d4",
+                                        "e1f2",
+                                        "b8c6",
+                                        "g1e1",
+                                        "f8e7",
+                                        "h1g3",
+                                        "e8f8",
+                                        "g3f5",
+                                        "g8h7",
+                                        "f3h5",
+                                        "f8g8",
+                                        "f5h6",
+                                        "g7h6",
+                                        "h5g4"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "f7f6",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -22,
+                                    "mate": null,
+                                    "pv": [
+                                        "f7f6",
+                                        "b2b3",
+                                        "e7e6",
+                                        "c1b2",
+                                        "c7c5",
+                                        "h2h3",
+                                        "h5h4",
+                                        "d1f2",
+                                        "c8e7",
+                                        "g2g4",
+                                        "h4g3"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "c7c5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -32,
+                                    "mate": null,
+                                    "pv": [
+                                        "c7c5",
+                                        "e2e4",
+                                        "b8c6",
+                                        "f1f3",
+                                        "f7f6",
+                                        "d1e3",
+                                        "g8f7",
+                                        "g1f1",
+                                        "a8b8",
+                                        "h1g3",
+                                        "e7e6",
+                                        "g3e2",
+                                        "b8c7",
+                                        "e1f2",
+                                        "h5h4",
+                                        "f2g1",
+                                        "c8e7",
+                                        "g1h1"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "c7c5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -30,
+                                    "mate": null,
+                                    "pv": [
+                                        "c7c5",
+                                        "c2c3",
+                                        "b8c6",
+                                        "h1g3",
+                                        "e7e6",
+                                        "f1f3",
+                                        "h5h4",
+                                        "g3e2",
+                                        "c8e7",
+                                        "d2d4",
+                                        "c5d4",
+                                        "c3d4",
+                                        "f7f5",
+                                        "d1c3",
+                                        "f5e4",
+                                        "c3e4",
+                                        "e7f5",
+                                        "e4g5",
+                                        "f8e7",
+                                        "c1d2",
+                                        "c6d4",
+                                        "e2d4",
+                                        "f5d4",
+                                        "b1g6",
+                                        "e8f8"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "c7c5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -42,
+                                    "mate": null,
+                                    "pv": [
+                                        "c7c5",
+                                        "b2b3",
+                                        "d7d5",
+                                        "c2c4",
+                                        "e7e6",
+                                        "c4d5",
+                                        "e6d5",
+                                        "f1f3",
+                                        "b8c6",
+                                        "h1g3",
+                                        "h5h4",
+                                        "g3h5",
+                                        "f7f5",
+                                        "c1b2",
+                                        "d5d4",
+                                        "b1f5",
+                                        "g8f7",
+                                        "g2g4",
+                                        "c8d6",
+                                        "f5d3",
+                                        "c6b4",
+                                        "e3d4"
+                                    ]
+                                }
+                            }
+                        ],
+                        "analysis": {
+                            "cpl": -13,
+                            "mate": null,
+                            "pv": null
+                        }
+                    },
+                    {
+                        "move": "g2g4",
+                        "children": [
+                            {
+                                "move": "f7f6",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -9,
+                                    "mate": null,
+                                    "pv": [
+                                        "f7f6",
+                                        "h1g3",
+                                        "c7c5",
+                                        "f1f2",
+                                        "b8d7",
+                                        "b2b3",
+                                        "a8b8",
+                                        "c2c4",
+                                        "d5c4",
+                                        "f2f3",
+                                        "e7e5",
+                                        "g4g5",
+                                        "e5f4",
+                                        "g3h5",
+                                        "g8f7",
+                                        "g5f6",
+                                        "g7f6",
+                                        "c1b2",
+                                        "b8d6",
+                                        "b3c4",
+                                        "f8h6"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "c7c5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -28,
+                                    "mate": null,
+                                    "pv": [
+                                        "c7c5",
+                                        "g2g4",
+                                        "b8c6",
+                                        "f4f5",
+                                        "f7f6",
+                                        "h1f2",
+                                        "e7e5",
+                                        "g4g5",
+                                        "f6g5",
+                                        "f1h3",
+                                        "c8d6",
+                                        "d2d3",
+                                        "e8d7",
+                                        "c1g5",
+                                        "d8e8",
+                                        "d1e3",
+                                        "d7c7",
+                                        "h3f3"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "c7c5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -28,
+                                    "mate": null,
+                                    "pv": [
+                                        "c7c5",
+                                        "c2c3",
+                                        "f7f6",
+                                        "g2g4",
+                                        "b8c6",
+                                        "h1f2",
+                                        "a8b8",
+                                        "f1h3",
+                                        "b8c7",
+                                        "g4g5",
+                                        "c8d6",
+                                        "a2a3",
+                                        "e7e5",
+                                        "f5e6",
+                                        "f6f5",
+                                        "b2b4",
+                                        "c5b4",
+                                        "a3b4",
+                                        "g7g6",
+                                        "h3g3",
+                                        "f8g7",
+                                        "f2d3",
+                                        "g8e6",
+                                        "d3c5",
+                                        "e6c8",
+                                        "d2d4",
+                                        "a7a5",
+                                        "b4a5",
+                                        "c6a5"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "c7c5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -32,
+                                    "mate": null,
+                                    "pv": [
+                                        "c7c5",
+                                        "g2g4",
+                                        "b8c6",
+                                        "f4f5",
+                                        "e7e6",
+                                        "b2b3",
+                                        "f7f6",
+                                        "c1b2",
+                                        "e6f5",
+                                        "c2c4",
+                                        "d5c4",
+                                        "f1h3",
+                                        "g8f7",
+                                        "g4f5",
+                                        "c8b6",
+                                        "h3e3",
+                                        "e8d7",
+                                        "b1e4"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "c8d6",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -52,
+                                    "mate": null,
+                                    "pv": [
+                                        "c8d6",
+                                        "c2c3",
+                                        "e7e6",
+                                        "g2g4",
+                                        "e8d7",
+                                        "d2d4",
+                                        "f7f6",
+                                        "f4f5",
+                                        "e6e5",
+                                        "g4g5",
+                                        "b8c6",
+                                        "g5f6",
+                                        "g7f6",
+                                        "f2h4",
+                                        "f8e7",
+                                        "d4e5",
+                                        "c6e5",
+                                        "c1f4",
+                                        "d8f8",
+                                        "h1f2",
+                                        "h7h5",
+                                        "d1e3"
+                                    ]
+                                }
+                            }
+                        ],
+                        "analysis": {
+                            "cpl": -8,
+                            "mate": null,
+                            "pv": null
+                        }
+                    },
+                    {
+                        "move": "g2g4",
+                        "children": [
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -12,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "f1f2",
+                                        "b7b6",
+                                        "c2c3",
+                                        "c8d6",
+                                        "d2d4",
+                                        "c5d4",
+                                        "c3d4",
+                                        "f7f6",
+                                        "f4f5",
+                                        "e7e5",
+                                        "f5e6",
+                                        "g8e6",
+                                        "d1c3",
+                                        "b8c6",
+                                        "h1g3",
+                                        "a8c8",
+                                        "h2h3",
+                                        "g7g6",
+                                        "a2a3",
+                                        "f8g7",
+                                        "g3f5",
+                                        "g6f5",
+                                        "g4f5"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "h7h5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -25,
+                                    "mate": null,
+                                    "pv": [
+                                        "h7h5",
+                                        "h2h3",
+                                        "h5h4",
+                                        "g2g4",
+                                        "h4g3",
+                                        "h1g3",
+                                        "b8c6",
+                                        "b2b3",
+                                        "e7e6",
+                                        "c1b2",
+                                        "f7f6",
+                                        "d1f2",
+                                        "g8f7",
+                                        "e2e3",
+                                        "a8b8",
+                                        "g3e4",
+                                        "d7d5",
+                                        "e4f6",
+                                        "g7f6",
+                                        "b2f6",
+                                        "h8h6",
+                                        "f2g4",
+                                        "h6h5",
+                                        "f6d8",
+                                        "e8d8",
+                                        "c4d5",
+                                        "e6d5",
+                                        "g4e5",
+                                        "f7e6",
+                                        "g1g6",
+                                        "e6h3",
+                                        "f1f3",
+                                        "c6e5",
+                                        "f4e5"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -42,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "g2g4",
+                                        "b8c6",
+                                        "c2c3",
+                                        "f7f6",
+                                        "h1g3",
+                                        "c8d6",
+                                        "f1f2",
+                                        "b7b6",
+                                        "d2d4",
+                                        "c5d4",
+                                        "c3d4",
+                                        "e7e6",
+                                        "c1d2",
+                                        "g8f7",
+                                        "b1d3",
+                                        "a8b7",
+                                        "a1c1",
+                                        "d8c8",
+                                        "e2e4",
+                                        "d5e4",
+                                        "g3e4",
+                                        "e8d8",
+                                        "e4d6",
+                                        "f8d6"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "e7e6",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -29,
+                                    "mate": null,
+                                    "pv": [
+                                        "e7e6",
+                                        "g2g4",
+                                        "h7h5",
+                                        "g4g5",
+                                        "g8h7",
+                                        "f2f3",
+                                        "h7g6",
+                                        "b2b3",
+                                        "b8c6",
+                                        "c2c4",
+                                        "c6d4",
+                                        "f3g2",
+                                        "c8e7",
+                                        "e2e3",
+                                        "d4f5",
+                                        "c1b2",
+                                        "d7d5",
+                                        "c4d5",
+                                        "e6d5",
+                                        "h1g3",
+                                        "f5h4",
+                                        "g2e2",
+                                        "g6b1",
+                                        "a1b1",
+                                        "b7b6",
+                                        "g1f1",
+                                        "d5d4",
+                                        "b1c1",
+                                        "h4g2",
+                                        "e1f2",
+                                        "h5h4"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "h7h5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -36,
+                                    "mate": null,
+                                    "pv": [
+                                        "h7h5",
+                                        "e2e4",
+                                        "b8c6",
+                                        "f1e2",
+                                        "e7e6",
+                                        "g1f1",
+                                        "a8b8",
+                                        "a2a3",
+                                        "b8c7",
+                                        "b2b4",
+                                        "f7f6",
+                                        "b4c5",
+                                        "f8c5",
+                                        "d2d4",
+                                        "c5b6",
+                                        "b1d3",
+                                        "d7d5",
+                                        "e4e5",
+                                        "g8f7",
+                                        "a3a4",
+                                        "e8d7",
+                                        "a1b1",
+                                        "c8e7",
+                                        "c1d2",
+                                        "h5h4"
+                                    ]
+                                }
+                            }
+                        ],
+                        "analysis": {
+                            "cpl": -3,
+                            "mate": null,
+                            "pv": null
+                        }
+                    },
+                    {
+                        "move": "d2d4",
+                        "children": [
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 5,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "g2g4",
+                                        "c7c5",
+                                        "d4c5",
+                                        "e7e6",
+                                        "f1f2",
+                                        "b8d7",
+                                        "c1e3",
+                                        "b7b6",
+                                        "c5b6",
+                                        "c8b6",
+                                        "b2b3",
+                                        "d5d4",
+                                        "e3d4",
+                                        "e6e5",
+                                        "f4e5",
+                                        "f6e5",
+                                        "d4e3",
+                                        "b6d5",
+                                        "g1f1",
+                                        "f8b4",
+                                        "e3d2",
+                                        "b4d2",
+                                        "e1d2",
+                                        "g8e6",
+                                        "c2c4",
+                                        "h8f8",
+                                        "f2g2",
+                                        "f8f1",
+                                        "g2f1",
+                                        "d5f4",
+                                        "d2c1",
+                                        "d7f6",
+                                        "b1c2",
+                                        "f6g4",
+                                        "h1g3",
+                                        "a8b7",
+                                        "f1g1",
+                                        "b7b4",
+                                        "c1b2"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "c7c5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -14,
+                                    "mate": null,
+                                    "pv": [
+                                        "c7c5",
+                                        "f1f2",
+                                        "b7b6",
+                                        "c2c3",
+                                        "d7d5",
+                                        "d2d4",
+                                        "c5d4",
+                                        "c3d4",
+                                        "c8d6",
+                                        "f4f5",
+                                        "e7e5",
+                                        "f5e6",
+                                        "g8e6",
+                                        "h1g3",
+                                        "b8c6",
+                                        "g3h5",
+                                        "a8c8",
+                                        "h2h3",
+                                        "d6e4",
+                                        "b1e4",
+                                        "d5e4",
+                                        "c1e3",
+                                        "c6b4",
+                                        "a1c1",
+                                        "c8d7",
+                                        "f2f4",
+                                        "b4d5",
+                                        "f4e4",
+                                        "e8f7",
+                                        "g1f1"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "c7c5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -23,
+                                    "mate": null,
+                                    "pv": [
+                                        "c7c5",
+                                        "f1f2",
+                                        "e7e6",
+                                        "g2g4",
+                                        "b8c6",
+                                        "h1g3",
+                                        "d7d5",
+                                        "f4f5",
+                                        "e6e5",
+                                        "g4g5",
+                                        "g8f7",
+                                        "g5f6",
+                                        "g7f6",
+                                        "c3c4",
+                                        "d5c4",
+                                        "g3e4",
+                                        "f8e7",
+                                        "b2b3",
+                                        "c4b3",
+                                        "a2b3",
+                                        "c8d6",
+                                        "e4c5",
+                                        "a8c8",
+                                        "c1b2",
+                                        "b7b6",
+                                        "c5e4",
+                                        "c6a5",
+                                        "b2c3",
+                                        "c8c6",
+                                        "f2f3",
+                                        "d6b5"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -34,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "g2g4",
+                                        "c7c5",
+                                        "f4f5",
+                                        "b8c6",
+                                        "c2c3",
+                                        "a8b8",
+                                        "f1h3",
+                                        "b8c7",
+                                        "g4g5",
+                                        "c8d6",
+                                        "a2a3",
+                                        "e7e5",
+                                        "d2d3",
+                                        "d5d4",
+                                        "b1c2",
+                                        "f8e7",
+                                        "c3c4",
+                                        "e8d7",
+                                        "f2e4",
+                                        "d6e4"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "e7e6",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -32,
+                                    "mate": null,
+                                    "pv": [
+                                        "e7e6",
+                                        "f1e2",
+                                        "c7c5",
+                                        "g1f1",
+                                        "b8c6",
+                                        "e1f2",
+                                        "c8e7",
+                                        "f2g1",
+                                        "h7h5",
+                                        "c2c3",
+                                        "d7d5",
+                                        "e4d5",
+                                        "e7d5",
+                                        "d1e3",
+                                        "e8d7",
+                                        "h2h4",
+                                        "d7c7",
+                                        "h1g3",
+                                        "g8f7",
+                                        "b2b3",
+                                        "d8e8",
+                                        "b1e4",
+                                        "a8c8",
+                                        "e2f2",
+                                        "d5e3",
+                                        "d2e3",
+                                        "c7b8"
+                                    ]
+                                }
+                            }
+                        ],
+                        "analysis": {
+                            "cpl": 1,
+                            "mate": null,
+                            "pv": null
+                        }
+                    },
+                    {
+                        "move": "g2g4",
+                        "children": [
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 18,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "d2d4",
+                                        "c8d6",
+                                        "c2c3",
+                                        "c7c5",
+                                        "d4c5",
+                                        "b6c5",
+                                        "h1g3",
+                                        "b8d7",
+                                        "b1c2",
+                                        "f7f6",
+                                        "f1h3",
+                                        "a8c6",
+                                        "g4g5",
+                                        "f6g5",
+                                        "f4g5",
+                                        "d6f7",
+                                        "g3f5",
+                                        "f7e5",
+                                        "g5g6",
+                                        "e5g6",
+                                        "f5d4",
+                                        "c5d4",
+                                        "c2g6",
+                                        "g8f7",
+                                        "g6f7",
+                                        "e8f7",
+                                        "c3d4",
+                                        "g7g6",
+                                        "c1d2",
+                                        "f8g7",
+                                        "a1c1",
+                                        "c6b6"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "h7h5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 14,
+                                    "mate": null,
+                                    "pv": [
+                                        "h7h5",
+                                        "e2e4",
+                                        "d7d5",
+                                        "f1f3",
+                                        "c7c5",
+                                        "e1f2",
+                                        "f7f6",
+                                        "g1f1",
+                                        "e7e6",
+                                        "f2g1",
+                                        "b8c6",
+                                        "e4d5",
+                                        "e6d5",
+                                        "d2d4",
+                                        "e8d7",
+                                        "c1e3",
+                                        "d7c7",
+                                        "f4f5",
+                                        "c5d4",
+                                        "c3d4",
+                                        "c7b7"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "h7h5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 13,
+                                    "mate": null,
+                                    "pv": [
+                                        "h7h5",
+                                        "c2c3",
+                                        "c7c5",
+                                        "e2e4",
+                                        "e7e6",
+                                        "h1g3",
+                                        "c5d4",
+                                        "c3d4",
+                                        "b8c6",
+                                        "g3e2",
+                                        "f7f5",
+                                        "d1c3",
+                                        "g8f7",
+                                        "f1f3",
+                                        "c8e7",
+                                        "g1f1",
+                                        "h5h4",
+                                        "f3h3"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "h7h5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -3,
+                                    "mate": null,
+                                    "pv": [
+                                        "h7h5",
+                                        "c2c3",
+                                        "c7c5",
+                                        "e2e4",
+                                        "e7e6",
+                                        "f1e2",
+                                        "b8c6",
+                                        "b2b3",
+                                        "f7f6",
+                                        "c1b2",
+                                        "f8e7",
+                                        "d2d4",
+                                        "d7d5",
+                                        "d1e3",
+                                        "g8f7",
+                                        "e4e5",
+                                        "b6b5",
+                                        "e5f6",
+                                        "g7f6",
+                                        "b1d3",
+                                        "b5b4"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "h7h5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -4,
+                                    "mate": null,
+                                    "pv": [
+                                        "h7h5",
+                                        "h2h4",
+                                        "c7c5",
+                                        "c2c3",
+                                        "f7f6",
+                                        "e2e4",
+                                        "b8c6",
+                                        "d1e3",
+                                        "e7e6",
+                                        "f1f3",
+                                        "g8f7",
+                                        "g3e2",
+                                        "g7g6",
+                                        "d2d4",
+                                        "f6f5",
+                                        "e4e5",
+                                        "d7d5",
+                                        "b1d3",
+                                        "f8e7",
+                                        "g1h1"
+                                    ]
+                                }
+                            }
+                        ],
+                        "analysis": {
+                            "cpl": 21,
+                            "mate": null,
+                            "pv": null
+                        }
+                    }
+                ],
+                "analysis": {
+                    "cpl": -12,
+                    "mate": null,
+                    "pv": null
+                }
+            },
+            {
+                "move": "h7h5",
+                "children": [
+                    {
+                        "move": "c2c4",
+                        "children": [
+                            {
+                                "move": "c7c5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -23,
+                                    "mate": null,
+                                    "pv": [
+                                        "c7c5",
+                                        "h2h3",
+                                        "g8h7",
+                                        "b1h7",
+                                        "h8h7",
+                                        "c1b2",
+                                        "e7e6",
+                                        "g2g4",
+                                        "b7b5",
+                                        "c4b5",
+                                        "h5g4",
+                                        "h3g4",
+                                        "a7a6",
+                                        "a2a4",
+                                        "a8b7",
+                                        "h1g3",
+                                        "d7d5",
+                                        "g1h1",
+                                        "h7h1",
+                                        "f1h1",
+                                        "a6b5"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "e7e6",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -43,
+                                    "mate": null,
+                                    "pv": [
+                                        "e7e6",
+                                        "d1e3",
+                                        "c7c5",
+                                        "c2c4",
+                                        "b8c6",
+                                        "f2f4",
+                                        "c8e7",
+                                        "c1b2",
+                                        "f7f6",
+                                        "e4e5",
+                                        "f6f5",
+                                        "h1f2",
+                                        "a8b8",
+                                        "f2d3",
+                                        "d7d6",
+                                        "g2g3",
+                                        "d6e5",
+                                        "d3e5",
+                                        "c6e5",
+                                        "b2e5",
+                                        "b8c8",
+                                        "e5c3"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "e7e6",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -41,
+                                    "mate": null,
+                                    "pv": [
+                                        "e7e6",
+                                        "c2c4",
+                                        "c7c5",
+                                        "h2h4",
+                                        "f7f6",
+                                        "h1g3",
+                                        "b8c6",
+                                        "f1e2",
+                                        "a8b8",
+                                        "c1b2",
+                                        "g8f7",
+                                        "g1h1",
+                                        "d7d5",
+                                        "c4d5",
+                                        "e6d5",
+                                        "d1c3",
+                                        "c8d6",
+                                        "d2d4",
+                                        "c5d4",
+                                        "e3d4",
+                                        "e8d7",
+                                        "g3f5",
+                                        "d8e8",
+                                        "f5e3",
+                                        "g7g6"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -42,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "f2f4",
+                                        "f7f6",
+                                        "h1f2",
+                                        "e7e6",
+                                        "e2e4",
+                                        "c7c5",
+                                        "f1e2",
+                                        "c8e7",
+                                        "c2c4",
+                                        "d5c4",
+                                        "e4e5",
+                                        "f6f5",
+                                        "b3c4",
+                                        "e7c6",
+                                        "g2g3",
+                                        "f8e7",
+                                        "b1c2",
+                                        "b7b6",
+                                        "d1e3",
+                                        "c6d4",
+                                        "b2d4",
+                                        "c5d4"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -41,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "c1b2",
+                                        "f7f6",
+                                        "h1f2",
+                                        "e7e6",
+                                        "c2c4",
+                                        "c7c5",
+                                        "e2e4",
+                                        "d5c4",
+                                        "b3c4",
+                                        "b8c6",
+                                        "e4e5",
+                                        "f6f5",
+                                        "a2a4",
+                                        "a8b8",
+                                        "a4a5",
+                                        "f8e7",
+                                        "b1c2",
+                                        "c6d4",
+                                        "c2a4",
+                                        "e8f8",
+                                        "d1e3"
+                                    ]
+                                }
+                            }
+                        ],
+                        "analysis": {
+                            "cpl": -28,
+                            "mate": null,
+                            "pv": null
+                        }
+                    },
+                    {
+                        "move": "g2g4",
+                        "children": [
+                            {
+                                "move": "a7a5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -15,
+                                    "mate": null,
+                                    "pv": [
+                                        "a7a5",
+                                        "f1h3",
+                                        "a5a4",
+                                        "f2f4",
+                                        "b8c6",
+                                        "h1f2",
+                                        "c8d6",
+                                        "c2c3",
+                                        "e8d7",
+                                        "g4g5",
+                                        "e7e6",
+                                        "c1a3",
+                                        "d7c8",
+                                        "d1b2",
+                                        "c8b8",
+                                        "d2d4",
+                                        "a8a5",
+                                        "b2a4",
+                                        "f7f5"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "h7h5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -42,
+                                    "mate": null,
+                                    "pv": [
+                                        "h7h5",
+                                        "h1f2",
+                                        "c8d6",
+                                        "c1b2",
+                                        "e7e6",
+                                        "e2e3",
+                                        "c7c5",
+                                        "c2c4",
+                                        "f7f6",
+                                        "c4d5",
+                                        "e6d5",
+                                        "e3e4",
+                                        "b8c6",
+                                        "e4e5",
+                                        "f6e5",
+                                        "f4e5",
+                                        "d6c8",
+                                        "f1e2",
+                                        "e8d7",
+                                        "g1h1",
+                                        "d7c7",
+                                        "f2h3",
+                                        "d5d4",
+                                        "d1f2"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "h7h5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -38,
+                                    "mate": null,
+                                    "pv": [
+                                        "h7h5",
+                                        "f2f4",
+                                        "f7f6",
+                                        "h1f2",
+                                        "c8d6",
+                                        "c2c3",
+                                        "b7b6",
+                                        "f4f5",
+                                        "b8c6",
+                                        "f2d3",
+                                        "e7e6",
+                                        "f5e6",
+                                        "g8e6",
+                                        "d1e3",
+                                        "c6e7",
+                                        "f1f3",
+                                        "a7a5",
+                                        "g1f1",
+                                        "a5a4",
+                                        "d3f4",
+                                        "e6f7",
+                                        "f3h3",
+                                        "a4a3",
+                                        "b2c1",
+                                        "g7g6",
+                                        "b1g6",
+                                        "f7g6",
+                                        "e3d5",
+                                        "e7d5",
+                                        "h3e6",
+                                        "d5e7",
+                                        "f4g6",
+                                        "h8h7",
+                                        "f1f6"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "h7h5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -56,
+                                    "mate": null,
+                                    "pv": [
+                                        "h7h5",
+                                        "f2f4",
+                                        "e7e6",
+                                        "e2e4",
+                                        "d5e4",
+                                        "b1e4",
+                                        "c8d6",
+                                        "e4f3",
+                                        "b8d7",
+                                        "h1f2",
+                                        "d7f6",
+                                        "f1e2",
+                                        "a7a5",
+                                        "g1h1",
+                                        "g8h7",
+                                        "d1e3",
+                                        "d6f5",
+                                        "d2d4",
+                                        "f5h4",
+                                        "f3h5",
+                                        "a5a4",
+                                        "g2g3",
+                                        "a8a5"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "h7h5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -66,
+                                    "mate": null,
+                                    "pv": [
+                                        "h7h5",
+                                        "c2c3",
+                                        "e7e6",
+                                        "g2g4",
+                                        "h5g4",
+                                        "g1g4",
+                                        "c7c5",
+                                        "d4c5",
+                                        "b8d7",
+                                        "f1g1",
+                                        "f8c5",
+                                        "g4g7",
+                                        "c8e7",
+                                        "c1f4",
+                                        "e6e5",
+                                        "f4g5",
+                                        "f7f6",
+                                        "g5e3",
+                                        "e8f8",
+                                        "g7g2",
+                                        "a8c8",
+                                        "f2f3",
+                                        "g8e6"
+                                    ]
+                                }
+                            }
+                        ],
+                        "analysis": {
+                            "cpl": -15,
+                            "mate": null,
+                            "pv": null
+                        }
+                    },
+                    {
+                        "move": "g2g4",
+                        "children": [
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -6,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "h1g3",
+                                        "b8c6",
+                                        "g4g5",
+                                        "f6g5",
+                                        "c2c4",
+                                        "c8b6",
+                                        "f1h3",
+                                        "a8c8",
+                                        "h3c8",
+                                        "d8c8",
+                                        "c1b2",
+                                        "e7e5",
+                                        "c4d5",
+                                        "b6d5",
+                                        "b1e4",
+                                        "g8e6",
+                                        "d1e3",
+                                        "c8d8",
+                                        "a1c1",
+                                        "e8f7"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -15,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "c4d5",
+                                        "c8b6",
+                                        "c1b2",
+                                        "b6d5",
+                                        "g2g4",
+                                        "b8c6",
+                                        "d1c3",
+                                        "a8c8",
+                                        "e2e3",
+                                        "c8d7",
+                                        "f1e2",
+                                        "e7e5",
+                                        "h1g3",
+                                        "g8e6",
+                                        "c3d5",
+                                        "e6d5",
+                                        "h2h4",
+                                        "c6b4",
+                                        "b1f5",
+                                        "d5e6",
+                                        "d2d4",
+                                        "g7g6",
+                                        "f5e6",
+                                        "d7e6",
+                                        "e1f1",
+                                        "a7a6",
+                                        "d4e5",
+                                        "f6e5"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -18,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "g2g4",
+                                        "b8c6",
+                                        "g4g5",
+                                        "c8d6",
+                                        "h1g3",
+                                        "a7a5",
+                                        "f1h3",
+                                        "a8c8",
+                                        "h3h4",
+                                        "f6g5",
+                                        "h4g5",
+                                        "g8f7",
+                                        "c2c4",
+                                        "d5d4",
+                                        "f2f4",
+                                        "g7g6",
+                                        "d1f2",
+                                        "f8g7",
+                                        "g3e4",
+                                        "b7b6",
+                                        "e4d6",
+                                        "d8d6",
+                                        "f2e4"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -27,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "g2g4",
+                                        "c7c5",
+                                        "h1g3",
+                                        "b8c6",
+                                        "c1b2",
+                                        "c8d6",
+                                        "c2c4",
+                                        "d5c4",
+                                        "g3e4",
+                                        "a8c8",
+                                        "e4c5",
+                                        "g8f7",
+                                        "d1e3",
+                                        "e7e5",
+                                        "g4g5",
+                                        "f8e7",
+                                        "g5f6",
+                                        "e7f6",
+                                        "f1f2",
+                                        "c6d4",
+                                        "e3g4",
+                                        "c8c5",
+                                        "f4e5",
+                                        "f6h4",
+                                        "f2h4",
+                                        "d4f3",
+                                        "e2f3",
+                                        "c5g1",
+                                        "e1e2",
+                                        "d6b5",
+                                        "e5e6",
+                                        "b5d4",
+                                        "b2d4",
+                                        "g1d4",
+                                        "e6f7",
+                                        "e8f7"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "c7c5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -33,
+                                    "mate": null,
+                                    "pv": [
+                                        "c7c5",
+                                        "g2g4",
+                                        "d7d5",
+                                        "g4g5",
+                                        "b8c6",
+                                        "f1h3",
+                                        "c8d6",
+                                        "g5f6",
+                                        "e7f6",
+                                        "h1g3",
+                                        "a8c8",
+                                        "h3c8",
+                                        "d6c8",
+                                        "h2h4",
+                                        "g7g6",
+                                        "h4h5",
+                                        "f6f5",
+                                        "d2d4",
+                                        "c5d4",
+                                        "c3d4",
+                                        "c8d6",
+                                        "g1h1",
+                                        "f8g7",
+                                        "e2e3",
+                                        "e8d7",
+                                        "d1c3",
+                                        "g8f7"
+                                    ]
+                                }
+                            }
+                        ],
+                        "analysis": {
+                            "cpl": -7,
+                            "mate": null,
+                            "pv": null
+                        }
+                    },
+                    {
+                        "move": "g2g4",
+                        "children": [
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -10,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "h1g3",
+                                        "b8c6",
+                                        "c1b2",
+                                        "f7f6",
+                                        "c2c4",
+                                        "d5c4",
+                                        "g4g5",
+                                        "c6d4",
+                                        "f2f4",
+                                        "c4b3",
+                                        "b2d4",
+                                        "c5d4",
+                                        "a2b3",
+                                        "a8b8",
+                                        "b1d3",
+                                        "g8b3",
+                                        "f4f5",
+                                        "b3d5",
+                                        "d1f2",
+                                        "c8d6"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "h7h5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -23,
+                                    "mate": null,
+                                    "pv": [
+                                        "h7h5",
+                                        "g2g4",
+                                        "h5g4",
+                                        "g1g4",
+                                        "f7f5",
+                                        "g4g7",
+                                        "f8g7",
+                                        "b2g7",
+                                        "h8h7",
+                                        "f1g2",
+                                        "d7d6",
+                                        "c2c4",
+                                        "e7e6",
+                                        "e2e4",
+                                        "b7b5",
+                                        "g2g5",
+                                        "g8f7",
+                                        "g7f6",
+                                        "b8c6",
+                                        "h1g3",
+                                        "f5f4",
+                                        "g5f4",
+                                        "c8e7",
+                                        "e4e5",
+                                        "d6e5",
+                                        "f4g4",
+                                        "d8d4",
+                                        "g4g5",
+                                        "h7h4",
+                                        "f2f3",
+                                        "b5c4",
+                                        "f6e7",
+                                        "c6e7",
+                                        "b1e4",
+                                        "h4e4",
+                                        "f3e4"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "h7h5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -27,
+                                    "mate": null,
+                                    "pv": [
+                                        "h7h5",
+                                        "c1b2",
+                                        "e7e6",
+                                        "f2f4",
+                                        "b8c6",
+                                        "h2h3",
+                                        "h5h4",
+                                        "g2g4",
+                                        "h4g3",
+                                        "h1g3",
+                                        "f7f6",
+                                        "g3e4",
+                                        "g8f7",
+                                        "d1e3",
+                                        "c6d4",
+                                        "e3g4",
+                                        "f6f5",
+                                        "e2e3",
+                                        "d4c6",
+                                        "g4f6",
+                                        "g7f6",
+                                        "e4f6",
+                                        "e8e7",
+                                        "f6d5",
+                                        "e6d5",
+                                        "b2h8",
+                                        "f8h6",
+                                        "h8g7",
+                                        "h6g7",
+                                        "g1g7"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -29,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "g2g4",
+                                        "f7f6",
+                                        "c1b2",
+                                        "b8c6",
+                                        "h1g3",
+                                        "c8d6",
+                                        "c2c4",
+                                        "d5c4",
+                                        "g3e4",
+                                        "a8c8",
+                                        "e4c5",
+                                        "g8f7",
+                                        "d1e3",
+                                        "e7e5",
+                                        "g4g5",
+                                        "f8e7",
+                                        "g5f6",
+                                        "e7f6",
+                                        "f1f2",
+                                        "c6d4",
+                                        "e3g4",
+                                        "c8c5",
+                                        "f4e5",
+                                        "f6h4",
+                                        "f2h4",
+                                        "d4f3",
+                                        "e2f3",
+                                        "c5g1",
+                                        "e1e2",
+                                        "d6b5",
+                                        "h4f2",
+                                        "g1f2",
+                                        "g4f2",
+                                        "b5d4",
+                                        "b2d4",
+                                        "d8d4",
+                                        "e2e3",
+                                        "d4h4",
+                                        "b1e4"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "h7h5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -34,
+                                    "mate": null,
+                                    "pv": [
+                                        "h7h5",
+                                        "c2c4",
+                                        "b8c6",
+                                        "f2f4",
+                                        "e7e6",
+                                        "c1b2",
+                                        "d7d5",
+                                        "f4f5",
+                                        "c8d6",
+                                        "g2g4",
+                                        "h5g4",
+                                        "c4d5",
+                                        "e6d5",
+                                        "f5f6",
+                                        "g7g6",
+                                        "d1f2",
+                                        "e8d7",
+                                        "f2g4",
+                                        "d5d4",
+                                        "b1d3",
+                                        "d8e8",
+                                        "e1d1",
+                                        "d4e3",
+                                        "g4e3",
+                                        "h8h2",
+                                        "h1f2"
+                                    ]
+                                }
+                            }
+                        ],
+                        "analysis": {
+                            "cpl": -7,
+                            "mate": null,
+                            "pv": null
+                        }
+                    },
+                    {
+                        "move": "c2c4",
+                        "children": [
+                            {
+                                "move": "h7h5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 0,
+                                    "mate": null,
+                                    "pv": [
+                                        "h7h5",
+                                        "c1b2",
+                                        "f7f6",
+                                        "g2g4",
+                                        "h5g4",
+                                        "g1g4",
+                                        "e7e6",
+                                        "f1g2",
+                                        "g8f7",
+                                        "d1e3",
+                                        "c8e7",
+                                        "g4g7",
+                                        "f8g7",
+                                        "g2g7",
+                                        "h8g8",
+                                        "g7f6",
+                                        "g8g1",
+                                        "e3f1",
+                                        "g1h1",
+                                        "f6h8",
+                                        "f7g8",
+                                        "h8h5",
+                                        "g8f7"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -6,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "h1g3",
+                                        "c8d6",
+                                        "c2c3",
+                                        "f7f6",
+                                        "g4g5",
+                                        "g7g6",
+                                        "g5f6",
+                                        "e7f6",
+                                        "c1b2",
+                                        "d8d7",
+                                        "c3c4",
+                                        "a8d8",
+                                        "c4d5",
+                                        "g8d5",
+                                        "d1e3",
+                                        "d6b5",
+                                        "e3d5",
+                                        "d7d5"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -15,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "c2c3",
+                                        "h7h5",
+                                        "h1f2",
+                                        "a7a5",
+                                        "d2d4",
+                                        "a5a4",
+                                        "b3b4",
+                                        "e7e6",
+                                        "e2e4",
+                                        "d5e4",
+                                        "f2e4",
+                                        "g8h7",
+                                        "f1e2",
+                                        "h7e4",
+                                        "b1e4",
+                                        "g7g6",
+                                        "c1a3",
+                                        "c8d6",
+                                        "e4d3",
+                                        "c6e7",
+                                        "e2e5",
+                                        "h8h7",
+                                        "e5e2"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "f7f6",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -10,
+                                    "mate": null,
+                                    "pv": [
+                                        "f7f6",
+                                        "g2g4",
+                                        "d7d5",
+                                        "g4g5",
+                                        "c8d6",
+                                        "g5f6",
+                                        "e7f6",
+                                        "f1h3",
+                                        "h7h5",
+                                        "f2f3",
+                                        "a8c8",
+                                        "h3c8",
+                                        "d8c8",
+                                        "d2d4",
+                                        "g7g5",
+                                        "h2h4",
+                                        "g5h4",
+                                        "h1f2",
+                                        "c6e7",
+                                        "f2d3",
+                                        "h4h3",
+                                        "d3f4"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -25,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "g2g4",
+                                        "c8d6",
+                                        "h1g3",
+                                        "a7a5",
+                                        "g3f5",
+                                        "e7e5",
+                                        "f2f4",
+                                        "f7f6",
+                                        "f5d6",
+                                        "d8d6",
+                                        "c2c3",
+                                        "g8f7",
+                                        "b2a3",
+                                        "a8d8",
+                                        "g1g3",
+                                        "e5f4",
+                                        "f1f4",
+                                        "d6e6",
+                                        "a3f8",
+                                        "e8f8",
+                                        "b1f5",
+                                        "e6e8",
+                                        "d2d4",
+                                        "c6e7",
+                                        "f5d3",
+                                        "e7g6"
+                                    ]
+                                }
+                            }
+                        ],
+                        "analysis": {
+                            "cpl": -10,
+                            "mate": null,
+                            "pv": null
+                        }
+                    }
+                ],
+                "analysis": {
+                    "cpl": -19,
+                    "mate": null,
+                    "pv": null
+                }
+            },
+            {
+                "move": "f7f6",
+                "children": [
+                    {
+                        "move": "b2b3",
+                        "children": [
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -18,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "c4d5",
+                                        "c8b6",
+                                        "g2g4",
+                                        "b6d5",
+                                        "c1b2",
+                                        "b8c6",
+                                        "e2e3",
+                                        "a8c8",
+                                        "f1e2",
+                                        "e7e5",
+                                        "d1c3",
+                                        "c8d7",
+                                        "h1g3",
+                                        "g8e6",
+                                        "c3d5",
+                                        "d7d5",
+                                        "b1e4",
+                                        "d5a5",
+                                        "b2c3",
+                                        "f8b4",
+                                        "e4c6",
+                                        "b7c6",
+                                        "c3b4",
+                                        "a5b4",
+                                        "f2f3",
+                                        "e6d5",
+                                        "g1f1",
+                                        "a7a5",
+                                        "a1c1",
+                                        "a5a4",
+                                        "e3e4",
+                                        "d5f7",
+                                        "c1c6",
+                                        "a4b3",
+                                        "a2b3",
+                                        "b4b3",
+                                        "c6c7",
+                                        "b3b6"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "c7c6",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -22,
+                                    "mate": null,
+                                    "pv": [
+                                        "c7c6",
+                                        "b2b3",
+                                        "d7d5",
+                                        "f2f4",
+                                        "d5c4",
+                                        "b3c4",
+                                        "c6c5",
+                                        "f1e2",
+                                        "c8d6",
+                                        "d2d3",
+                                        "g8f7",
+                                        "e1f2",
+                                        "b8c6",
+                                        "g1e1",
+                                        "h7h5",
+                                        "f2g1",
+                                        "h5h4",
+                                        "b1c2",
+                                        "a8c8",
+                                        "h1f2",
+                                        "f7h5",
+                                        "e2f1",
+                                        "g7g5"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "b7b5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -33,
+                                    "mate": null,
+                                    "pv": [
+                                        "b7b5",
+                                        "c4b5",
+                                        "d7d5",
+                                        "b2b3",
+                                        "a7a6",
+                                        "b5a6",
+                                        "b8a6",
+                                        "f2f4",
+                                        "d5d4",
+                                        "e3c4",
+                                        "g8d5",
+                                        "h1f2",
+                                        "e7e6",
+                                        "e2e4",
+                                        "d4e3",
+                                        "c4e3",
+                                        "f8c5",
+                                        "c1b2",
+                                        "a8a7",
+                                        "f1e2",
+                                        "c5d4"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "e7e6",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -41,
+                                    "mate": null,
+                                    "pv": [
+                                        "e7e6",
+                                        "b2b3",
+                                        "c8e7",
+                                        "g2g4",
+                                        "d7d5",
+                                        "c4d5",
+                                        "e6d5",
+                                        "f2f4",
+                                        "d5e4",
+                                        "b1e4",
+                                        "e8d7",
+                                        "c1b2",
+                                        "d7c8",
+                                        "d1e3",
+                                        "b8c6",
+                                        "a1d1"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "g8c4",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -67,
+                                    "mate": null,
+                                    "pv": [
+                                        "g8c4",
+                                        "f1h3",
+                                        "c4e6",
+                                        "b1h7",
+                                        "e6f7",
+                                        "g4g5",
+                                        "b8c6",
+                                        "d1e3",
+                                        "d7d5",
+                                        "g5g6",
+                                        "f7g8",
+                                        "h1g3",
+                                        "d5d4",
+                                        "e3f5",
+                                        "c8d6",
+                                        "d2d3",
+                                        "d6f5",
+                                        "h3f5",
+                                        "g8d5",
+                                        "g3h5",
+                                        "a8c8",
+                                        "f5c8",
+                                        "d8c8",
+                                        "h5f4",
+                                        "e7e6",
+                                        "h2h4",
+                                        "e8d7",
+                                        "f4d5",
+                                        "e6d5",
+                                        "h4h5"
+                                    ]
+                                }
+                            }
+                        ],
+                        "analysis": {
+                            "cpl": -16,
+                            "mate": null,
+                            "pv": null
+                        }
+                    },
+                    {
+                        "move": "g2g4",
+                        "children": [
+                            {
+                                "move": "h5g4",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 0,
+                                    "mate": null,
+                                    "pv": [
+                                        "h5g4",
+                                        "g1g4",
+                                        "b7b6",
+                                        "d2d4",
+                                        "e7e6",
+                                        "e2e4",
+                                        "b8c6",
+                                        "c1e3",
+                                        "c8d6",
+                                        "h1g3",
+                                        "f7f5",
+                                        "e4f5",
+                                        "c6e7",
+                                        "f5e6",
+                                        "g8e6",
+                                        "b1e4",
+                                        "a8c8",
+                                        "g4g5",
+                                        "e6c4",
+                                        "f1g2",
+                                        "d6e4",
+                                        "g3e4",
+                                        "d7d5",
+                                        "a1c1",
+                                        "c4a6"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "d7d5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -12,
+                                    "mate": null,
+                                    "pv": [
+                                        "d7d5",
+                                        "c4d5",
+                                        "d8d5",
+                                        "e2e3",
+                                        "e7e6",
+                                        "c1d2",
+                                        "c7c5",
+                                        "d4c5",
+                                        "d5c5",
+                                        "f2f4",
+                                        "c8d6",
+                                        "h1f2",
+                                        "g8h7",
+                                        "b1h7",
+                                        "h8h7",
+                                        "e3e4",
+                                        "b8d7",
+                                        "f1e2",
+                                        "a8c8",
+                                        "g1h1",
+                                        "f8e7",
+                                        "d1c3",
+                                        "d6c4"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "c7c5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -10,
+                                    "mate": null,
+                                    "pv": [
+                                        "c7c5",
+                                        "g2g4",
+                                        "h5g4",
+                                        "g1g4",
+                                        "b8c6",
+                                        "f1g2",
+                                        "a8b8",
+                                        "f2f4",
+                                        "e7e6",
+                                        "g4g7",
+                                        "c8e7",
+                                        "c3e4",
+                                        "h8h6",
+                                        "d2d4",
+                                        "f7f5",
+                                        "g2g5",
+                                        "f8g7",
+                                        "g5g7",
+                                        "d7d5",
+                                        "c4d5",
+                                        "e6d5",
+                                        "e4f6",
+                                        "h6f6",
+                                        "g7f6",
+                                        "d8d6",
+                                        "f6h8",
+                                        "d6g6",
+                                        "h1g3",
+                                        "b8d6"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "e7e6",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -21,
+                                    "mate": null,
+                                    "pv": [
+                                        "e7e6",
+                                        "f2f4",
+                                        "c7c5",
+                                        "h2h3",
+                                        "d7d5",
+                                        "c1b2",
+                                        "b8c6",
+                                        "g2g4",
+                                        "d5d4",
+                                        "h1g3",
+                                        "h5h4",
+                                        "g3e4",
+                                        "a8b8",
+                                        "f4f5",
+                                        "f7f6",
+                                        "d1f2",
+                                        "e6f5",
+                                        "g4f5",
+                                        "g8f7",
+                                        "f2d3",
+                                        "b7b6"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "e7e6",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -22,
+                                    "mate": null,
+                                    "pv": [
+                                        "e7e6",
+                                        "b2b3",
+                                        "c7c5",
+                                        "h2h3",
+                                        "d7d5",
+                                        "g2g4",
+                                        "b8c6",
+                                        "g4g5",
+                                        "g8h7",
+                                        "c4d5",
+                                        "e6d5",
+                                        "b1h7",
+                                        "h8h7",
+                                        "f1f3",
+                                        "b7b6",
+                                        "c1b2",
+                                        "h7h8",
+                                        "d1f2",
+                                        "d5d4",
+                                        "h1g3",
+                                        "c8d6",
+                                        "a1c1",
+                                        "e8d7",
+                                        "g3h5",
+                                        "c6b4"
+                                    ]
+                                }
+                            }
+                        ],
+                        "analysis": {
+                            "cpl": 0,
+                            "mate": null,
+                            "pv": null
+                        }
+                    },
+                    {
+                        "move": "g2g4",
+                        "children": [
+                            {
+                                "move": "c8b6",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 29,
+                                    "mate": null,
+                                    "pv": [
+                                        "c8b6",
+                                        "d1e3",
+                                        "d7d5",
+                                        "c4d5",
+                                        "b6d5",
+                                        "e3d5",
+                                        "d8d5",
+                                        "b1e4",
+                                        "f7f6",
+                                        "e4d5",
+                                        "g8d5",
+                                        "f1h3",
+                                        "a8d8",
+                                        "b2b3",
+                                        "c6d4",
+                                        "e1f1",
+                                        "d5c6",
+                                        "c1b2",
+                                        "d4f3",
+                                        "g1g3",
+                                        "f3d2",
+                                        "f1e1",
+                                        "d8d5"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "h7h5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 1,
+                                    "mate": null,
+                                    "pv": [
+                                        "h7h5",
+                                        "e2e3",
+                                        "g8h7",
+                                        "b1h7",
+                                        "h8h7",
+                                        "f1e2",
+                                        "e7e6",
+                                        "f2f4",
+                                        "d7d5",
+                                        "h1f2",
+                                        "d5d4",
+                                        "a2a3",
+                                        "h7h6",
+                                        "g1h1",
+                                        "a7a5",
+                                        "d1b2",
+                                        "a8a6",
+                                        "e3e4",
+                                        "a6b6",
+                                        "e2d1"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "f7f6",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -10,
+                                    "mate": null,
+                                    "pv": [
+                                        "f7f6",
+                                        "f2f4",
+                                        "c8b6",
+                                        "c4c5",
+                                        "b6c8",
+                                        "g2g4",
+                                        "d7d6",
+                                        "g4g5",
+                                        "d6c5",
+                                        "b2b3",
+                                        "c8d6",
+                                        "c1b2",
+                                        "a8c8",
+                                        "d1f2",
+                                        "g8f7",
+                                        "f1e2",
+                                        "c8d7",
+                                        "h1g3",
+                                        "f6g5"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "h7h5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -13,
+                                    "mate": null,
+                                    "pv": [
+                                        "h7h5",
+                                        "e2e3",
+                                        "e7e6",
+                                        "a2a3",
+                                        "c6a5",
+                                        "b1c2",
+                                        "c7c5",
+                                        "f1e2",
+                                        "c8b6",
+                                        "d2d3",
+                                        "d7d5",
+                                        "c4d5",
+                                        "e6d5",
+                                        "e1f2",
+                                        "a8c8",
+                                        "c1d2",
+                                        "a5c6",
+                                        "g1e1",
+                                        "f7f6",
+                                        "f2g1",
+                                        "g8f7"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "f7f6",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -15,
+                                    "mate": null,
+                                    "pv": [
+                                        "f7f6",
+                                        "b2b3",
+                                        "c8b6",
+                                        "g2g4",
+                                        "d7d5",
+                                        "c4d5",
+                                        "b6d5",
+                                        "c1b2",
+                                        "a8c8",
+                                        "e2e3",
+                                        "c8d7",
+                                        "f1e2",
+                                        "e7e5",
+                                        "h1g3",
+                                        "g8e6",
+                                        "c3d5",
+                                        "e6d5",
+                                        "h2h4",
+                                        "d5e6",
+                                        "f2f3",
+                                        "f8b4"
+                                    ]
+                                }
+                            }
+                        ],
+                        "analysis": {
+                            "cpl": 20,
+                            "mate": null,
+                            "pv": null
+                        }
+                    },
+                    {
+                        "move": "c4d5",
+                        "children": [
+                            {
+                                "move": "c8b6",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 37,
+                                    "mate": null,
+                                    "pv": [
+                                        "c8b6",
+                                        "d1c3",
+                                        "b6d5",
+                                        "c3d5",
+                                        "d8d5",
+                                        "b1e4",
+                                        "d5d4",
+                                        "d2d3",
+                                        "b8c6",
+                                        "c1d2",
+                                        "f7f6",
+                                        "g2g4",
+                                        "g8d5",
+                                        "h1g3",
+                                        "a8c8",
+                                        "d2c3",
+                                        "d5e4",
+                                        "g3e4",
+                                        "d4d5",
+                                        "f2f4",
+                                        "c8d7",
+                                        "f1f2",
+                                        "e7e5",
+                                        "f4e5",
+                                        "f6e5",
+                                        "g1f1",
+                                        "e8d8"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "d5c4",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -39,
+                                    "mate": null,
+                                    "pv": [
+                                        "d5c4",
+                                        "f1c4",
+                                        "c8d6",
+                                        "c4e2",
+                                        "g7g6",
+                                        "g2g4",
+                                        "f8g7",
+                                        "h1g3",
+                                        "b7b6",
+                                        "d1c3",
+                                        "g7c3",
+                                        "b2c3",
+                                        "f7f6",
+                                        "d2d3",
+                                        "g8f7",
+                                        "c3c4",
+                                        "c7c5",
+                                        "c1b2",
+                                        "b8c6",
+                                        "f2f4"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "d5c4",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -58,
+                                    "mate": null,
+                                    "pv": [
+                                        "d5c4",
+                                        "b2b3",
+                                        "c8b6",
+                                        "f1h3",
+                                        "b8c6",
+                                        "b3c4",
+                                        "a8c8",
+                                        "b1e4",
+                                        "c8d7",
+                                        "c4c5",
+                                        "b6d5",
+                                        "h3b3",
+                                        "f7f6",
+                                        "a1b1",
+                                        "e7e5",
+                                        "b3b7",
+                                        "f8c5",
+                                        "h1g3",
+                                        "g8e6"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "d5c4",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -56,
+                                    "mate": null,
+                                    "pv": [
+                                        "d5c4",
+                                        "g2g4",
+                                        "c8b6",
+                                        "f1h3",
+                                        "b8c6",
+                                        "b3c4",
+                                        "a8c8",
+                                        "b1e4",
+                                        "c6d4",
+                                        "h3c3",
+                                        "c8d7",
+                                        "e2e3",
+                                        "d4e6",
+                                        "e4c2",
+                                        "f7f6",
+                                        "h1g3",
+                                        "e6c5",
+                                        "d2d4",
+                                        "c5a4"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "d5c4",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -86,
+                                    "mate": null,
+                                    "pv": [
+                                        "d5c4",
+                                        "b2b3",
+                                        "c8d6",
+                                        "g2g4",
+                                        "b8c6",
+                                        "c1b2",
+                                        "a8c8",
+                                        "h1g3",
+                                        "c8d7",
+                                        "f1f3",
+                                        "f7f6",
+                                        "g4g5",
+                                        "g8f7",
+                                        "f3e3",
+                                        "f6g5",
+                                        "f4g5",
+                                        "e7e5",
+                                        "b2e5",
+                                        "c6e5",
+                                        "e3e5",
+                                        "d7e7",
+                                        "e5e7",
+                                        "f8e7",
+                                        "h2h4",
+                                        "c4b3",
+                                        "a2b3",
+                                        "f7b3",
+                                        "a1a7"
+                                    ]
+                                }
+                            }
+                        ],
+                        "analysis": {
+                            "cpl": 32,
+                            "mate": null,
+                            "pv": null
+                        }
+                    },
+                    {
+                        "move": "g2g4",
+                        "children": [
+                            {
+                                "move": "c8b6",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": 32,
+                                    "mate": null,
+                                    "pv": [
+                                        "c8b6",
+                                        "e2e4",
+                                        "g7g6",
+                                        "f2f4",
+                                        "b8c6",
+                                        "h1g3",
+                                        "f8g7",
+                                        "d2d3",
+                                        "g7d4",
+                                        "g1g2",
+                                        "f7f6",
+                                        "g3e2",
+                                        "g8f7",
+                                        "c1d2",
+                                        "a8b8",
+                                        "d1c3",
+                                        "e7e6",
+                                        "e2d4",
+                                        "c6d4",
+                                        "c3e2",
+                                        "d7d5",
+                                        "e2d4",
+                                        "c5d4"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "h7h5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -33,
+                                    "mate": null,
+                                    "pv": [
+                                        "h7h5",
+                                        "g2g4",
+                                        "h5g4",
+                                        "g1g4",
+                                        "b8c6",
+                                        "f1g2",
+                                        "g7g6",
+                                        "b2b3",
+                                        "a8b8",
+                                        "f2f4",
+                                        "h8h6",
+                                        "c1b2",
+                                        "f8g7",
+                                        "e2e3",
+                                        "e7e6",
+                                        "b1e4",
+                                        "d7d5",
+                                        "c4d5",
+                                        "e6d5",
+                                        "e4d5",
+                                        "c6b4",
+                                        "d5e4",
+                                        "c8e7",
+                                        "h1g3",
+                                        "g8h7"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "h7h5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -22,
+                                    "mate": null,
+                                    "pv": [
+                                        "h7h5",
+                                        "c1b2",
+                                        "b8c6",
+                                        "f2f4",
+                                        "e7e6",
+                                        "g2g4",
+                                        "h5g4",
+                                        "h2h3",
+                                        "a7a5",
+                                        "h1f2",
+                                        "a5a4",
+                                        "f2g4",
+                                        "a4a3",
+                                        "b2f6",
+                                        "g7f6",
+                                        "g4f6",
+                                        "e8e7",
+                                        "g1g8",
+                                        "h8g8",
+                                        "f6g8",
+                                        "e7d6",
+                                        "d1c3",
+                                        "d6c7",
+                                        "f1g2",
+                                        "f7f5",
+                                        "c3b5",
+                                        "c7b8",
+                                        "e2e3",
+                                        "a8a5",
+                                        "g2g5",
+                                        "d7d5"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "h7h5",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -26,
+                                    "mate": null,
+                                    "pv": [
+                                        "h7h5",
+                                        "b2b3",
+                                        "e7e6",
+                                        "f4f5",
+                                        "f7f6",
+                                        "h2h3",
+                                        "h5h4",
+                                        "g2g4",
+                                        "h4g3",
+                                        "c1b2",
+                                        "b8c6",
+                                        "h1g3",
+                                        "a8b8",
+                                        "d1f2",
+                                        "g8f7",
+                                        "f2g4",
+                                        "c8d6",
+                                        "e2e3",
+                                        "b8c7",
+                                        "h3h4",
+                                        "h8h4",
+                                        "f1f4"
+                                    ]
+                                }
+                            },
+                            {
+                                "move": "g7g6",
+                                "children": [],
+                                "analysis": {
+                                    "cpl": -37,
+                                    "mate": null,
+                                    "pv": [
+                                        "g7g6",
+                                        "b2b3",
+                                        "f8g7",
+                                        "d1c3",
+                                        "f7f5",
+                                        "c1b2",
+                                        "b8a6",
+                                        "f2f4",
+                                        "d7d5",
+                                        "g3g4",
+                                        "d5d4",
+                                        "c3b5",
+                                        "f5g4",
+                                        "g1g4",
+                                        "a8b8",
+                                        "h1g3",
+                                        "a6b4",
+                                        "f4f5",
+                                        "a7a6",
+                                        "f5g6",
+                                        "a6b5"
+                                    ]
+                                }
+                            }
+                        ],
+                        "analysis": {
+                            "cpl": 26,
+                            "mate": null,
+                            "pv": null
+                        }
+                    }
+                ],
+                "analysis": {
+                    "cpl": -18,
+                    "mate": null,
+                    "pv": null
+                }
+            }
+        ],
+        "analysis": {
+            "cpl": 14,
+            "mate": null,
+            "pv": [
+                "d2d4",
+                "d7d5",
+                "g2g4",
+                "c7c5",
+                "d4c5",
+                "b8d7",
+                "c2c3",
+                "d7c5",
+                "f2f4",
+                "c8d6",
+                "h1g3",
+                "a8c8",
+                "f1f2",
+                "b7b6",
+                "b1c2",
+                "h7h6",
+                "c1e3",
+                "e7e6",
+                "e3d4",
+                "f7f6",
+                "d1e3",
+                "c8c6",
+                "f2f3",
+                "e8d7",
+                "a2a4",
+                "d7c8",
+                "a4a5",
+                "b6b5",
+                "e1f2",
+                "g8f7",
+                "b2b4"
+            ]
+        }
+    }
+}
