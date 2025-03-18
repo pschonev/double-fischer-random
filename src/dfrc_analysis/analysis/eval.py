@@ -81,36 +81,25 @@ def split_nodes_by_color(
     return white_nodes, black_nodes
 
 
-def calculate_nodes_at_depth(
-    depth: int,
-    moves_per_ply: list[int],
-    start_index: int = 0,
-) -> int:
-    """Calculate number of nodes at a given depth starting from specified index.
-
-    Args:
-        depth: Total depth to calculate for
-        moves_per_ply: List of moves per ply
-        start_index: Starting index (0 for white positions, 1 for black positions)
-
-    Returns:
-        Total number of possible nodes
-    """
-    total = 1
-    for i in range(start_index, depth, 2):
-        total *= moves_per_ply[i]
-        if i + 1 < depth:
-            total *= moves_per_ply[i + 1]
-    return total
-
-
 def calculate_max_nodes_per_color(
-    depth: int, moves_per_ply: list[int]
+    moves_per_ply: list[int],
 ) -> tuple[int, int]:
     """Calculate maximum possible nodes for white and black."""
-    white_max = calculate_nodes_at_depth(depth, moves_per_ply, start_index=0)
-    black_max = calculate_nodes_at_depth(depth, moves_per_ply, start_index=1)
-    return white_max, black_max
+
+    white_total = 0
+    black_total = 0
+    cumulative_product = 1
+
+    for i in range(len(moves_per_ply)):
+        cumulative_product *= moves_per_ply[i]
+        # White's level
+        if i % 2 == 0:
+            white_total += cumulative_product
+        # Black's level
+        else:
+            black_total += cumulative_product
+
+    return white_total, black_total
 
 
 def calculate_min_nodes_per_color(depth: int) -> tuple[int, int]:
@@ -121,7 +110,9 @@ def calculate_min_nodes_per_color(depth: int) -> tuple[int, int]:
 
 
 def calculate_color_sharpness(
-    nodes: list[TreeNode], min_nodes: int, max_nodes: int
+    nodes: list[TreeNode],
+    min_nodes: int,
+    max_nodes: int,
 ) -> float | None:
     """Calculate sharpness score for one color."""
     if len(nodes) == 0:
@@ -140,7 +131,8 @@ def calculate_position_sharpness(
     white_nodes, black_nodes = split_nodes_by_color(balanced_nodes)
 
     white_max, black_max = calculate_max_nodes_per_color(
-        cfg.analysis_depth_ply, cfg.num_top_moves_per_ply
+        cfg.analysis_depth_ply,
+        cfg.num_top_moves_per_ply,
     )
 
     white_min, black_min = calculate_min_nodes_per_color(cfg.analysis_depth_ply)
