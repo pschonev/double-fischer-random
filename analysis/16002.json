@@ -1,0 +1,54 @@
+{
+    "params": {
+        "white_id": 658,
+        "black_id": 15,
+        "threads": 6,
+        "hash": 4096,
+        "cfg_id": "XS"
+    },
+    "analyzer": "test_analyzer",
+    "analysis_tree": {
+        "move": "root",
+        "children": [],
+        "analysis": {
+            "cpl": 113,
+            "mate": null,
+            "pv": [
+                "b2b3",
+                "f7f6",
+                "f2f4",
+                "g7g6",
+                "g2g4",
+                "b8c6",
+                "h2h4",
+                "e7e5",
+                "c1d3",
+                "a7a5",
+                "g4g5",
+                "d7d6",
+                "e2e4",
+                "a5a4",
+                "g1f3",
+                "c8e7",
+                "a1c3",
+                "d6d5",
+                "g5f6",
+                "h8f6",
+                "f4e5",
+                "f6g7",
+                "h4h5",
+                "d5d4",
+                "c3b2",
+                "a4a3",
+                "b2a1",
+                "a8a5",
+                "c2c3",
+                "d4c3",
+                "a1c3",
+                "a5b6",
+                "h5g6",
+                "e7g6"
+            ]
+        }
+    }
+}

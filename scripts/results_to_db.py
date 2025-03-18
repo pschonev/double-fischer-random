@@ -1,4 +1,3 @@
-# Example usage:
 from pathlib import Path
 
 import msgspec
@@ -22,24 +21,30 @@ tree_db = ParquetDatabase[TreeNode](
     parquet_file=Path("data/tree_nodes.parquet"),
 )
 
-# Load sample data from JSON file
-with open("analysis/11000.json", "rb") as f:
-    sample_data: AnalysisData = msgspec.json.decode(f.read(), type=AnalysisData)
+# Path to the directory containing JSON files
+json_directory = Path(__file__).resolve().parent.parent / "analysis"
 
-# Convert tree to table
-tree_nodes = convert_analysis_tree(sample_data.params, sample_data.analysis_tree)
+# Process each JSON file in the directory
+for json_file in json_directory.glob("*.json"):
+    # Load data from JSON file
+    with json_file.open("rb") as f:
+        sample_data: AnalysisData = msgspec.json.decode(f.read(), type=AnalysisData)
 
-sharpness = calculate_sharpness_score(
-    tree_nodes,
-    load_config(sample_data.params.cfg_id),
-)
+    # Convert tree to table
+    tree_nodes = convert_analysis_tree(sample_data.params, sample_data.analysis_tree)
 
-# Convert to AnalysisResult
-analysis_result = build_analysis_result(
-    sample_data,
-    sharpness,
-)
+    # Calculate sharpness score
+    sharpness = calculate_sharpness_score(
+        tree_nodes,
+        load_config(sample_data.params.cfg_id),
+    )
 
-# Store in database
-analysis_db.append([analysis_result])
-tree_db.append(tree_nodes)
+    # Convert to AnalysisResult
+    analysis_result = build_analysis_result(
+        sample_data,
+        sharpness,
+    )
+
+    # Store in databases
+    analysis_db.append([analysis_result])
+    tree_db.append(tree_nodes)
