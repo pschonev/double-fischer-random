@@ -3,7 +3,7 @@ from pathlib import Path
 import msgspec
 
 from dfrc_analysis.analysis.config import load_config
-from dfrc_analysis.analysis.eval import calculate_sharpness_score
+from dfrc_analysis.analysis.eval import calculate_position_sharpness
 from dfrc_analysis.analysis.results import AnalysisData
 from dfrc_analysis.db.build_models import build_analysis_result, convert_analysis_tree
 from dfrc_analysis.db.models import AnalysisResult, TreeNode
@@ -34,7 +34,7 @@ for json_file in json_directory.glob("*.json"):
     tree_nodes = convert_analysis_tree(sample_data.params, sample_data.analysis_tree)
 
     # Calculate sharpness score
-    sharpness = calculate_sharpness_score(
+    sharpness = calculate_position_sharpness(
         tree_nodes,
         load_config(sample_data.params.cfg_id),
     )
