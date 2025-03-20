@@ -72,20 +72,19 @@ def filter_balanced_nodes(nodes: list[TreeNode], threshold: int) -> list[TreeNod
     return [n for n in nodes if n.cpl is not None and abs(n.cpl) <= threshold]
 
 
-def split_nodes_by_color(
+def count_nodes_by_color(
     nodes: list[TreeNode],
-) -> tuple[list[TreeNode], list[TreeNode]]:
-    """Split nodes into white and black moves using nested set IDs."""
-    white_nodes = [n for n in nodes if n.lft % 2 == 1]
-    black_nodes = [n for n in nodes if n.lft % 2 == 0]
-    return white_nodes, black_nodes
+) -> tuple[int, int]:
+    """Count nodes for white and black moves using nested set IDs."""
+    white_count = sum(1 for n in nodes if n.lft % 2 == 0)
+    black_count = sum(1 for n in nodes if n.lft % 2 == 1)
+    return white_count, black_count
 
 
 def calculate_max_nodes_per_color(
     moves_per_ply: list[int],
 ) -> tuple[int, int]:
     """Calculate maximum possible nodes for white and black."""
-
     white_total = 0
     black_total = 0
     cumulative_product = 1
@@ -110,16 +109,16 @@ def calculate_min_nodes_per_color(depth: int) -> tuple[int, int]:
 
 
 def calculate_color_sharpness(
-    nodes: list[TreeNode],
+    node_count: int,
     min_nodes: int,
     max_nodes: int,
 ) -> float | None:
     """Calculate sharpness score for one color."""
-    if len(nodes) == 0:
+    if node_count == 0:
         return None  # No playable moves
-    if len(nodes) <= min_nodes:
+    if node_count <= min_nodes:
         return 1.0  # Only one line playable
-    return calculate_sharpness_ratio(len(nodes), max_nodes)
+    return calculate_sharpness_ratio(node_count, max_nodes)
 
 
 def calculate_position_sharpness(
@@ -128,17 +127,16 @@ def calculate_position_sharpness(
 ) -> Sharpness:
     """Calculate sharpness scores for white, black and combined position."""
     balanced_nodes = filter_balanced_nodes(nodes, cfg.balanced_threshold)
-    white_nodes, black_nodes = split_nodes_by_color(balanced_nodes)
+    white_node_count, black_node_count = count_nodes_by_color(balanced_nodes)
 
     white_max, black_max = calculate_max_nodes_per_color(
-        cfg.analysis_depth_ply,
         cfg.num_top_moves_per_ply,
     )
 
     white_min, black_min = calculate_min_nodes_per_color(cfg.analysis_depth_ply)
 
-    white_sharpness = calculate_color_sharpness(white_nodes, white_min, white_max)
-    black_sharpness = calculate_color_sharpness(black_nodes, black_min, black_max)
+    white_sharpness = calculate_color_sharpness(white_node_count, white_min, white_max)
+    black_sharpness = calculate_color_sharpness(black_node_count, black_min, black_max)
 
     total_sharpness = None
     if white_sharpness is not None and black_sharpness is not None:
