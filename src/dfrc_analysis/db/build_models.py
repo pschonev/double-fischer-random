@@ -96,7 +96,7 @@ def build_analysis_result(
     root_analysis = data.analysis_tree.analysis
     balance_score = calculate_balance_score(root_analysis.cpl, root_analysis.mate)
 
-    playability_score = None
+    playability_score = 0
     if sharpness.total is not None:
         playability_score = harmonic_mean(
             balance_score,

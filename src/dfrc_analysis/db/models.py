@@ -36,7 +36,7 @@ class AnalysisResult(SQLModel, table=True):
     black_sharpness: float | None = None
     total_sharpness: float | None = None
     balance_score: float
-    playability_score: float | None = None
+    playability_score: float
 
     # Position properties
     mirrored: bool
