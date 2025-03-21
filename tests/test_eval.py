@@ -90,7 +90,7 @@ def test_calculate_color_sharpness_with_single_node():
     assert calculate_color_sharpness(nodes, min_nodes, max_nodes) == 1.0
 
 
-class FullTreeTestCase:
+class TestFullTree:
     @pytest.fixture
     def config(self):
         # Configuration with depth 4 and top moves count for both white and black
@@ -106,8 +106,8 @@ class FullTreeTestCase:
     def nodes(self, config):
         # Generate balanced nodes for a full binary tree
         nodes = []
-        num_nodes_at_depth = 1  # Start with 1 for the root node
-        for i in range(config.analysis_depth_ply):  # Including root level at depth 0
+        num_nodes_at_depth = 1
+        for i in range(config.analysis_depth_ply):
             num_nodes_at_depth = config.num_top_moves_per_ply[i] * num_nodes_at_depth
             nodes.extend(
                 TreeNode(
@@ -141,7 +141,7 @@ class FullTreeTestCase:
         assert calculate_color_sharpness(20, 2, 20) == 0.0  # black sharpness
 
     def test_calculated_sharpness(self, config, nodes):
-        sharpness = calculate_position_sharpness(nodes, config)
+        sharpness = calculate_position_sharpness(nodes, config, eval_threshold=35)
         assert sharpness == Sharpness(white=0.0, black=0.0, total=0.0), (
             f"Expected sharpness to be 0.0 for all colors, got {sharpness}"
         )
@@ -159,11 +159,11 @@ def test_sharpness_none_below_threshold():
 
     # No nodes within threshold (all moves are unbalanced)
     nodes = [
-        TreeNode(dfrc_id=1, cfg_id="cfg", lft=i, rgt=i + 1, move="e2e4", cpl=20)
+        TreeNode(dfrc_id=1, cfg_id="cfg", lft=i, rgt=i + 1, move="e2e4", cpl=50)
         for i in range(1, 5)
     ]
 
-    sharpness = calculate_position_sharpness(nodes, config)
+    sharpness = calculate_position_sharpness(nodes, config, eval_threshold=35)
 
     assert sharpness == Sharpness(white=None, black=None, total=None)
 
@@ -181,7 +181,7 @@ def test_edge_case_no_nodes():
     # Empty list of nodes
     nodes = []
 
-    sharpness = calculate_position_sharpness(nodes, config)
+    sharpness = calculate_position_sharpness(nodes, config, eval_threshold=35)
 
     assert sharpness == Sharpness(white=None, black=None, total=None)
 

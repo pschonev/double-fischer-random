@@ -1,3 +1,4 @@
+import argparse
 from pathlib import Path
 
 import msgspec
@@ -8,6 +9,15 @@ from dfrc_analysis.analysis.results import AnalysisData
 from dfrc_analysis.db.build_models import build_analysis_result, convert_analysis_tree
 from dfrc_analysis.db.models import AnalysisResult, TreeNode
 from dfrc_analysis.db.parquet_db import ParquetDatabase
+
+argparser = argparse.ArgumentParser()
+argparser.add_argument(
+    "--eval-threshold",
+    "-t",
+    type=int,
+    help="Threshold for evaluating sharpness",
+)
+args = argparser.parse_args()
 
 # Create a database for analysis results
 analysis_db = ParquetDatabase[AnalysisResult](
@@ -37,12 +47,14 @@ for json_file in json_directory.glob("*.json"):
     sharpness = calculate_position_sharpness(
         tree_nodes,
         load_config(sample_data.params.cfg_id),
+        args.eval_threshold,
     )
 
     # Convert to AnalysisResult
     analysis_result = build_analysis_result(
         sample_data,
         sharpness,
+        args.eval_threshold,
     )
 
     # Store in databases

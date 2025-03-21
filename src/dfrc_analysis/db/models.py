@@ -32,6 +32,7 @@ class AnalysisResult(SQLModel, table=True):
     starting_pos_mate: int | None = None
 
     # Analysis results
+    eval_threshold: int
     white_sharpness: float | None = None
     black_sharpness: float | None = None
     total_sharpness: float | None = None

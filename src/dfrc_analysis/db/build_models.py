@@ -88,13 +88,18 @@ def convert_analysis_tree(
 def build_analysis_result(
     data: AnalysisData,
     sharpness: Sharpness,
+    eval_threshold: int,
 ) -> AnalysisResult:
     """Build an AnalysisResult using the provided data and pre-calculated sharpness"""
     white = get_chess960_position(data.params.white_id)
     black = get_chess960_position(data.params.black_id)
 
     root_analysis = data.analysis_tree.analysis
-    balance_score = calculate_balance_score(root_analysis.cpl, root_analysis.mate)
+    balance_score = calculate_balance_score(
+        root_analysis.cpl,
+        root_analysis.mate,
+        threshold=eval_threshold,
+    )
 
     playability_score = 0
     if sharpness.total is not None:
@@ -118,6 +123,7 @@ def build_analysis_result(
         analyzer=data.analyzer,
         starting_pos_cpl=root_analysis.cpl,
         starting_pos_mate=root_analysis.mate,
+        eval_threshold=eval_threshold,
         playability_score=playability_score,
         white_sharpness=sharpness.white,
         black_sharpness=sharpness.black,

@@ -167,9 +167,10 @@ def calculate_color_sharpness(
 def calculate_position_sharpness(
     nodes: list[TreeNode],
     cfg: AnalysisConfig,
+    eval_threshold: int,
 ) -> Sharpness:
     """Calculate sharpness scores for white, black and combined position."""
-    balanced_nodes = filter_balanced_nodes(nodes, cfg.balanced_threshold)
+    balanced_nodes = filter_balanced_nodes(nodes, eval_threshold)
     white_node_count, black_node_count = count_nodes_by_color(balanced_nodes)
 
     white_max, black_max = calculate_max_nodes_per_color(
