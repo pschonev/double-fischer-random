@@ -77,7 +77,9 @@ def count_nodes_by_color(
 ) -> tuple[int, int]:
     """Count nodes for white and black moves using nested set IDs."""
     white_count = sum(1 for n in nodes if n.lft % 2 == 0)
-    black_count = sum(1 for n in nodes if n.lft % 2 == 1)
+    black_count = sum(
+        1 for n in nodes if n.lft % 2 == 1 and n.move != "root"
+    )  # the root node is irrelevant
     return white_count, black_count
 
 
