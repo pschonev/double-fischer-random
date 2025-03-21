@@ -100,7 +100,7 @@ def build_analysis_result(
     if sharpness.total is not None:
         playability_score = harmonic_mean(
             balance_score,
-            sharpness.total,
+            1 - sharpness.total,
         )
 
     return AnalysisResult(
