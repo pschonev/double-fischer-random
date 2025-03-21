@@ -11,7 +11,7 @@ from dfrc_analysis.positions.positions import (
     is_flipped,
     is_mirrored,
 )
-from dfrc_analysis.utils import harmonic_mean
+from dfrc_analysis.utils import generalized_mean
 
 #
 # Tree
@@ -103,9 +103,10 @@ def build_analysis_result(
 
     playability_score = 0
     if sharpness.total is not None:
-        playability_score = harmonic_mean(
+        playability_score = generalized_mean(
             balance_score,
             1 - sharpness.total,
+            p=-1,
         )
 
     return AnalysisResult(

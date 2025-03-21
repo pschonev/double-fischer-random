@@ -5,12 +5,13 @@ import numpy as np
 
 from dfrc_analysis.analysis.config import AnalysisConfig
 from dfrc_analysis.db.models import TreeNode
-from dfrc_analysis.utils import harmonic_mean
+from dfrc_analysis.utils import generalized_mean
 
 
 @lru_cache(maxsize=128)
 def _calculate_normalization_factors(
-    threshold: int, steepness: float
+    threshold: int,
+    steepness: float,
 ) -> tuple[float, float, float]:
     """Calculate and cache the normalization factors for the balance score function.
 
@@ -184,7 +185,13 @@ def calculate_position_sharpness(
 
     total_sharpness = None
     if white_sharpness is not None and black_sharpness is not None:
-        total_sharpness = harmonic_mean(white_sharpness, black_sharpness)
+        # with p = -1 (harmonic mean) the mean is sensitive to the lowest value
+        # that's why we are inverting the sharpness values which are bad as they approach 1
+        total_sharpness = 1 - generalized_mean(
+            1 - white_sharpness,
+            1 - black_sharpness,
+            p=-1,
+        )
 
     return Sharpness(
         white=white_sharpness,

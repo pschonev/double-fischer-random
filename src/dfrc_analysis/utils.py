@@ -1,16 +1,27 @@
-def harmonic_mean(a: float, b: float) -> float:
-    """Calculate the harmonic mean of two numbers.
+import numpy as np
 
-    Args:
-        a: First number
-        b: Second number
 
-    Returns:
-        The harmonic mean of a and b, or 0 if a + b = 0
+def generalized_mean(a: float, b: float, p: float = -1) -> float:
     """
-    if a + b == 0:
-        return 0  # Return 0 or another appropriate value when sum is zero
-    return 2 * (a * b) / (a + b)
+    Calculate the generalized mean with parameter p.
+
+    Special cases:
+    - p = 1: Arithmetic mean
+    - p = 0: Geometric mean (limit as p approaches 0)
+    - p = -1: Harmonic mean
+    - p = -∞: Minimum value
+    - p = +∞: Maximum value
+
+    Lower p values increase sensitivity to small values.
+    """
+    if p == 0:
+        return np.sqrt(a * b)
+    elif p == float("-inf"):
+        return min(a, b)
+    elif p == float("inf"):
+        return max(a, b)
+    else:
+        return ((a**p + b**p) / 2) ** (1 / p)
 
 
 def calculate_subtree_size(
