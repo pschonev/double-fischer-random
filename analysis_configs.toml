@@ -1,6 +1,13 @@
 [configs.XS]
 stockfish_version = "17"
-analysis_depth_ply = 4
-stockfish_depth_per_ply = [30, 20, 20, 20]
-num_top_moves_per_ply = [5, 5, 5, 5]
+analysis_depth_ply = 3
+stockfish_depth_per_ply = [30, 20, 20]
+num_top_moves_per_ply = [5, 5, 5]
 balanced_threshold = 50
+
+[configs.S]
+stockfish_version = "17"
+analysis_depth_ply = 4
+stockfish_depth_per_ply = [35, 20, 20, 20]
+num_top_moves_per_ply = [5, 5, 5, 5]
+balanced_threshold = 45
