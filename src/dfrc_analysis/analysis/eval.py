@@ -31,7 +31,7 @@ def calculate_balance_score(
     cpl: int | None,
     mate: int | None,
     threshold: int = 50,
-    steepness: float = 0.0,
+    steepness: float = 10.0,
 ) -> float:
     """Calculate balance score using a normalized logistic function.
 
@@ -63,7 +63,7 @@ def calculate_balance_score(
     raw = 1 / (1 + np.exp(-k * (x - threshold / 2)))
 
     # Normalize to exactly [0,1]
-    return (raw - min_val) / (max_val - min_val)
+    return 1 - np.clip((raw - min_val) / (max_val - min_val), 0.0, 1.0)
 
 
 class Sharpness(msgspec.Struct):
