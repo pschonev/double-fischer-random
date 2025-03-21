@@ -1,28 +1,69 @@
-import chess.engine
+from functools import lru_cache
+
 import msgspec
+import numpy as np
 
 from dfrc_analysis.analysis.config import AnalysisConfig
 from dfrc_analysis.db.models import TreeNode
 from dfrc_analysis.utils import harmonic_mean
 
 
-def calculate_balance_score(cpl: int | None, mate: int | None) -> float:
-    """Calculate the balance score from the win, draw, loss probabilities
+@lru_cache(maxsize=128)
+def _calculate_normalization_factors(
+    threshold: int, steepness: float
+) -> tuple[float, float, float]:
+    """Calculate and cache the normalization factors for the balance score function.
 
     Args:
-        cpl: Centipawn loss value
-        mate: Mate in N moves value
+        threshold: The maximum centipawn value to consider
+        steepness: Controls how steep the curve is in the middle
 
     Returns:
-        A float between 0 and 1 representing the balance of the position.
-        0 is perfectly balanced, 1 is completely unbalanced.
+        Tuple of (min_val, max_val, k) for normalization
     """
-    if mate is None and cpl is None:
-        raise ValueError("At least one of mate or cpl must be provided")
+    k = steepness / threshold
+    min_val = 1 / (1 + np.exp(-k * (0 - threshold / 2)))
+    max_val = 1 / (1 + np.exp(-k * (threshold - threshold / 2)))
+    return min_val, max_val, k
+
+
+def calculate_balance_score(
+    cpl: int | None,
+    mate: int | None,
+    threshold: int = 50,
+    steepness: float = 0.0,
+) -> float:
+    """Calculate balance score using a normalized logistic function.
+
+    Args:
+        cpl: Centipawn loss value (None if mate is provided)
+        mate: Mate in N moves value (None if cpl is provided)
+        threshold: The maximum centipawn value to consider (default: 50)
+        steepness: Controls how steep the curve is in the middle (default: 8.0)
+                   Higher values make the middle steeper and ends flatter
+
+    Returns:
+        A float between 0 and 1 representing imbalance (0=balanced, 1=imbalanced)
+    """
+    # If there's a mate, return maximum imbalance
+    if mate is not None:
+        return 1.0
+
+    # Ensure we have a cpl value
     if cpl is None:
-        return 1
-    wdl = chess.engine.Cp(cpl).wdl()
-    return abs(wdl.wins - wdl.losses) / 1000
+        raise ValueError("At least one of mate or cpl must be provided")
+
+    # Get cached normalization factors
+    min_val, max_val, k = _calculate_normalization_factors(threshold, steepness)
+
+    # Use absolute value of centipawn loss
+    x = abs(cpl)
+
+    # Raw logistic function
+    raw = 1 / (1 + np.exp(-k * (x - threshold / 2)))
+
+    # Normalize to exactly [0,1]
+    return (raw - min_val) / (max_val - min_val)
 
 
 class Sharpness(msgspec.Struct):
