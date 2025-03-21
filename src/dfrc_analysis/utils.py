@@ -3,25 +3,29 @@ import numpy as np
 
 def generalized_mean(a: float, b: float, p: float = -1) -> float:
     """
-    Calculate the generalized mean with parameter p.
-
-    Special cases:
-    - p = 1: Arithmetic mean
-    - p = 0: Geometric mean (limit as p approaches 0)
-    - p = -1: Harmonic mean
-    - p = -∞: Minimum value
-    - p = +∞: Maximum value
-
-    Lower p values increase sensitivity to small values.
+    Calculate generalized mean with parameter p for scoring purposes.
+    Returns 0 if any calculation would cause a division by zero or domain error.
     """
+    # Handle special p values first
     if p == 0:
-        return np.sqrt(a * b)
+        try:
+            return np.sqrt(a * b)
+        except ValueError:  # Handles negative a*b
+            return 0
     elif p == float("-inf"):
         return min(a, b)
     elif p == float("inf"):
         return max(a, b)
-    else:
+
+    # For negative p, check for zeros to avoid 0**negative
+    if p < 0 and (a == 0 or b == 0):
+        return 0
+
+    # For all other cases
+    try:
         return ((a**p + b**p) / 2) ** (1 / p)
+    except (ZeroDivisionError, ValueError, RuntimeWarning):
+        return 0
 
 
 def calculate_subtree_size(
