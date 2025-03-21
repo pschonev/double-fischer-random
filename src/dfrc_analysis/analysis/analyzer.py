@@ -84,13 +84,14 @@ class RecursiveEngineAnalyzer:
 
         # Check if this is a terminal position
         is_terminal = (
-            ply >= self.cfg.analysis_depth_ply - 1
+            ply >= self.cfg.analysis_depth_ply
             or mate_val is not None
             or (cpl_val is not None and abs(cpl_val) >= self.cfg.balanced_threshold)
         )
 
+        # Update progress bar for pruned nodes
         # If terminal but not at max depth, count pruned nodes
-        if is_terminal and ply < self.cfg.analysis_depth_ply - 1:
+        if is_terminal and ply < self.cfg.analysis_depth_ply:
             # Calculate the size of the pruned subtree starting from next ply
             # Multiply by number of candidates since each candidate would have its own subtree
             pruned_nodes = len(candidates) * calculate_subtree_size(
