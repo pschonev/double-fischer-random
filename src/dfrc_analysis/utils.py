@@ -31,7 +31,7 @@ def generalized_mean(a: float, b: float, p: float = -1) -> float:
 def calculate_subtree_size(
     start_ply: int,
     analysis_depth_ply: int,
-    num_top_moves_per_ply: list[int],
+    num_top_moves_per_ply: tuple[int],
 ) -> int:
     """
     Calculate the size of a subtree starting from a given ply.

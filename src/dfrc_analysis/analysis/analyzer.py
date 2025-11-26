@@ -1,9 +1,12 @@
 import asyncio
+import functools
 import logging
 from dataclasses import dataclass, field
 
 import chess
 import chess.engine
+import chess.polyglot
+import uvloop
 from tqdm import tqdm
 
 from dfrc_analysis.analysis.config import AnalysisConfig, load_config
@@ -18,29 +21,31 @@ from dfrc_analysis.utils import calculate_subtree_size
 AnalysisTree = PositionNode
 logger = logging.getLogger(__name__)
 
+# Decorate the imported utility with LRU cache.
+# Note: Callers must now pass hashable arguments (e.g., tuples instead of lists).
+calculate_subtree_size = functools.lru_cache(maxsize=2048)(calculate_subtree_size)
+
 
 class AsyncTranspositionTable:
     """
-    Async-aware cache.
+    Async-aware cache using Zobrist Hashing (int) for high-performance lookups.
     Prevents double-work by sharing Futures.
-    Prevents blocking by yielding to the event loop while waiting.
     """
 
-    def __init__(self):
-        self._cache: dict[str, asyncio.Future[PositionNode]] = {}
+    def __init__(self) -> None:
+        self._cache: dict[int, asyncio.Future[PositionNode]] = {}
 
-    def get_future(self, fen: str) -> tuple[asyncio.Future[PositionNode], bool]:
+    def get_future(self, key: int) -> tuple[asyncio.Future[PositionNode], bool]:
         """
         Returns (Future, is_new).
-        If is_new is True, the caller acts as the 'producer'.
-        If is_new is False, the caller acts as the 'consumer' and awaits.
+        Key is now a 64-bit integer (Zobrist Hash).
         """
-        if fen in self._cache:
-            return self._cache[fen], False
+        if key in self._cache:
+            return self._cache[key], False
 
         # Create a new future bound to the current loop
         future = asyncio.Future()
-        self._cache[fen] = future
+        self._cache[key] = future
         return future, True
 
 
@@ -54,7 +59,7 @@ class AsyncEngineManager:
         self.engine_path = engine_path
         self.options = options
         self.semaphore = asyncio.Semaphore(max_engines)
-        self._engines_stack = []
+        self._engines_stack: list[chess.engine.Protocol] = []
 
     async def get_engine(self) -> chess.engine.Protocol:
         """
@@ -68,8 +73,6 @@ class AsyncEngineManager:
             return self._engines_stack.pop()
 
         # Spawn a new engine process
-        # usage of popen_uci ensures we get the low-level protocol
-        # compatible with asyncio
         _, engine = await chess.engine.popen_uci(self.engine_path)
         await engine.configure(self.options)
         return engine
@@ -81,8 +84,8 @@ class AsyncEngineManager:
 
     async def cleanup(self) -> None:
         """Quit all cached engines."""
-        for engine in self._engines_stack:
-            await engine.quit()
+        if self._engines_stack:
+            await asyncio.gather(*(engine.quit() for engine in self._engines_stack))
 
 
 @dataclass
@@ -92,19 +95,29 @@ class AsyncRecursiveAnalyzer:
     cfg: AnalysisConfig
     tt: AsyncTranspositionTable
     only_terminal_pv: bool = True
-    progress_bar: tqdm = field(init=False)
 
-    def __post_init__(self) -> None:
-        max_positions = calculate_subtree_size(
+    @functools.cached_property
+    def max_positions(self) -> int:
+        """
+        Calculates the total tree size.
+        Cached because it is computationally expensive and constant for this config.
+        """
+        return calculate_subtree_size(
             0,
             self.cfg.analysis_depth_ply,
-            self.cfg.num_top_moves_per_ply,
+            tuple(self.cfg.num_top_moves_per_ply),
         )
-        self.progress_bar = tqdm(total=max_positions, desc="Analyzing positions")
+
+    @functools.cached_property
+    def progress_bar(self) -> tqdm:
+        """
+        Lazy-loaded progress bar.
+        Only appears in stdout when .analyse() first accesses it.
+        """
+        return tqdm(total=self.max_positions, desc="Analyzing positions")
 
     def _update_pbar(self, amount: int) -> None:
-        # Tqdm is not async-aware, but updating from the main thread
-        # (where the event loop lives) is safe.
+        # Tqdm is not async-aware, but updating from the main thread is safe.
         self.progress_bar.update(amount)
 
     def _compute_eval(
@@ -129,24 +142,22 @@ class AsyncRecursiveAnalyzer:
         )
 
     async def _analyze_node(self, board: chess.Board, ply: int) -> PositionNode | None:
-        fen = board.fen()
-        future, is_new = self.tt.get_future(fen)
+        # OPTIMIZATION: Zobrist Hash (int) instead of FEN (str)
+        board_hash = chess.polyglot.zobrist_hash(board)
+        future, is_new = self.tt.get_future(board_hash)
 
         if not is_new:
-            # The event loop will pause THIS branch and run another branch
-            # until the result is ready. No thread is blocked.
             cached_node = await future
-
             if cached_node:
+                # FIX: Convert list to tuple for cache lookup
                 skipped_work = calculate_subtree_size(
                     ply,
                     self.cfg.analysis_depth_ply,
-                    self.cfg.num_top_moves_per_ply,
+                    tuple(self.cfg.num_top_moves_per_ply),
                 )
                 self._update_pbar(skipped_work)
             return cached_node
 
-        # We are the producer. We must fulfill the future.
         try:
             result = await self._compute_node(board, ply)
             future.set_result(result)
@@ -156,11 +167,9 @@ class AsyncRecursiveAnalyzer:
             raise e
 
     async def _compute_node(self, board: chess.Board, ply: int) -> PositionNode | None:
-        """The heavy lifting (Analysis + Recursion)"""
         if ply >= self.cfg.analysis_depth_ply:
             return None
 
-        # 2. Acquire Engine (Yields if all engines busy)
         engine = await self.engine_manager.get_engine()
         try:
             candidates = await self._get_candidates(engine, board, ply)
@@ -182,7 +191,6 @@ class AsyncRecursiveAnalyzer:
             raise RuntimeError("Failed to get score")
         cpl_val, mate_val = self._compute_eval(score)
 
-        # Termination Check
         is_terminal = (
             ply >= self.cfg.analysis_depth_ply
             or mate_val is not None
@@ -190,15 +198,16 @@ class AsyncRecursiveAnalyzer:
         )
 
         if is_terminal and ply < self.cfg.analysis_depth_ply:
-            pruned_nodes = len(candidates) * calculate_subtree_size(
+            # FIX: Convert list to tuple for cache lookup
+            subtree_size = calculate_subtree_size(
                 ply + 1,
                 self.cfg.analysis_depth_ply,
-                self.cfg.num_top_moves_per_ply,
+                tuple(self.cfg.num_top_moves_per_ply),
             )
+            pruned_nodes = len(candidates) * subtree_size
             if pruned_nodes > 0:
                 self._update_pbar(pruned_nodes)
 
-        # 3. Async Recursion (Gather)
         children = []
         if not is_terminal:
             child_tasks = []
@@ -207,14 +216,11 @@ class AsyncRecursiveAnalyzer:
                 if not pv:
                     continue
 
-                new_board = board.copy()
+                # OPTIMIZATION: Efficient Copying (stack=False)
+                new_board = board.copy(stack=False)
                 new_board.push(pv[0])
-
-                # Schedule child analysis
                 child_tasks.append(self._analyze_node(new_board, ply + 1))
 
-            # Run all children concurrently
-            # This allows the tree to expand horizontally effectively
             results = await asyncio.gather(*child_tasks)
             children = [r for r in results if r is not None]
 
@@ -230,7 +236,7 @@ class AsyncRecursiveAnalyzer:
 
     async def analyse(self) -> AnalysisTree:
         try:
-            return await self._analyze_node(self.root_board.copy(), 0)
+            return await self._analyze_node(self.root_board.copy(stack=False), 0)
         finally:
             self.progress_bar.close()
 
@@ -241,6 +247,9 @@ def analyse_dfrc_position(
     *,
     verbose: bool = False,
 ) -> AnalysisTree:
+    # OPTIMIZATION: Enforce uvloop policy
+    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+
     chess_engine_logger = logging.getLogger("chess.engine")
     chess_engine_logger.setLevel(logging.DEBUG if verbose else logging.WARNING)
 
@@ -258,11 +267,8 @@ def analyse_dfrc_position(
     )
 
     cfg = load_config(params.cfg_id)
-
-    # Engine options
     options = {"Threads": 1, "Hash": params.hash}
 
-    # Async Setup
     async def run_async_analysis() -> AnalysisTree:
         tt = AsyncTranspositionTable()
         engine_manager = AsyncEngineManager(
@@ -283,7 +289,6 @@ def analyse_dfrc_position(
         finally:
             await engine_manager.cleanup()
 
-    # Entry point for the asyncio event loop
     return asyncio.run(run_async_analysis())
 
 
