@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from dataclasses import dataclass, field
 
@@ -15,112 +16,208 @@ from dfrc_analysis.positions.positions import get_chess960_position
 from dfrc_analysis.utils import calculate_subtree_size
 
 AnalysisTree = PositionNode
-
 logger = logging.getLogger(__name__)
 
 
+class AsyncTranspositionTable:
+    """
+    Async-aware cache.
+    Prevents double-work by sharing Futures.
+    Prevents blocking by yielding to the event loop while waiting.
+    """
+
+    def __init__(self):
+        self._cache: dict[str, asyncio.Future[PositionNode]] = {}
+
+    def get_future(self, fen: str) -> tuple[asyncio.Future[PositionNode], bool]:
+        """
+        Returns (Future, is_new).
+        If is_new is True, the caller acts as the 'producer'.
+        If is_new is False, the caller acts as the 'consumer' and awaits.
+        """
+        if fen in self._cache:
+            return self._cache[fen], False
+
+        # Create a new future bound to the current loop
+        future = asyncio.Future()
+        self._cache[fen] = future
+        return future, True
+
+
+class AsyncEngineManager:
+    """
+    Manages the lifecycle of async chess engines.
+    Uses a Semaphore to ensure we never exceed N concurrent engines.
+    """
+
+    def __init__(self, engine_path: str, options: dict, max_engines: int) -> None:
+        self.engine_path = engine_path
+        self.options = options
+        self.semaphore = asyncio.Semaphore(max_engines)
+        self._engines_stack = []
+
+    async def get_engine(self) -> chess.engine.Protocol:
+        """
+        Acquires a permit (Semaphore) and provides an engine.
+        If an engine is idle in the stack, reuse it.
+        Otherwise, spawn a new one (up to max_engines).
+        """
+        await self.semaphore.acquire()
+
+        if self._engines_stack:
+            return self._engines_stack.pop()
+
+        # Spawn a new engine process
+        # usage of popen_uci ensures we get the low-level protocol
+        # compatible with asyncio
+        _, engine = await chess.engine.popen_uci(self.engine_path)
+        await engine.configure(self.options)
+        return engine
+
+    async def return_engine(self, engine: chess.engine.Protocol) -> None:
+        """Returns engine to the stack and releases semaphore."""
+        self._engines_stack.append(engine)
+        self.semaphore.release()
+
+    async def cleanup(self) -> None:
+        """Quit all cached engines."""
+        for engine in self._engines_stack:
+            await engine.quit()
+
+
 @dataclass
-class RecursiveEngineAnalyzer:
-    board: chess.Board
-    engine: chess.engine.SimpleEngine
+class AsyncRecursiveAnalyzer:
+    root_board: chess.Board
+    engine_manager: AsyncEngineManager
     cfg: AnalysisConfig
+    tt: AsyncTranspositionTable
     only_terminal_pv: bool = True
     progress_bar: tqdm = field(init=False)
 
     def __post_init__(self) -> None:
-        # Calculate maximum possible positions to analyze using the consolidated function
         max_positions = calculate_subtree_size(
             0,
             self.cfg.analysis_depth_ply,
             self.cfg.num_top_moves_per_ply,
         )
-        # Initialize progress bar
         self.progress_bar = tqdm(total=max_positions, desc="Analyzing positions")
 
-    def _get_candidates(
+    def _update_pbar(self, amount: int) -> None:
+        # Tqdm is not async-aware, but updating from the main thread
+        # (where the event loop lives) is safe.
+        self.progress_bar.update(amount)
+
+    def _compute_eval(
         self,
+        score: chess.engine.PovScore,
+    ) -> tuple[int | None, int | None]:
+        cp_val = score.white().score()
+        return (cp_val, None) if cp_val is not None else (None, score.white().mate())
+
+    async def _get_candidates(
+        self,
+        engine: chess.engine.Protocol,
         board: chess.Board,
         ply: int,
     ) -> list[chess.engine.InfoDict]:
-        """Get engine analysis candidates for the given board state."""
-        return self.engine.analyse(
+        """Async wrapper for engine analysis."""
+        return await engine.analyse(
             board,
             chess.engine.Limit(depth=self.cfg.stockfish_depth_per_ply[ply]),
             multipv=self.cfg.num_top_moves_per_ply[ply],
             info=chess.engine.INFO_SCORE | chess.engine.INFO_PV,
         )
 
-    def _compute_eval(
-        self,
-        score: chess.engine.PovScore,
-    ) -> tuple[int | None, int | None]:
-        """Convert a PovScore to (centipawns, mate_score) tuple from White's perspective."""
-        cp_val = score.white().score()
-        return (cp_val, None) if cp_val is not None else (None, score.white().mate())
+    async def _analyze_node(self, board: chess.Board, ply: int) -> PositionNode | None:
+        fen = board.fen()
+        future, is_new = self.tt.get_future(fen)
 
-    def _build_analysis_tree(self, board: chess.Board, ply: int) -> PositionNode | None:  # noqa: C901
-        """Recursively build the analysis tree."""
+        if not is_new:
+            # The event loop will pause THIS branch and run another branch
+            # until the result is ready. No thread is blocked.
+            cached_node = await future
+
+            if cached_node:
+                skipped_work = calculate_subtree_size(
+                    ply,
+                    self.cfg.analysis_depth_ply,
+                    self.cfg.num_top_moves_per_ply,
+                )
+                self._update_pbar(skipped_work)
+            return cached_node
+
+        # We are the producer. We must fulfill the future.
+        try:
+            result = await self._compute_node(board, ply)
+            future.set_result(result)
+            return result
+        except Exception as e:
+            future.set_exception(e)
+            raise e
+
+    async def _compute_node(self, board: chess.Board, ply: int) -> PositionNode | None:
+        """The heavy lifting (Analysis + Recursion)"""
         if ply >= self.cfg.analysis_depth_ply:
             return None
 
-        # Update progress bar for this position
-        self.progress_bar.update(1)
-        candidates = self._get_candidates(board, ply)
+        # 2. Acquire Engine (Yields if all engines busy)
+        engine = await self.engine_manager.get_engine()
+        try:
+            candidates = await self._get_candidates(engine, board, ply)
+            self._update_pbar(1)
+        finally:
+            await self.engine_manager.return_engine(engine)
 
-        # Handle no legal moves (checkmate or stalemate)
         if not candidates:
             return None
 
-        # Process the current position
         current_candidate = candidates[0]
         pv_moves = current_candidate.get("pv", [])
         if not pv_moves:
             return None
 
-        # For non-root positions, get the move that led here
         current_move = pv_moves[0].uci() if ply > 0 else "root"
 
-        # Get the score from the engine analysis
         if (score := current_candidate.get("score")) is None:
-            raise RuntimeError("Failed to get score from engine analysis")
+            raise RuntimeError("Failed to get score")
         cpl_val, mate_val = self._compute_eval(score)
 
-        # Check if this is a terminal position
+        # Termination Check
         is_terminal = (
             ply >= self.cfg.analysis_depth_ply
             or mate_val is not None
             or (cpl_val is not None and abs(cpl_val) >= self.cfg.balanced_threshold)
         )
 
-        # Update progress bar for pruned nodes
-        # If terminal but not at max depth, count pruned nodes
         if is_terminal and ply < self.cfg.analysis_depth_ply:
-            # Calculate the size of the pruned subtree starting from next ply
-            # Multiply by number of candidates since each candidate would have its own subtree
             pruned_nodes = len(candidates) * calculate_subtree_size(
                 ply + 1,
                 self.cfg.analysis_depth_ply,
                 self.cfg.num_top_moves_per_ply,
             )
             if pruned_nodes > 0:
-                self.progress_bar.update(pruned_nodes)
-                self.progress_bar.refresh()  # Force update
+                self._update_pbar(pruned_nodes)
 
-        # Build children if not terminal
+        # 3. Async Recursion (Gather)
         children = []
         if not is_terminal:
+            child_tasks = []
             for candidate in candidates:
-                pv_moves = candidate.get("pv", [])
-                if not pv_moves:
+                pv = candidate.get("pv", [])
+                if not pv:
                     continue
 
                 new_board = board.copy()
-                new_board.push(pv_moves[0])
-                child_node = self._build_analysis_tree(new_board, ply + 1)
-                if child_node:
-                    children.append(child_node)
+                new_board.push(pv[0])
 
-        # Principal variation handling
+                # Schedule child analysis
+                child_tasks.append(self._analyze_node(new_board, ply + 1))
+
+            # Run all children concurrently
+            # This allows the tree to expand horizontally effectively
+            results = await asyncio.gather(*child_tasks)
+            children = [r for r in results if r is not None]
+
         pv = None
         if ply == 0 or not self.only_terminal_pv or is_terminal:
             pv = [move.uci() for move in current_candidate.get("pv", [])]
@@ -131,19 +228,11 @@ class RecursiveEngineAnalyzer:
             analysis=PositionAnalysis(cpl=cpl_val, mate=mate_val, pv=pv),
         )
 
-    def analyse(
-        self,
-    ) -> AnalysisTree:
-        """Perform complete position analysis."""
-        analysis_tree = self._build_analysis_tree(self.board.copy(), 0)
-
-        # Close progress bar
-        self.progress_bar.close()
-
-        if analysis_tree is None:
-            raise RuntimeError("Failed to analyze position: no valid moves found")
-
-        return analysis_tree
+    async def analyse(self) -> AnalysisTree:
+        try:
+            return await self._analyze_node(self.root_board.copy(), 0)
+        finally:
+            self.progress_bar.close()
 
 
 def analyse_dfrc_position(
@@ -152,17 +241,14 @@ def analyse_dfrc_position(
     *,
     verbose: bool = False,
 ) -> AnalysisTree:
-    """Perform analysis on a Chess960 position given by unique IDs."""
     chess_engine_logger = logging.getLogger("chess.engine")
     chess_engine_logger.setLevel(logging.DEBUG if verbose else logging.WARNING)
 
-    # Get the Chess960 position
     white, black = (
         get_chess960_position(params.white_id),
         get_chess960_position(params.black_id),
     )
 
-    # Initialize the chess board
     board = chess.Board(chess960=True)
     board.set_fen(
         f"{black.lower()}/pppppppp/8/8/8/8/PPPPPPPP/{white.upper()} w - - 0 1",
@@ -171,33 +257,34 @@ def analyse_dfrc_position(
         f"Analyzing position: {params.white_id=} {params.black_id=}\n{board.fen()}",
     )
 
-    # Load the analysis configuration
     cfg = load_config(params.cfg_id)
 
-    # Initialize the Stockfish engine
-    engine = chess.engine.SimpleEngine.popen_uci(engine_path)
-    logger.info(f"{engine.id=}")
-    if (stockfish_version := engine.id["name"]) != f"Stockfish {cfg.stockfish_version}":
-        raise ValueError(
-            f"Invalid Stockfish version: {stockfish_version} was used, but Stockfish {cfg.stockfish_version} is required",
+    # Engine options
+    options = {"Threads": 1, "Hash": params.hash}
+
+    # Async Setup
+    async def run_async_analysis() -> AnalysisTree:
+        tt = AsyncTranspositionTable()
+        engine_manager = AsyncEngineManager(
+            engine_path,
+            options,
+            max_engines=params.threads,
         )
 
-    # Stockfish settings
-    engine.configure({"Threads": params.threads, "Hash": params.hash})
-    logger.info(f"{params.threads=} {params.hash=}")
+        analyzer = AsyncRecursiveAnalyzer(
+            root_board=board,
+            engine_manager=engine_manager,
+            cfg=cfg,
+            tt=tt,
+        )
 
-    # Initialize the RecursiveEngineAnalyzer
-    analyzer = RecursiveEngineAnalyzer(board=board, engine=engine, cfg=cfg)
+        try:
+            return await analyzer.analyse()
+        finally:
+            await engine_manager.cleanup()
 
-    # Perform analysis
-    tree = analyzer.analyse()
-    logger.info(
-        f"Analysis complete for position: {params.white_id=} {params.black_id=}\n{board.fen()}",
-    )
-    # Close the engine
-    engine.quit()
-
-    return tree
+    # Entry point for the asyncio event loop
+    return asyncio.run(run_async_analysis())
 
 
 if __name__ == "__main__":
@@ -212,7 +299,7 @@ if __name__ == "__main__":
         hash=4096,
     )
 
-    print(f"--- Starting User Script Analysis ---")
+    logger.info("--- Starting User Script Analysis ---")
     start_time = time.perf_counter()
 
     # Run analysis
@@ -227,6 +314,6 @@ if __name__ == "__main__":
           Analysis tree:
             {tree}
           """)
-    print(f"-------------------------")
-    print(f"Execution Time: {duration:.4f} seconds")
-    print(f"-------------------------")
+    logger.info("-------------------------")
+    logger.info(f"Execution Time: {duration:.4f} seconds")
+    logger.info("-------------------------")
