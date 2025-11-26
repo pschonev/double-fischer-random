@@ -60,6 +60,9 @@ class RecursiveEngineAnalyzer:
 
     def _build_analysis_tree(self, board: chess.Board, ply: int) -> PositionNode | None:  # noqa: C901
         """Recursively build the analysis tree."""
+        if ply >= self.cfg.analysis_depth_ply:
+            return None
+
         # Update progress bar for this position
         self.progress_bar.update(1)
         candidates = self._get_candidates(board, ply)
@@ -198,19 +201,32 @@ def analyse_dfrc_position(
 
 
 if __name__ == "__main__":
+    import time
+
+    # Setup parameters
     params = AnalysisParams(
-        white_id=0,
+        white_id=0,  # Standard Chess
         black_id=0,
-        cfg_id="XS",
-        threads=6,
+        cfg_id="XS",  # Ensure this config matches the depth/width below!
+        threads=8,
         hash=4096,
     )
-    tree = analyse_dfrc_position(
-        params=params,
-    )
+
+    print(f"--- Starting User Script Analysis ---")
+    start_time = time.perf_counter()
+
+    # Run analysis
+    tree = analyse_dfrc_position(params=params, verbose=False)
+
+    end_time = time.perf_counter()
+    duration = end_time - start_time
+
     logger.info(f"""
           -------------------------
 
           Analysis tree:
             {tree}
           """)
+    print(f"-------------------------")
+    print(f"Execution Time: {duration:.4f} seconds")
+    print(f"-------------------------")
