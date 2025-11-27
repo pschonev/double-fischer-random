@@ -22,7 +22,6 @@ AnalysisTree = PositionNode
 logger = logging.getLogger(__name__)
 
 # Decorate the imported utility with LRU cache.
-# Note: Callers must now pass hashable arguments (e.g., tuples instead of lists).
 calculate_subtree_size = functools.lru_cache(maxsize=2048)(calculate_subtree_size)
 
 
@@ -38,12 +37,10 @@ class AsyncTranspositionTable:
     def get_future(self, key: int) -> tuple[asyncio.Future[PositionNode], bool]:
         """
         Returns (Future, is_new).
-        Key is now a 64-bit integer (Zobrist Hash).
         """
         if key in self._cache:
             return self._cache[key], False
 
-        # Create a new future bound to the current loop
         future = asyncio.Future()
         self._cache[key] = future
         return future, True
@@ -52,7 +49,6 @@ class AsyncTranspositionTable:
 class AsyncEngineManager:
     """
     Manages the lifecycle of async chess engines.
-    Uses a Semaphore to ensure we never exceed N concurrent engines.
     """
 
     def __init__(self, engine_path: str, options: dict, max_engines: int) -> None:
@@ -62,28 +58,19 @@ class AsyncEngineManager:
         self._engines_stack: list[chess.engine.Protocol] = []
 
     async def get_engine(self) -> chess.engine.Protocol:
-        """
-        Acquires a permit (Semaphore) and provides an engine.
-        If an engine is idle in the stack, reuse it.
-        Otherwise, spawn a new one (up to max_engines).
-        """
         await self.semaphore.acquire()
-
         if self._engines_stack:
             return self._engines_stack.pop()
 
-        # Spawn a new engine process
         _, engine = await chess.engine.popen_uci(self.engine_path)
         await engine.configure(self.options)
         return engine
 
     async def return_engine(self, engine: chess.engine.Protocol) -> None:
-        """Returns engine to the stack and releases semaphore."""
         self._engines_stack.append(engine)
         self.semaphore.release()
 
     async def cleanup(self) -> None:
-        """Quit all cached engines."""
         if self._engines_stack:
             await asyncio.gather(*(engine.quit() for engine in self._engines_stack))
 
@@ -98,10 +85,6 @@ class AsyncRecursiveAnalyzer:
 
     @functools.cached_property
     def max_positions(self) -> int:
-        """
-        Calculates the total tree size.
-        Cached because it is computationally expensive and constant for this config.
-        """
         return calculate_subtree_size(
             0,
             self.cfg.analysis_depth_ply,
@@ -110,20 +93,16 @@ class AsyncRecursiveAnalyzer:
 
     @functools.cached_property
     def progress_bar(self) -> tqdm:
-        """
-        Lazy-loaded progress bar.
-        Only appears in stdout when .analyse() first accesses it.
-        """
         return tqdm(total=self.max_positions, desc="Analyzing positions")
 
     def _update_pbar(self, amount: int) -> None:
-        # Tqdm is not async-aware, but updating from the main thread is safe.
         self.progress_bar.update(amount)
 
-    def _compute_eval(
+    def _extract_eval(
         self,
         score: chess.engine.PovScore,
     ) -> tuple[int | None, int | None]:
+        """Helper to extract (centipawns, mate) from a score object relative to White."""
         cp_val = score.white().score()
         return (cp_val, None) if cp_val is not None else (None, score.white().mate())
 
@@ -133,7 +112,6 @@ class AsyncRecursiveAnalyzer:
         board: chess.Board,
         ply: int,
     ) -> list[chess.engine.InfoDict]:
-        """Async wrapper for engine analysis."""
         return await engine.analyse(
             board,
             chess.engine.Limit(depth=self.cfg.stockfish_depth_per_ply[ply]),
@@ -141,35 +119,72 @@ class AsyncRecursiveAnalyzer:
             info=chess.engine.INFO_SCORE | chess.engine.INFO_PV,
         )
 
-    async def _analyze_node(self, board: chess.Board, ply: int) -> PositionNode | None:
-        # OPTIMIZATION: Zobrist Hash (int) instead of FEN (str)
+    async def _analyze_node(
+        self,
+        board: chess.Board,
+        ply: int,
+        incoming_move: str = "root",
+        incoming_analysis: PositionAnalysis | None = None,
+    ) -> PositionNode | None:
+        """
+        Main recursive entry point.
+        1. Checks recursion depth (Leaf logic).
+        2. Checks Cache (Transposition Table).
+        3. Computes Node (Engine analysis).
+        """
+
+        # --- 1. Leaf Handling ---
+        # If we reached the depth limit, we stop expansion.
+        # We return a node based on the data passed down from the parent.
+        if ply >= self.cfg.analysis_depth_ply:
+            return PositionNode(
+                move=incoming_move,
+                children=[],
+                # Use the analysis passed from parent (e.g. static eval from previous ply)
+                analysis=incoming_analysis
+                or PositionAnalysis(cpl=None, mate=None, pv=None),
+            )
+
+        # --- 2. Cache Lookup ---
         board_hash = chess.polyglot.zobrist_hash(board)
+        # We include ply in cache key conceptualization implicitly, but strictly
+        # a position is a position. However, if we hit it at different depths,
+        # we might want to be careful. For simplicity, we assume same-ply hits here.
         future, is_new = self.tt.get_future(board_hash)
 
         if not is_new:
             cached_node = await future
             if cached_node:
-                # FIX: Convert list to tuple for cache lookup
+                # If we hit cache, we technically skip the computation of this subtree
                 skipped_work = calculate_subtree_size(
                     ply,
                     self.cfg.analysis_depth_ply,
                     tuple(self.cfg.num_top_moves_per_ply),
                 )
                 self._update_pbar(skipped_work)
-            return cached_node
 
+                # Return a copy/reference, but likely update the 'move' to match current path
+                # if the user cares about path-consistency.
+                # For now, returning the cached object is standard TT behavior.
+                return cached_node
+
+        # --- 3. Compute Node ---
         try:
-            result = await self._compute_node(board, ply)
+            result = await self._compute_node(board, ply, incoming_move)
             future.set_result(result)
             return result
         except Exception as e:
             future.set_exception(e)
             raise e
 
-    async def _compute_node(self, board: chess.Board, ply: int) -> PositionNode | None:
-        if ply >= self.cfg.analysis_depth_ply:
-            return None
+    async def _compute_node(
+        self, board: chess.Board, ply: int, node_move: str
+    ) -> PositionNode | None:
+        """
+        Runs the engine, determines children, and recursively calls _analyze_node.
+        """
 
+        # Run Engine
         engine = await self.engine_manager.get_engine()
         try:
             candidates = await self._get_candidates(engine, board, ply)
@@ -180,63 +195,93 @@ class AsyncRecursiveAnalyzer:
         if not candidates:
             return None
 
-        current_candidate = candidates[0]
-        pv_moves = current_candidate.get("pv", [])
-        if not pv_moves:
-            return None
+        # Best move logic (for analysis display of THIS node)
+        best_candidate = candidates[0]
 
-        current_move = pv_moves[0].uci() if ply > 0 else "root"
+        # Safety check for score
+        if (score := best_candidate.get("score")) is None:
+            raise RuntimeError(f"Failed to get score at ply {ply}")
 
-        if (score := current_candidate.get("score")) is None:
-            raise RuntimeError("Failed to get score")
-        cpl_val, mate_val = self._compute_eval(score)
+        cpl_val, mate_val = self._extract_eval(score)
 
-        is_terminal = (
-            ply >= self.cfg.analysis_depth_ply
-            or mate_val is not None
-            or (cpl_val is not None and abs(cpl_val) >= self.cfg.balanced_threshold)
+        # Determine PV for this node
+        pv_moves = [m.uci() for m in best_candidate.get("pv", [])]
+
+        # --- Terminal Logic ---
+        # Check if we should stop expanding due to game-over or eval threshold
+        is_terminal = mate_val is not None or (
+            cpl_val is not None and abs(cpl_val) >= self.cfg.balanced_threshold
         )
 
+        # If we are pruning early (before max depth), account for skipped nodes in progress bar
         if is_terminal and ply < self.cfg.analysis_depth_ply:
-            # FIX: Convert list to tuple for cache lookup
             subtree_size = calculate_subtree_size(
                 ply + 1,
                 self.cfg.analysis_depth_ply,
                 tuple(self.cfg.num_top_moves_per_ply),
             )
+            # We prune all candidates' branches
             pruned_nodes = len(candidates) * subtree_size
             if pruned_nodes > 0:
                 self._update_pbar(pruned_nodes)
 
         children = []
+
+        # --- Recursive Expansion ---
         if not is_terminal:
             child_tasks = []
             for candidate in candidates:
-                pv = candidate.get("pv", [])
-                if not pv:
+                cand_pv = candidate.get("pv", [])
+                if not cand_pv:
                     continue
 
-                # OPTIMIZATION: Efficient Copying (stack=False)
-                new_board = board.copy(stack=False)
-                new_board.push(pv[0])
-                child_tasks.append(self._analyze_node(new_board, ply + 1))
+                move_obj = cand_pv[0]
+                move_uci = move_obj.uci()
 
+                # Extract score for the child to pass down
+                child_cpl, child_mate = None, None
+                if child_score := candidate.get("score"):
+                    child_cpl, child_mate = self._extract_eval(child_score)
+
+                child_analysis = PositionAnalysis(
+                    cpl=child_cpl, mate=child_mate, pv=None
+                )
+
+                # Create next board state
+                new_board = board.copy(stack=False)
+                new_board.push(move_obj)
+
+                # Recurse: Pass the move and the analysis we just found
+                child_tasks.append(
+                    self._analyze_node(
+                        new_board,
+                        ply + 1,
+                        incoming_move=move_uci,
+                        incoming_analysis=child_analysis,
+                    )
+                )
+
+            # Gather results
             results = await asyncio.gather(*child_tasks)
             children = [r for r in results if r is not None]
 
-        pv = None
-        if ply == 0 or not self.only_terminal_pv or is_terminal:
-            pv = [move.uci() for move in current_candidate.get("pv", [])]
-
+        # Construct final node
+        # Note: We use node_move (passed in) as the identifier for this node
         return PositionNode(
-            move=current_move,
+            move=node_move,
             children=children,
-            analysis=PositionAnalysis(cpl=cpl_val, mate=mate_val, pv=pv),
+            analysis=PositionAnalysis(cpl=cpl_val, mate=mate_val, pv=pv_moves),
         )
 
     async def analyse(self) -> AnalysisTree:
         try:
-            return await self._analyze_node(self.root_board.copy(stack=False), 0)
+            # Root call
+            return await self._analyze_node(
+                self.root_board.copy(stack=False),
+                0,
+                incoming_move="root",
+                incoming_analysis=None,
+            )
         finally:
             self.progress_bar.close()
 
@@ -247,7 +292,6 @@ def analyse_dfrc_position(
     *,
     verbose: bool = False,
 ) -> AnalysisTree:
-    # OPTIMIZATION: Enforce uvloop policy
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
     chess_engine_logger = logging.getLogger("chess.engine")
@@ -297,9 +341,9 @@ if __name__ == "__main__":
 
     # Setup parameters
     params = AnalysisParams(
-        white_id=0,  # Standard Chess
+        white_id=0,
         black_id=0,
-        cfg_id="XS",  # Ensure this config matches the depth/width below!
+        cfg_id="XS",
         threads=8,
         hash=4096,
     )
@@ -315,7 +359,6 @@ if __name__ == "__main__":
 
     logger.info(f"""
           -------------------------
-
           Analysis tree:
             {tree}
           """)
