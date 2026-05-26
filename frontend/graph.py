@@ -20,7 +20,7 @@ app = marimo.App(width="columns")
 @app.cell(column=0)
 def _():
     from graphviz_anywidget import graphviz_widget_simple
-    return (graphviz_widget_simple,)
+    return
 
 
 @app.cell
@@ -193,7 +193,7 @@ def _():
     dot_source = node_to_dot_source(tree, root_is_white=True)
 
     # 3. Display (Uncomment the import and widget call in your notebook)
-    return PositionNode, dot_source, node_to_dot_source, tree
+    return PositionNode, node_to_dot_source, tree
 
 
 @app.cell
@@ -344,13 +344,6 @@ def _():
 
 
 @app.cell(column=1)
-def _(dot_source, graphviz_widget_simple):
-    widget = graphviz_widget_simple(dot_source)
-    widget
-    return
-
-
-@app.cell
 def _(mo, node_to_mermaid, tree):
     # Usage
     mermaid_source = node_to_mermaid(tree)

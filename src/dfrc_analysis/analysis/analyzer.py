@@ -1,7 +1,7 @@
 import asyncio
 import functools
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 import chess
 import chess.engine
@@ -11,7 +11,6 @@ from tqdm import tqdm
 
 from dfrc_analysis.analysis.config import AnalysisConfig, load_config
 from dfrc_analysis.analysis.results import (
-    AnalysisParams,
     PositionAnalysis,
     PositionNode,
 )
@@ -23,6 +22,15 @@ logger = logging.getLogger(__name__)
 
 # Decorate the imported utility with LRU cache.
 calculate_subtree_size = functools.lru_cache(maxsize=2048)(calculate_subtree_size)
+
+
+def count_nodes(node: PositionNode) -> int:
+    """Recursively counts the total number of nodes in a PositionNode tree."""
+    count = 1  # Count the current node
+    if node.children:
+        for child in node.children:
+            count += count_nodes(child)
+    return count
 
 
 class AsyncTranspositionTable:
@@ -77,7 +85,7 @@ class AsyncEngineManager:
 
 @dataclass
 class AsyncRecursiveAnalyzer:
-    root_board: chess.Board
+    root_boards: list[chess.Board]
     engine_manager: AsyncEngineManager
     cfg: AnalysisConfig
     tt: AsyncTranspositionTable
@@ -85,15 +93,20 @@ class AsyncRecursiveAnalyzer:
 
     @functools.cached_property
     def max_positions(self) -> int:
-        return calculate_subtree_size(
+        single_tree_size = calculate_subtree_size(
             0,
             self.cfg.analysis_depth_ply,
             tuple(self.cfg.num_top_moves_per_ply),
         )
+        return single_tree_size * len(self.root_boards)
 
     @functools.cached_property
     def progress_bar(self) -> tqdm:
-        return tqdm(total=self.max_positions, desc="Analyzing positions")
+        return tqdm(
+            total=self.max_positions,
+            desc=f"Analyzing {len(self.root_boards)} positions",
+            unit="node",
+        )
 
     def _update_pbar(self, amount: int) -> None:
         self.progress_bar.update(amount)
@@ -123,54 +136,40 @@ class AsyncRecursiveAnalyzer:
         self,
         board: chess.Board,
         ply: int,
+        tree_index: int,
         incoming_move: str = "root",
         incoming_analysis: PositionAnalysis | None = None,
     ) -> PositionNode | None:
         """
         Main recursive entry point.
-        1. Checks recursion depth (Leaf logic).
-        2. Checks Cache (Transposition Table).
-        3. Computes Node (Engine analysis).
         """
-
         # --- 1. Leaf Handling ---
-        # If we reached the depth limit, we stop expansion.
-        # We return a node based on the data passed down from the parent.
         if ply >= self.cfg.analysis_depth_ply:
             return PositionNode(
                 move=incoming_move,
                 children=[],
-                # Use the analysis passed from parent (e.g. static eval from previous ply)
                 analysis=incoming_analysis
                 or PositionAnalysis(cpl=None, mate=None, pv=None),
             )
 
         # --- 2. Cache Lookup ---
         board_hash = chess.polyglot.zobrist_hash(board)
-        # We include ply in cache key conceptualization implicitly, but strictly
-        # a position is a position. However, if we hit it at different depths,
-        # we might want to be careful. For simplicity, we assume same-ply hits here.
         future, is_new = self.tt.get_future(board_hash)
 
         if not is_new:
             cached_node = await future
             if cached_node:
-                # If we hit cache, we technically skip the computation of this subtree
                 skipped_work = calculate_subtree_size(
                     ply,
                     self.cfg.analysis_depth_ply,
                     tuple(self.cfg.num_top_moves_per_ply),
                 )
                 self._update_pbar(skipped_work)
-
-                # Return a copy/reference, but likely update the 'move' to match current path
-                # if the user cares about path-consistency.
-                # For now, returning the cached object is standard TT behavior.
                 return cached_node
 
         # --- 3. Compute Node ---
         try:
-            result = await self._compute_node(board, ply, incoming_move)
+            result = await self._compute_node(board, ply, tree_index, incoming_move)
             future.set_result(result)
             return result
         except Exception as e:
@@ -178,12 +177,15 @@ class AsyncRecursiveAnalyzer:
             raise e
 
     async def _compute_node(
-        self, board: chess.Board, ply: int, node_move: str
+        self,
+        board: chess.Board,
+        ply: int,
+        tree_index: int,
+        node_move: str,
     ) -> PositionNode | None:
         """
         Runs the engine, determines children, and recursively calls _analyze_node.
         """
-
         # Run Engine
         engine = await self.engine_manager.get_engine()
         try:
@@ -195,32 +197,35 @@ class AsyncRecursiveAnalyzer:
         if not candidates:
             return None
 
-        # Best move logic (for analysis display of THIS node)
         best_candidate = candidates[0]
 
-        # Safety check for score
         if (score := best_candidate.get("score")) is None:
             raise RuntimeError(f"Failed to get score at ply {ply}")
 
         cpl_val, mate_val = self._extract_eval(score)
-
-        # Determine PV for this node
         pv_moves = [m.uci() for m in best_candidate.get("pv", [])]
 
+        # --- Logging ---
+        # Format score for display
+        score_str = f"M{mate_val}" if mate_val is not None else f"{cpl_val:+d}"
+        best_move_uci = pv_moves[0] if pv_moves else "none"
+
+        # Send info to tqdm
+        self.progress_bar.write(
+            f"Tree #{tree_index} | Ply {ply} | {node_move:<5} -> {best_move_uci:<5} ({score_str})",
+        )
+
         # --- Terminal Logic ---
-        # Check if we should stop expanding due to game-over or eval threshold
         is_terminal = mate_val is not None or (
             cpl_val is not None and abs(cpl_val) >= self.cfg.balanced_threshold
         )
 
-        # If we are pruning early (before max depth), account for skipped nodes in progress bar
         if is_terminal and ply < self.cfg.analysis_depth_ply:
             subtree_size = calculate_subtree_size(
                 ply + 1,
                 self.cfg.analysis_depth_ply,
                 tuple(self.cfg.num_top_moves_per_ply),
             )
-            # We prune all candidates' branches
             pruned_nodes = len(candidates) * subtree_size
             if pruned_nodes > 0:
                 self._update_pbar(pruned_nodes)
@@ -238,91 +243,97 @@ class AsyncRecursiveAnalyzer:
                 move_obj = cand_pv[0]
                 move_uci = move_obj.uci()
 
-                # Extract score for the child to pass down
                 child_cpl, child_mate = None, None
                 if child_score := candidate.get("score"):
                     child_cpl, child_mate = self._extract_eval(child_score)
 
                 child_analysis = PositionAnalysis(
-                    cpl=child_cpl, mate=child_mate, pv=None
+                    cpl=child_cpl,
+                    mate=child_mate,
+                    pv=None,
                 )
 
-                # Create next board state
                 new_board = board.copy(stack=False)
                 new_board.push(move_obj)
 
-                # Recurse: Pass the move and the analysis we just found
                 child_tasks.append(
                     self._analyze_node(
                         new_board,
                         ply + 1,
+                        tree_index=tree_index,  # Pass identity down
                         incoming_move=move_uci,
                         incoming_analysis=child_analysis,
-                    )
+                    ),
                 )
 
-            # Gather results
             results = await asyncio.gather(*child_tasks)
             children = [r for r in results if r is not None]
 
-        # Construct final node
-        # Note: We use node_move (passed in) as the identifier for this node
         return PositionNode(
             move=node_move,
             children=children,
             analysis=PositionAnalysis(cpl=cpl_val, mate=mate_val, pv=pv_moves),
         )
 
-    async def analyse(self) -> AnalysisTree:
+    async def analyse(self) -> list[AnalysisTree]:
+        self._update_pbar(0)
         try:
-            # Root call
-            return await self._analyze_node(
-                self.root_board.copy(stack=False),
-                0,
-                incoming_move="root",
-                incoming_analysis=None,
-            )
+            root_tasks = []
+            # Pass the index (i) as the tree identifier
+            for i, board in enumerate(self.root_boards):
+                task = self._analyze_node(
+                    board.copy(stack=False),
+                    0,
+                    tree_index=i,
+                    incoming_move="root",
+                    incoming_analysis=None,
+                )
+                root_tasks.append(task)
+
+            results = await asyncio.gather(*root_tasks)
+            return [r for r in results if r is not None]
         finally:
             self.progress_bar.close()
 
 
-def analyse_dfrc_position(
-    params: AnalysisParams,
+def analyse_dfrc_batch(
+    positions: list[tuple[int, int]],
+    cfg_id: str,
+    threads: int,
+    hash_size: int,
     engine_path: str = "stockfish",
-    *,
     verbose: bool = False,
-) -> AnalysisTree:
+) -> list[AnalysisTree]:
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
     chess_engine_logger = logging.getLogger("chess.engine")
     chess_engine_logger.setLevel(logging.DEBUG if verbose else logging.WARNING)
 
-    white, black = (
-        get_chess960_position(params.white_id),
-        get_chess960_position(params.black_id),
-    )
+    boards = []
+    for white_id, black_id in positions:
+        w_fen = get_chess960_position(white_id)
+        b_fen = get_chess960_position(black_id)
+        board = chess.Board(chess960=True)
+        board.set_fen(
+            f"{b_fen.lower()}/pppppppp/8/8/8/8/PPPPPPPP/{w_fen.upper()} w - - 0 1",
+        )
+        boards.append(board)
 
-    board = chess.Board(chess960=True)
-    board.set_fen(
-        f"{black.lower()}/pppppppp/8/8/8/8/PPPPPPPP/{white.upper()} w - - 0 1",
-    )
-    logger.info(
-        f"Analyzing position: {params.white_id=} {params.black_id=}\n{board.fen()}",
-    )
+    logger.info(f"Preparing batch analysis for {len(boards)} positions...")
 
-    cfg = load_config(params.cfg_id)
-    options = {"Threads": 1, "Hash": params.hash}
+    cfg = load_config(cfg_id)
+    options = {"Threads": 1, "Hash": hash_size}
 
-    async def run_async_analysis() -> AnalysisTree:
+    async def run_async_analysis() -> list[AnalysisTree]:
         tt = AsyncTranspositionTable()
         engine_manager = AsyncEngineManager(
             engine_path,
             options,
-            max_engines=params.threads,
+            max_engines=threads,
         )
 
         analyzer = AsyncRecursiveAnalyzer(
-            root_board=board,
+            root_boards=boards,
             engine_manager=engine_manager,
             cfg=cfg,
             tt=tt,
@@ -339,29 +350,42 @@ def analyse_dfrc_position(
 if __name__ == "__main__":
     import time
 
-    # Setup parameters
-    params = AnalysisParams(
-        white_id=0,
-        black_id=0,
-        cfg_id="XS",
-        threads=8,
-        hash=4096,
-    )
+    logging.basicConfig(level=logging.INFO)
 
-    logger.info("--- Starting User Script Analysis ---")
+    # Configuration
+    BATCH_SIZE = 8
+    batch_positions = [(i, i) for i in range(BATCH_SIZE)]
+
+    CFG_ID = "XS"
+    THREADS = 8
+    HASH_SIZE = 256
+
+    logger.info("--- Starting Batch Analysis ---")
     start_time = time.perf_counter()
 
-    # Run analysis
-    tree = analyse_dfrc_position(params=params, verbose=False)
+    trees = analyse_dfrc_batch(
+        positions=batch_positions,
+        cfg_id=CFG_ID,
+        threads=THREADS,
+        hash_size=HASH_SIZE,
+        verbose=False,
+    )
 
     end_time = time.perf_counter()
     duration = end_time - start_time
 
-    logger.info(f"""
-          -------------------------
-          Analysis tree:
-            {tree}
-          """)
     logger.info("-------------------------")
-    logger.info(f"Execution Time: {duration:.4f} seconds")
+    logger.info(f"Batch complete. Processed {len(trees)} trees in {duration:.4f}s")
+    logger.info("-------------------------")
+
+    for i, tree in enumerate(trees):
+        node_count = count_nodes(tree)
+        root_children = []
+        if tree.children:
+            root_children = [child.move for child in tree.children]
+
+        logger.info(
+            f"Tree #{i:<2} | Nodes: {node_count:<5} | Root Children: {root_children}",
+        )
+
     logger.info("-------------------------")
